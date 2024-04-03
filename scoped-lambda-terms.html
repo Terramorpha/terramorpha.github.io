@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<head>
+<!-- 2024-04-03 Wed 00:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Well scoped lambda terms</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Well scoped lambda terms</h1>
+<p>
+In (Scott, Phil and Obua, Steven and Fleuriot, Jacques, 2017), I stumbled upon the following type declarations<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Var</span> a <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Z</span> <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">S</span> a
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Show</span>, <span style="color: #531ab6; font-weight: bold;">Functor</span>)
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t a <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">V</span> a
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Abs</span> (<span style="color: #531ab6; font-weight: bold;">Term</span> t (<span style="color: #531ab6; font-weight: bold;">Var</span> a))
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Fix</span> (<span style="color: #531ab6; font-weight: bold;">Term</span> t (<span style="color: #531ab6; font-weight: bold;">Var</span> a))
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">App</span> (<span style="color: #531ab6; font-weight: bold;">Term</span> t a) (<span style="color: #531ab6; font-weight: bold;">Term</span> t a)
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Prim</span> (t (<span style="color: #531ab6; font-weight: bold;">Term</span> t a))
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span>)
+</pre>
+</div>
+
+<p>
+This made me finally understand the "Syntax is an endofunctor on the category of
+substitutions" point of view. In this post, I will try to condense as much as
+possible the parts I would have needed to understand it sooner.
+</p>
+<div id="outline-container-orgad094b0" class="outline-2">
+<h2 id="orgad094b0"><span class="section-number-2">1.</span> The anatomy of the term</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This datatype defines the syntax of well-scoped untyped &lambda;-calculus terms where
+the free variables live in an alphabet \( a \) and primitive values come from a
+\( t \) functor.
+</p>
+
+<p>
+The weird constructor was interesting to me,
+because it is strangely similar to how the free monad is usually defined:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Free</span> f x <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Pure</span> x
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">In</span> (f (<span style="color: #531ab6; font-weight: bold;">Free</span> f x))
+</pre>
+</div>
+
+<p>
+This is probably not a coincidence, because the goal of this constructor is to
+let a user extend the language with new (possibly recursive) terms. This is
+similar to one usecase of free monads: building syntax trees to be evaluated
+later.
+</p>
+</div>
+</div>
+<div id="outline-container-org681837c" class="outline-2">
+<h2 id="org681837c"><span class="section-number-2">2.</span> Renaming and substitution</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+One interesting fact about this presentation of &lambda;-terms is the fact that the
+"renaming" operation that one will often see when dealing with &lambda;-calculus is
+simply the functorial action of on free variables:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">rename</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Functor</span> t <span style="color: #3548cf;">=&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t b
+<span style="color: #8f0075;">rename</span> <span style="color: #3548cf;">=</span> fmap
+</pre>
+</div>
+
+<p>
+At first glance(at least for me), this looks very incorrect. How could a simple
+<code>fmap</code> deal with the intricacies of correct renaming of (for instance) <code>Abs</code> terms?
+</p>
+
+<p>
+Let's say one has a(constant) renaming function \( r : \left\{ a \right\} \to
+\left\{ b \right\} \). Applying \( \text{fmap}(r) : \text{Term}(t, \left\{ a
+\right\} ) \to \text{Term}(t, \left\{ b \right\} ) \) on \( \lambda.\#0 \) would
+yield&#x2026; \( \lambda.\#0 \). This is exactly the correct behaviour. This works because
+is itself a functor(The <code>deriving</code> form reuses the <code>Functor Var</code>
+instance).
+</p>
+
+<p>
+Now that we know how to do renaming, let's do substitution.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">sub</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Functor</span> t <span style="color: #3548cf;">=&gt;</span> (v1 <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t v2) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t v1 <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t v2
+</pre>
+</div>
+
+<p>
+(The instance is necessary to consider itself a functor)
+</p>
+
+<p>
+The first few cases are easy to do
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">V</span> ref) <span style="color: #3548cf;">=</span> s ref
+<span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">App</span> a b) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">App</span> (sub s a) (sub s b)
+<span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">Prim</span> b) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Prim</span> (fmap (sub s) b)
+</pre>
+</div>
+
+<p>
+The harder ones are where we need to manage bound variables in 
+and terms. We need the usual function.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">Abs</span> body) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Abs</span> (sub (shiftSub s) body)
+<span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">Fix</span> body) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Fix</span> (sub (shiftSub s) body)
+</pre>
+</div>
+
+<p>
+This one lets us "lift" our substitution to a context with one more free
+variable.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">shiftSub</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Functor</span> t <span style="color: #3548cf;">=&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Var</span> a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t (<span style="color: #531ab6; font-weight: bold;">Var</span> b)
+<span style="color: #8f0075;">shiftSub</span> f <span style="color: #531ab6; font-weight: bold;">Z</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">Z</span>
+<span style="color: #8f0075;">shiftSub</span> f (<span style="color: #531ab6; font-weight: bold;">S</span> r) <span style="color: #3548cf;">=</span> rename <span style="color: #531ab6; font-weight: bold;">S</span> (f r)
+</pre>
+</div>
+
+<p>
+If we look back at the signature of our function. We notice it
+has (apart from the order of the arguments) the same shape as the
+operator. Indeed, we have a monad!
+</p>
+
+<p>
+If is our bind operator, we still need the .
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">termRet</span> <span style="color: #3548cf;">::</span> a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> t a
+<span style="color: #8f0075;">termRet</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">V</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc0fb435" class="outline-2">
+<h2 id="orgc0fb435"><span class="section-number-2">3.</span> An example</h2>
+<div class="outline-text-2" id="text-3">
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">Example</span>
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Null</span>
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> <span style="color: #531ab6; font-weight: bold;">Show</span>
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Empty</span> a
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Show</span>, <span style="color: #531ab6; font-weight: bold;">Functor</span>)
+
+<span style="color: #8f0075;">body</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Term</span> <span style="color: #531ab6; font-weight: bold;">Empty</span> (<span style="color: #531ab6; font-weight: bold;">Var</span> <span style="color: #531ab6; font-weight: bold;">Null</span>)
+<span style="color: #8f0075;">body</span> <span style="color: #3548cf;">=</span> (<span style="color: #531ab6; font-weight: bold;">App</span> (<span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">Z</span>) (<span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">Z</span>))
+
+<span style="color: #8f0075;">func</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Term</span> <span style="color: #531ab6; font-weight: bold;">Empty</span> <span style="color: #531ab6; font-weight: bold;">Null</span>
+<span style="color: #8f0075;">func</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Abs</span> body
+
+<span style="color: #8f0075;">x</span> <span style="color: #3548cf;">=</span> sub (const func) body
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0ea8622" class="outline-2">
+<h2 id="org0ea8622"><span class="section-number-2">4.</span> Show</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+If you want to experiment with this code, a <code>Show</code> instance will be useful
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> (<span style="color: #005e8b; font-weight: bold;">forall</span> x<span style="color: #3548cf;">.</span> <span style="color: #531ab6; font-weight: bold;">Show</span> x <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Show</span> (t x), <span style="color: #531ab6; font-weight: bold;">Show</span> a) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Show</span> (<span style="color: #531ab6; font-weight: bold;">Term</span> t a) <span style="color: #005e8b; font-weight: bold;">where</span>
+  show (<span style="color: #531ab6; font-weight: bold;">V</span> a) <span style="color: #3548cf;">=</span> show a
+  show (<span style="color: #531ab6; font-weight: bold;">Abs</span> b) <span style="color: #3548cf;">=</span> <span style="color: #a0132f;">"\\."</span> <span style="color: #3548cf;">++</span> show b
+  show (<span style="color: #531ab6; font-weight: bold;">Fix</span> b) <span style="color: #3548cf;">=</span> <span style="color: #a0132f;">"\\m."</span> <span style="color: #3548cf;">++</span> show b
+  show (<span style="color: #531ab6; font-weight: bold;">App</span> a b) <span style="color: #3548cf;">=</span> <span style="color: #a0132f;">"("</span><span style="color: #3548cf;">++</span>show a<span style="color: #3548cf;">++</span><span style="color: #a0132f;">","</span><span style="color: #3548cf;">++</span>show b<span style="color: #3548cf;">++</span><span style="color: #a0132f;">")"</span>
+  show (<span style="color: #531ab6; font-weight: bold;">Prim</span> b) <span style="color: #3548cf;">=</span> show b
+</pre>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Since, as we will se later, these objects are functors, I added <code>deriving</code>
+annotations.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Justin Veilleux</p>
+<p class="date">Created: 2024-04-03 Wed 00:20</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

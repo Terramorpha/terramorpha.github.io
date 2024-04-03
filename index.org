@@ -1,0 +1,12 @@
+:PROPERTIES:
+:ID:       b06c90e5-4e23-4833-bd0d-23a6b989e6e6
+:CREATED:  2024-04-03T00:21:48
+:END:
+#+TITLE: Sitemap for blog
+
+* [[id:df9ac546-8555-4c69-bb14-659a0b556f35][An explanation of higher order unification]]
+
+* [[file:scoped-lambda-terms.org][Well scoped lambda terms]]
+
+* [[file:guix.org][Guix: elevate your computing]]
+

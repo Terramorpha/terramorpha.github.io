@@ -1,0 +1,159 @@
+# -*- ispell-dictionary: "english" -*-
+:PROPERTIES:
+:ID:       6d25ece7-27de-4847-a5d8-a5586c72bc6f
+:CREATED:  2024-04-02T14:05:22
+:REFERRER:
+:END:
+#+title: Well scoped lambda terms
+#+LANGUAGE: english
+In [cite:@scott2017], I stumbled upon the following type declarations[fn:1]:
+
+#+begin_src haskell :exports none
+{-# LANGUAGE QuantifiedConstraints #-}
+#+end_src
+
+#+begin_src haskell
+data Var a = Z | S a
+  deriving (Show, Functor)
+
+data Term t a = V a
+  | Abs (Term t (Var a))
+  | Fix (Term t (Var a))
+  | App (Term t a) (Term t a)
+  | Prim (t (Term t a))
+  deriving (Functor)
+#+end_src
+
+This made me finally understand the "Syntax is an endofunctor on the category of
+substitutions" point of view. In this post, I will try to condense as much as
+possible the parts I would have needed to understand it sooner.
+
+[fn:1]Since, as we will se later, these objects are functors, I added ~deriving~
+annotations.
+
+* The anatomy of the term
+
+This datatype defines the syntax of well-scoped untyped \lambda-calculus terms where
+the free variables live in an alphabet \( a \) and primitive values come from a
+\( t \) functor.
+
+The weird src_haskell{Prim (t (Term t a))} constructor was interesting to me,
+because it is strangely similar to how the free monad is usually defined:
+
+#+begin_src haskell
+data Free f x = Pure x
+  | In (f (Free f x))
+#+end_src
+
+This is probably not a coincidence, because the goal of this constructor is to
+let a user extend the language with new (possibly recursive) terms. This is
+similar to one usecase of free monads: building syntax trees to be evaluated
+later.
+
+* Renaming and substitution
+
+One interesting fact about this presentation of \lambda-terms is the fact that the
+"renaming" operation that one will often see when dealing with \lambda-calculus is
+simply the functorial action of src_haskell{Term t} on free variables:
+
+#+begin_src haskell
+rename :: Functor t => (a -> b) -> Term t a -> Term t b
+rename = fmap
+#+end_src
+
+At first glance(at least for me), this looks very incorrect. How could a simple
+~fmap~ deal with the intricacies of correct renaming of (for instance) ~Abs~ terms?
+
+Let's say one has a(constant) renaming function \( r : \left\{ a \right\} \to
+\left\{ b \right\} \). Applying \( \text{fmap}(r) : \text{Term}(t, \left\{ a
+\right\} ) \to \text{Term}(t, \left\{ b \right\} ) \) on \( \lambda.\#0 \) would
+yield... \( \lambda.\#0 \). This is exactly the correct behaviour. This works because
+src_haskell{Var} is itself a functor(The ~deriving~ form reuses the ~Functor Var~
+instance).
+
+Now that we know how to do renaming, let's do substitution.
+
+#+begin_src haskell
+sub :: Functor t => (v1 -> Term t v2) -> Term t v1 -> Term t v2
+#+end_src
+
+(The src_haskell{Functor t} instance is necessary to consider src_haskell{Term
+t} itself a functor)
+
+The first few cases are easy to do
+
+#+begin_src haskell
+sub s (V ref) = s ref
+sub s (App a b) = App (sub s a) (sub s b)
+sub s (Prim b) = Prim (fmap (sub s) b)
+#+end_src
+
+The harder ones are where we need to manage bound variables in src_haskell{Abs}
+and src_haskell{Fix} terms. We need the usual src_haskell{shiftSub} function.
+
+#+begin_src haskell
+sub s (Abs body) = Abs (sub (shiftSub s) body)
+sub s (Fix body) = Fix (sub (shiftSub s) body)
+#+end_src
+
+This one lets us "lift" our substitution to a context with one more free
+variable.
+
+#+begin_src haskell
+shiftSub :: Functor t => (a -> Term t b) -> Var a -> Term t (Var b)
+shiftSub f Z = V Z
+shiftSub f (S r) = rename S (f r)
+#+end_src
+
+If we look back at the signature of our src_haskell{sub} function. We notice it
+has (apart from the order of the arguments) the same shape as the
+src_haskell{>>=} operator. Indeed, we have a monad!
+
+If src_haskell{sub} is our bind operator, we still need the src_haskell{return}.
+
+#+begin_src haskell
+termRet :: a -> Term t a
+termRet = V
+#+end_src
+
+* An example
+
+#+begin_src haskell
+-- Example
+
+data Null
+  deriving Show
+
+data Empty a
+  deriving (Show, Functor)
+
+body :: Term Empty (Var Null)
+body = (App (V Z) (V Z))
+
+func :: Term Empty Null
+func = Abs body
+
+x = sub (const func) body
+#+end_src
+
+* Show
+
+If you want to experiment with this code, a ~Show~ instance will be useful
+
+#+begin_src haskell
+instance (forall x. Show x => Show (t x), Show a) => Show (Term t a) where
+  show (V a) = show a
+  show (Abs b) = "\\." ++ show b
+  show (Fix b) = "\\m." ++ show b
+  show (App a b) = "("++show a++","++show b++")"
+  show (Prim b) = show b
+#+end_src
+
+* COMMENT Tangle this org document
+
+#+begin_src emacs-lisp
+(org-babel-tangle-file (buffer-file-name) "scoped-lambda-terms.hs" "haskell")
+#+end_src
+
+#+RESULTS:
+| /home/terramorpha/org-roam/blog/scoped-lambda-terms.hs |
