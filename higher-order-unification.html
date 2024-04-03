@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-03 Wed 01:34 -->
+<!-- 2024-04-03 Wed 01:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>An explanation of higher order unification</title>
@@ -634,6 +634,7 @@ Some pseudocode for this algorithm would be:
   <span style="color: #005e8b; font-weight: bold;">if</span> length fr <span style="color: #3548cf;">==</span> 0
     <span style="color: #005e8b; font-weight: bold;">then</span> return subs
     <span style="color: #005e8b; font-weight: bold;">else</span>
+    <span style="color: #005e8b; font-weight: bold;">let</span> fr <span style="color: #3548cf;">=</span> flexRigids <span style="color: #3548cf;">!!</span> 0
     oneSub <span style="color: #3548cf;">&lt;-</span> generateImitation fr <span style="color: #3548cf;">::</span> generateProjections fr
     hou (oneSub <span style="color: #3548cf;">::</span> subs) cs
 </pre>
@@ -659,7 +660,7 @@ See (Mazzoli, Francesco and Abel, Andreas, 2016)
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-04-03 Wed 01:34</p>
+<p class="date">Created: 2024-04-03 Wed 01:41</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -258,6 +258,7 @@ hou subs cs = do
   if length fr == 0
     then return subs
     else
+    let fr = flexRigids !! 0
     oneSub <- generateImitation fr :: generateProjections fr
     hou (oneSub :: subs) cs
 #+end_src
