@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-03 Wed 01:41 -->
+<!-- 2024-04-03 Wed 22:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>An explanation of higher order unification</title>
@@ -262,7 +262,7 @@ In Haskell, types can depend on other types:
 </div>
 
 <p>
-Here, <code>Tree a</code> is a type containing a reference to an other type <code>a</code>.
+Here, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Tree</span> a</code> is a type containing a reference to an other type <code class="src src-haskell">a</code>.
 </p>
 
 <p>
@@ -273,7 +273,7 @@ arguments.
 
 <p>
 What dependent types get us is types with term variables. For instance, we could
-define a "function" <code>isEven</code> like so:
+define a "function" <code class="src src-haskell">isEven</code> like so:
 </p>
 
 <div class="org-src-container">
@@ -286,9 +286,10 @@ define a "function" <code>isEven</code> like so:
 
 <p>
 Have you ever heard the phrase "propositions as types"? This is what it is.
-<code>isEven x</code> is a type and it can be inhabited by a term if and only if the number <code>x</code>
-is even. Someone writing a function can use this as one of the arguments to
-force the user of the function to prove that <code>x</code> is even.
+<code class="src src-haskell"><span style="color: #8f0075;">isEven</span> x</code> is a type and it can be inhabited by a term if and only if
+the number <code class="src src-haskell">x</code> is even. Someone writing a function can use this as
+one of the arguments to force the user of the function to prove that
+<code class="src src-haskell">x</code> is even.
 </p>
 
 <div class="org-src-container">
@@ -318,8 +319,9 @@ typing information can flow in two directions. This is why it's called
 
 <p>
 Another algorithm for type inference is called higher order unification. In a
-variant of this algorithm<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>, we generate a bunch of metavariables and a
-bunch of constraints on terms. For instance, when checking the following term:
+variant of this algorithm(see <a href="#citeproc_bib_item_1">[1]</a>), we generate a bunch of
+metavariables and a bunch of constraints on terms. For instance, when checking
+the following term:
 </p>
 
 <p>
@@ -642,25 +644,26 @@ Some pseudocode for this algorithm would be:
 
 
 <p>
-Then, it would suffice to call <code>subInTerm subs term</code> to get back a term with all
-the holes filled-in!
+Then, it would suffice to call <code class="src src-haskell"><span style="color: #8f0075;">subInTerm</span> subs term</code> to get back a
+term with all the holes filled-in!
 </p>
 </div>
 </div>
-<div id="footnotes">
-<h2 class="footnotes">Footnotes: </h2>
-<div id="text-footnotes">
-
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
-See (Mazzoli, Francesco and Abel, Andreas, 2016) 
-</p></div></div>
-
-
+<div id="outline-container-orgdac6b5c" class="outline-2">
+<h2 id="orgdac6b5c"><span class="section-number-2">7.</span> References</h2>
+<div class="outline-text-2" id="text-7">
+<style>.csl-left-margin{float: left; padding-right: 0em;}
+ .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
+  <div class="csl-entry"><a id="citeproc_bib_item_1"></a>
+    <div class="csl-left-margin">[1]</div><div class="csl-right-inline">F. Mazzoli and A. Abel, “Type checking through unification,” <i>Arxiv</i>, Sep. 2016, doi: <a href="https://doi.org/10.48550/arXiv.1609.09709">10.48550/arXiv.1609.09709</a>.</div>
+  </div>
 </div>
-</div></div>
+</div>
+</div>
+</div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-04-03 Wed 01:41</p>
+<p class="date">Created: 2024-04-03 Wed 22:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

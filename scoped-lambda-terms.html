@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-03 Wed 00:20 -->
+<!-- 2024-04-03 Wed 22:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Well scoped lambda terms</title>
@@ -230,7 +230,7 @@
 <div id="content" class="content">
 <h1 class="title">Well scoped lambda terms</h1>
 <p>
-In (Scott, Phil and Obua, Steven and Fleuriot, Jacques, 2017), I stumbled upon the following type declarations<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>:
+In <a href="#citeproc_bib_item_1">[1]</a>, I stumbled upon the following type declarations<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>:
 </p>
 
 <div class="org-src-container">
@@ -261,7 +261,7 @@ the free variables live in an alphabet \( a \) and primitive values come from a
 </p>
 
 <p>
-The weird constructor was interesting to me,
+The weird <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Prim</span> (t (<span style="color: #531ab6; font-weight: bold;">Term</span> t a))</code> constructor was interesting to me,
 because it is strangely similar to how the free monad is usually defined:
 </p>
 
@@ -285,7 +285,7 @@ later.
 <p>
 One interesting fact about this presentation of &lambda;-terms is the fact that the
 "renaming" operation that one will often see when dealing with &lambda;-calculus is
-simply the functorial action of on free variables:
+simply the functorial action of <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Term</span> t</code> on free variables:
 </p>
 
 <div class="org-src-container">
@@ -304,7 +304,7 @@ Let's say one has a(constant) renaming function \( r : \left\{ a \right\} \to
 \left\{ b \right\} \). Applying \( \text{fmap}(r) : \text{Term}(t, \left\{ a
 \right\} ) \to \text{Term}(t, \left\{ b \right\} ) \) on \( \lambda.\#0 \) would
 yield&#x2026; \( \lambda.\#0 \). This is exactly the correct behaviour. This works because
-is itself a functor(The <code>deriving</code> form reuses the <code>Functor Var</code>
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> is itself a functor(The <code>deriving</code> form reuses the <code>Functor Var</code>
 instance).
 </p>
 
@@ -318,7 +318,7 @@ Now that we know how to do renaming, let's do substitution.
 </div>
 
 <p>
-(The instance is necessary to consider itself a functor)
+(The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Functor</span> t</code> instance is necessary to consider <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Term</span> t</code> itself a functor)
 </p>
 
 <p>
@@ -333,8 +333,8 @@ The first few cases are easy to do
 </div>
 
 <p>
-The harder ones are where we need to manage bound variables in 
-and terms. We need the usual function.
+The harder ones are where we need to manage bound variables in <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code>
+and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Fix</span></code> terms. We need the usual <code class="src src-haskell">shiftSub</code> function.
 </p>
 
 <div class="org-src-container">
@@ -356,13 +356,13 @@ variable.
 </div>
 
 <p>
-If we look back at the signature of our function. We notice it
+If we look back at the signature of our <code class="src src-haskell">sub</code> function. We notice it
 has (apart from the order of the arguments) the same shape as the
-operator. Indeed, we have a monad!
+<code class="src src-haskell"><span style="color: #3548cf;">&gt;&gt;=</span></code> operator. Indeed, we have a monad!
 </p>
 
 <p>
-If is our bind operator, we still need the .
+If <code class="src src-haskell">sub</code> is our bind operator, we still need the <code class="src src-haskell">return</code>.
 </p>
 
 <div class="org-src-container">
@@ -413,6 +413,17 @@ If you want to experiment with this code, a <code>Show</code> instance will be u
 </div>
 </div>
 </div>
+<div id="outline-container-orga795c20" class="outline-2">
+<h2 id="orga795c20"><span class="section-number-2">5.</span> References</h2>
+<div class="outline-text-2" id="text-5">
+<style>.csl-left-margin{float: left; padding-right: 0em;}
+ .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
+  <div class="csl-entry"><a id="citeproc_bib_item_1"></a>
+    <div class="csl-left-margin">[1]</div><div class="csl-right-inline">P. Scott, S. Obua, and J. Fleuriot, “Compiling purely functional structured programs,” <i>Arxiv.org</i>. Mar. 2017. Available: <a href="https://arxiv.org/abs/1703.05227v2">https://arxiv.org/abs/1703.05227v2</a></div>
+  </div>
+</div>
+</div>
+</div>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
@@ -427,7 +438,7 @@ annotations.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-04-03 Wed 00:20</p>
+<p class="date">Created: 2024-04-03 Wed 22:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

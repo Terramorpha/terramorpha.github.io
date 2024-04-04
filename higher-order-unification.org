@@ -5,7 +5,7 @@
 :END:
 #+title: An explanation of higher order unification
 #+LANGUAGE: english
-
+#+PROPERTY: header-args :exports code
 
 I'm interested in programming languages with [[https://en.wikipedia.org/wiki/Dependent_type][dependent types]] such as [[https://agda.readthedocs.io/en/v2.6.4.3/getting-started/what-is-agda.html][Agda]]. To
 make such a language more ergonomic and easier to use, we need a good type
@@ -29,14 +29,14 @@ In Haskell, types can depend on other types:
 data Tree a = Leaf a | Node (Tree a) (Tree a)
 #+end_src
 
-Here, ~Tree a~ is a type containing a reference to an other type ~a~.
+Here, src_haskell{Tree a} is a type containing a reference to an other type src_haskell{a}.
 
 In Haskell, values can also depend on types. We see this in polymorphic
 functions (and typeclasses), but it is hidden from us through implicit type
 arguments.
 
 What dependent types get us is types with term variables. For instance, we could
-define a "function" ~isEven~ like so:
+define a "function" src_haskell{isEven} like so:
 
 #+begin_src haskell
 isEven :: Int -> Type
@@ -46,9 +46,10 @@ isEven x = if x % 2 == 0
 #+end_src
 
 Have you ever heard the phrase "propositions as types"? This is what it is.
-~isEven x~ is a type and it can be inhabited by a term if and only if the number ~x~
-is even. Someone writing a function can use this as one of the arguments to
-force the user of the function to prove that ~x~ is even.
+src_haskell{isEven x} is a type and it can be inhabited by a term if and only if
+the number src_haskell{x} is even. Someone writing a function can use this as
+one of the arguments to force the user of the function to prove that
+src_haskell{x} is even.
 
 #+begin_src haskell
 thing :: (x : Int) -> isEven x -> ...
@@ -69,8 +70,9 @@ typing information can flow in two directions. This is why it's called
 "bidirectional".
 
 Another algorithm for type inference is called higher order unification. In a
-variant of this algorithm[fn:1], we generate a bunch of metavariables and a
-bunch of constraints on terms. For instance, when checking the following term:
+variant of this algorithm(see [cite:@mazzoli2016]), we generate a bunch of
+metavariables and a bunch of constraints on terms. For instance, when checking
+the following term:
 
 \[ f(a) : t \]
 
@@ -103,8 +105,6 @@ We would have to replace \( X \) by \( \lambda_x. x \) so that \( (\lambda_x.x)a
 \) and \( (\lambda_x.x)b \leadsto b \). Note that this procedure is generally
 undecidable: one could accidentally generate a constraint whose solution is the
 solution to the halting problem on some given program.
-
-[fn:1]See [cite:@mazzoli2016] 
 
 * Huet's algorithm
 
@@ -264,5 +264,9 @@ hou subs cs = do
 #+end_src
 
 
-Then, it would suffice to call ~subInTerm subs term~ to get back a term with all
-the holes filled-in!
+Then, it would suffice to call src_haskell{subInTerm subs term} to get back a
+term with all the holes filled-in!
+
+* References
+
+#+print_bibliography: 

@@ -6,7 +6,7 @@
 
 * [[id:df9ac546-8555-4c69-bb14-659a0b556f35][An explanation of higher order unification]]
 
-* [[file:scoped-lambda-terms.org][Well scoped lambda terms]]
+* [[id:6d25ece7-27de-4847-a5d8-a5586c72bc6f][Well scoped lambda terms]]
 
-* [[file:guix.org][Guix: elevate your computing]]
+* [[id:1ffbcfb3-9c0d-4776-b163-b737369328b4][Guix: elevate your computing]]
 

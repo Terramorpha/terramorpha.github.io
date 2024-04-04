@@ -6,6 +6,9 @@
 :END:
 #+title: Well scoped lambda terms
 #+LANGUAGE: english
+#+PROPERTY: header-args :exports code
+
+
 In [cite:@scott2017], I stumbled upon the following type declarations[fn:1]:
 
 #+begin_src haskell :exports none
@@ -157,3 +160,10 @@ instance (forall x. Show x => Show (t x), Show a) => Show (Term t a) where
 
 #+RESULTS:
 | /home/terramorpha/org-roam/blog/scoped-lambda-terms.hs |
+
+
+* References
+
+#+print_bibliography:
+
+
