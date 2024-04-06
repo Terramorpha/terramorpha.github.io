@@ -4,6 +4,8 @@
 :END:
 #+TITLE: Sitemap for blog
 
+* [[id:9b646ba8-977e-495a-a4c5-5e20aacd3d21][Interfaces in C using ~container_of~]]
+
 * [[id:df9ac546-8555-4c69-bb14-659a0b556f35][An explanation of higher order unification]]
 
 * [[id:6d25ece7-27de-4847-a5d8-a5586c72bc6f][Well scoped lambda terms]]

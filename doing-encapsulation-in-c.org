@@ -1,0 +1,118 @@
+:PROPERTIES:
+:ID:       9b646ba8-977e-495a-a4c5-5e20aacd3d21
+:CREATED:  2024-04-06T11:39:05
+:END:
+#+title: Interfaces in C using ~container_of~
+#+LANGUAGE: english
+#+PROPERTY: header-args :exports code
+
+I used to think that doing encapsulation was something one would just not do in
+~C~. However, I recently (re)discovered the src_c{container_of} macro[fn:1] and have
+changed my mind.
+
+The pattern is the following: your interface is a struct containing function
+pointers -- "methods" -- acting on itself. It looks like this:
+
+#+begin_src C :exports code
+#include <stdio.h>
+typedef struct person_t {
+    const char * (*name)(struct person_t * per);
+} person_t;
+#+end_src
+
+#+RESULTS:
+
+If you want to implement the interface with a concrete type, you embed the
+interface struct into your concrete struct like this:
+
+#+begin_src C :main no :exports code
+#include <stdio.h>
+// for typeof
+#include <stddef.h>
+
+typedef struct person {
+    const char * (*name)(struct person * per);
+    int (*age)(struct person * per);
+} person_t;
+
+typedef struct child {
+    const char * name;
+    person_t person_iface;
+} child_t;
+#+end_src
+
+When using this pattern, you would generally initialise the function table at
+the same time as the rest of your struct and you would pass the interface around
+as a pointer.
+
+Here is a working example of this pattern:
+
+#+name: main-example
+#+begin_src C :results output :exports both
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
+
+// The container_of macro
+#define container_of(expr, type, field) ({ \
+            /* This first line is only useful to do type_checking */     \
+            typeof(((type *) 0) -> field) * __type_checking_ptr = (expr); \
+            (type*)(((void*) __type_checking_ptr) - offsetof(type, field)); \
+        })
+
+// The interface is just a table of function pointers
+typedef struct person {
+    const char * (*name)(struct person * per);
+} person_t;
+
+// The concrete struct embeds the interface struct
+typedef struct child {
+    const char * name;
+    person_t person_iface;
+} child_t;
+
+// The concrete implementation of `name` for child_t
+const char * child_get_name(person_t * iface) {
+    // We use the container_of macro to get a function pointer to the
+    // object the person_t struct is embedded in.
+    child_t * child = container_of(iface, child_t, person_iface);
+    return child->name;
+}
+
+// The initialisation function. Initialising the function pointers in
+// the table is necessary to ensure the struct is in a consistent
+// state.
+void child_init(child_t * out, const char * name) {
+    out->name = name;
+
+    person_t iface = {
+        .name = child_get_name,
+    };
+
+    out->person_iface = iface;
+}
+
+// An example of a function using the interface.
+void say_hello(person_t * person) {
+    printf("Hello, my name is %s.\n",person->name(person));
+}
+
+int main() {
+    child_t child;
+    child_init(&child, "william");
+
+    say_hello(&child.person_iface);
+
+    return 0;
+}
+#+end_src
+
+This program outputs:
+
+#+RESULTS: main-example
+: Hello, my name is william.
+
+[fn:1]This macro is not part of any standard, but it is fairly easy to
+implement. Some other languages, like [[https://ziglang.org/documentation/master/#fieldParentPtr][Zig]] have something similar in their
+standard library.
+
