@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-06 Sat 12:34 -->
+<!-- 2024-04-07 Sun 15:43 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Interfaces in C using ~container_of~</title>
@@ -199,7 +199,7 @@
 <h1 class="title">Interfaces in C using <code>container_of</code></h1>
 <p>
 I used to think that doing encapsulation was something one would just not do in
-<code>C</code>. However, I recently (re)discovered the <code class="src src-c">container_of</code> macro<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> and have
+<code>C</code>. However, I recently (re)discovered the <code class="src src-C">container_of</code> macro<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> and have
 changed my mind.
 </p>
 
@@ -212,13 +212,14 @@ pointers &#x2013; "methods" &#x2013; acting on itself. It looks like this:
 <pre class="src src-C"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">person_t</span> {
     <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #531ab6; font-weight: bold;">char</span> * (*<span style="color: #8f0075;">name</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">person_t</span> * <span style="color: #3548cf;">per</span>);
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">... There could be other function pointers.</span>
 } <span style="color: #531ab6; font-weight: bold;">person_t</span>;
 </pre>
 </div>
 
 <p>
-If you want to implement the interface with a concrete type, you embed the
-interface struct into your concrete struct like this:
+If you wanted to implement the interface with a concrete type, you would embed
+the interface struct into your concrete struct like this:
 </p>
 
 <div class="org-src-container">
@@ -330,7 +331,7 @@ standard library.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-04-06 Sat 12:34</p>
+<p class="date">Created: 2024-04-07 Sun 15:43</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -71,8 +71,8 @@ Let's say one has a(constant) renaming function \( r : \left\{ a \right\} \to
 \left\{ b \right\} \). Applying \( \text{fmap}(r) : \text{Term}(t, \left\{ a
 \right\} ) \to \text{Term}(t, \left\{ b \right\} ) \) on \( \lambda.\#0 \) would
 yield... \( \lambda.\#0 \). This is exactly the correct behaviour. This works because
-src_haskell{Var} is itself a functor(The ~deriving~ form reuses the ~Functor Var~
-instance).
+src_haskell{Var} is itself a functor(The src_haskell{deriving} form reuses the
+src_haskell{Functor Var} instance).
 
 Now that we know how to do renaming, let's do substitution.
 
@@ -110,16 +110,30 @@ shiftSub f (S r) = rename S (f r)
 
 If we look back at the signature of our src_haskell{sub} function. We notice it
 has (apart from the order of the arguments) the same shape as the
-src_haskell{>>=} operator. Indeed, we have a monad!
-
-If src_haskell{sub} is our bind operator, we still need the src_haskell{return}.
+src_haskell{>>=} operator. Indeed, if we implement src_haskell{return}, we have
+a monad.
 
 #+begin_src haskell
 termRet :: a -> Term t a
 termRet = V
 #+end_src
 
-* An example
+* \lambda-calculi as monads with extra structure
+
+This way of characterising untyped \lambda-calculi is explored in the paper
+[cite:@maggesi2006]: A \lambda-calculus is a functor with:
+
+1. A substitution operation that makes it a monad.
+2. Natural transformations that embody \lambda abstraction (src_haskell{Abs})
+3. Certains identities (commutative diagrams) on these natural transformations.
+
+* An example of what a term would look like
+
+A very useful way of encoding variable references is through [[https://en.wikipedia.org/wiki/De_Bruijn_index][De-Bruijn indices]].
+However, here, we use De-Bruijn indices only for bound variables, letting the
+user use (for instance) src_haskell{String} as a free variable type or even
+src_haskell{Null} to signal the absence of free variables. Here is what it looks
+like:
 
 #+begin_src haskell
 -- Example
@@ -141,7 +155,8 @@ x = sub (const func) body
 
 * Show
 
-If you want to experiment with this code, a ~Show~ instance will be useful
+If you want to experiment with this code, a ~Show~ instance will be useful. You
+will need to use GHC extensions, though.
 
 #+begin_src haskell
 instance (forall x. Show x => Show (t x), Show a) => Show (Term t a) where

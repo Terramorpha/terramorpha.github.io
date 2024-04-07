@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-03 Wed 22:57 -->
+<!-- 2024-04-07 Sun 16:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Well scoped lambda terms</title>
@@ -304,8 +304,8 @@ Let's say one has a(constant) renaming function \( r : \left\{ a \right\} \to
 \left\{ b \right\} \). Applying \( \text{fmap}(r) : \text{Term}(t, \left\{ a
 \right\} ) \to \text{Term}(t, \left\{ b \right\} ) \) on \( \lambda.\#0 \) would
 yield&#x2026; \( \lambda.\#0 \). This is exactly the correct behaviour. This works because
-<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> is itself a functor(The <code>deriving</code> form reuses the <code>Functor Var</code>
-instance).
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> is itself a functor(The <code class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">deriving</span></code> form reuses the
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Functor</span> <span style="color: #531ab6; font-weight: bold;">Var</span></code> instance).
 </p>
 
 <p>
@@ -358,11 +358,8 @@ variable.
 <p>
 If we look back at the signature of our <code class="src src-haskell">sub</code> function. We notice it
 has (apart from the order of the arguments) the same shape as the
-<code class="src src-haskell"><span style="color: #3548cf;">&gt;&gt;=</span></code> operator. Indeed, we have a monad!
-</p>
-
-<p>
-If <code class="src src-haskell">sub</code> is our bind operator, we still need the <code class="src src-haskell">return</code>.
+<code class="src src-haskell"><span style="color: #3548cf;">&gt;&gt;=</span></code> operator. Indeed, if we implement <code class="src src-haskell">return</code>, we have
+a monad.
 </p>
 
 <div class="org-src-container">
@@ -372,9 +369,32 @@ If <code class="src src-haskell">sub</code> is our bind operator, we still need 
 </div>
 </div>
 </div>
-<div id="outline-container-orgc0fb435" class="outline-2">
-<h2 id="orgc0fb435"><span class="section-number-2">3.</span> An example</h2>
+<div id="outline-container-org20a978c" class="outline-2">
+<h2 id="org20a978c"><span class="section-number-2">3.</span> &lambda;-calculi as monads with extra structure</h2>
 <div class="outline-text-2" id="text-3">
+<p>
+This way of characterising untyped &lambda;-calculi is explored in the paper
+<a href="#citeproc_bib_item_2">[2]</a>: A &lambda;-calculus is a functor with:
+</p>
+
+<ol class="org-ol">
+<li>A substitution operation that makes it a monad.</li>
+<li>Natural transformations that embody &lambda; abstraction (<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code>)</li>
+<li>Certains identities (commutative diagrams) on these natural transformations.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org2fbf1a8" class="outline-2">
+<h2 id="org2fbf1a8"><span class="section-number-2">4.</span> An example of what a term would look like</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+A very useful way of encoding variable references is through <a href="https://en.wikipedia.org/wiki/De_Bruijn_index">De-Bruijn indices</a>.
+However, here, we use De-Bruijn indices only for bound variables, letting the
+user use (for instance) <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">String</span></code> as a free variable type or even
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Null</span></code> to signal the absence of free variables. Here is what it looks
+like:
+</p>
+
 <div class="org-src-container">
 <pre class="src src-haskell"><span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">Example</span>
 
@@ -396,10 +416,11 @@ If <code class="src src-haskell">sub</code> is our bind operator, we still need 
 </div>
 </div>
 <div id="outline-container-org0ea8622" class="outline-2">
-<h2 id="org0ea8622"><span class="section-number-2">4.</span> Show</h2>
-<div class="outline-text-2" id="text-4">
+<h2 id="org0ea8622"><span class="section-number-2">5.</span> Show</h2>
+<div class="outline-text-2" id="text-5">
 <p>
-If you want to experiment with this code, a <code>Show</code> instance will be useful
+If you want to experiment with this code, a <code>Show</code> instance will be useful. You
+will need to use GHC extensions, though.
 </p>
 
 <div class="org-src-container">
@@ -414,12 +435,15 @@ If you want to experiment with this code, a <code>Show</code> instance will be u
 </div>
 </div>
 <div id="outline-container-orga795c20" class="outline-2">
-<h2 id="orga795c20"><span class="section-number-2">5.</span> References</h2>
-<div class="outline-text-2" id="text-5">
+<h2 id="orga795c20"><span class="section-number-2">6.</span> References</h2>
+<div class="outline-text-2" id="text-6">
 <style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
   <div class="csl-entry"><a id="citeproc_bib_item_1"></a>
     <div class="csl-left-margin">[1]</div><div class="csl-right-inline">P. Scott, S. Obua, and J. Fleuriot, “Compiling purely functional structured programs,” <i>Arxiv.org</i>. Mar. 2017. Available: <a href="https://arxiv.org/abs/1703.05227v2">https://arxiv.org/abs/1703.05227v2</a></div>
+  </div>
+  <div class="csl-entry"><a id="citeproc_bib_item_2"></a>
+    <div class="csl-left-margin">[2]</div><div class="csl-right-inline">A. Hirschowitz and M. Maggesi, “Modules over monads and the structured of untyped lambda-calculi.” 2006. Available: <a href="https://arxiv.org/abs/cs/0608051v1">https://arxiv.org/abs/cs/0608051v1</a></div>
   </div>
 </div>
 </div>
@@ -438,7 +462,7 @@ annotations.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-04-03 Wed 22:57</p>
+<p class="date">Created: 2024-04-07 Sun 16:00</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

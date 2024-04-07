@@ -2,7 +2,12 @@
 :ID:       b06c90e5-4e23-4833-bd0d-23a6b989e6e6
 :CREATED:  2024-04-03T00:21:48
 :END:
-#+TITLE: Sitemap for blog
+#+TITLE: Blog
+
+Hi. I'm a computer science student interested in programming language theory,
+metaprogramming and mathematics. With this blog, I aim to write concise posts
+regarding concept, techniques and ideas that a(slightly) younger version of
+myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_development][zone of proximal development]].
 
 * [[id:9b646ba8-977e-495a-a4c5-5e20aacd3d21][Interfaces in C using ~container_of~]]
 

@@ -7,7 +7,7 @@
 #+PROPERTY: header-args :exports code
 
 I used to think that doing encapsulation was something one would just not do in
-~C~. However, I recently (re)discovered the src_c{container_of} macro[fn:1] and have
+~C~. However, I recently (re)discovered the src_C{container_of} macro[fn:1] and have
 changed my mind.
 
 The pattern is the following: your interface is a struct containing function
@@ -17,13 +17,12 @@ pointers -- "methods" -- acting on itself. It looks like this:
 #include <stdio.h>
 typedef struct person_t {
     const char * (*name)(struct person_t * per);
+    // ... There could be other function pointers.
 } person_t;
 #+end_src
 
-#+RESULTS:
-
-If you want to implement the interface with a concrete type, you embed the
-interface struct into your concrete struct like this:
+If you wanted to implement the interface with a concrete type, you would embed
+the interface struct into your concrete struct like this:
 
 #+begin_src C :main no :exports code
 #include <stdio.h>
