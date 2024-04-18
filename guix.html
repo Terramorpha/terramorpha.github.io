@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-03 Wed 00:20 -->
+<!-- 2024-04-18 Thu 19:40 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Guix: elevate your computing</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -202,7 +202,7 @@
 <div class="outline-text-2" id="text-1">
 <p>
 Guix, which is a package manager similar to <a href="https://nixos.org/">Nix</a>, takes a different approach to
-functional package management that reuses GNU&rsquo;s extension language, <a href="https://www.gnu.org/software/guile/">Guile
+functional package management that reuses GNU's extension language, <a href="https://www.gnu.org/software/guile/">Guile
 scheme</a>, instead of nix (the language) as a package definition domain specific
 language. By using scheme, an extendable and Turing complete language, it opens
 the door to a world of possibilities. It enables the use of macros, of complex
@@ -214,8 +214,8 @@ algorithms and of a rich set of types through which users can express packages.
 <h2 id="orgf50d8c4"><span class="section-number-2">2.</span> A crash course on creating a package</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-Let&rsquo;s say you, a user of Guix, want to use a specific piece of software which is
-not currently in Guix. I&rsquo;ll use as an example transmission-remote-gtk because
+Let's say you, a user of Guix, want to use a specific piece of software which is
+not currently in Guix. I'll use as an example transmission-remote-gtk because
 it was one of the first packages I wrote.
 </p>
 
@@ -257,7 +257,7 @@ invoking <code>guix edit</code>.
 </div>
 
 <p>
-Let&rsquo;s look over the basic anatomy of the <code>hello</code> package.
+Let's look over the basic anatomy of the <code>hello</code> package.
 </p>
 
 <p>
@@ -296,7 +296,7 @@ attributes.
 </p>
 
 <ul class="org-ul">
-<li><code>name</code> is pretty self-explanatory. It&rsquo;s simply a string used to name the
+<li><code>name</code> is pretty self-explanatory. It's simply a string used to name the
 package. This is actually what will be used by Guix to present packages to the
 user (<code>guix install</code>, <code>guix search</code>, <code>guix show</code>, etc.)</li>
 
@@ -311,11 +311,11 @@ repetitive <code>./configure &amp;&amp; make &amp;&amp; make install</code> danc
 software.</li>
 
 <li><code>synopsis</code>, <code>description</code> and <code>home-page</code> contain, respectively, a short summary of
-the package&rsquo;s purpose, a longer description and the webpage which one can
+the package's purpose, a longer description and the webpage which one can
 visit to learn more about the project.</li>
 
 <li><code>license</code> contains a <code>&lt;license&gt;</code> record that will be used by guix to determine the
-package&rsquo;s license. The fact it isn&rsquo;t simply a string makes the idea of
+package's license. The fact it isn't simply a string makes the idea of
 programmatically combing through a list of packages with a certain license
 possible.</li>
 </ul>
@@ -329,18 +329,18 @@ how one is supposed to actually use that package we are writing.
 <p>
 To instruct guix to build a package, we use the command.
 If we give it a package name, as in <code>/gnu/store/6fbh8phmp3izay6c0dpggpxhcjn4xlm5-hello-2.12.1</code>, it will find
-hello in our <code>GUIX_PACKAGE_PATH</code> environment variable and if it doesn&rsquo;t find it,
+hello in our <code>GUIX_PACKAGE_PATH</code> environment variable and if it doesn't find it,
 in the <code>(guix packages ...)</code> modules.
 </p>
 
 <p>
 We could modify the <code>GUIX_PACKAGE_PATH</code> environment variable, but a simpler way
 is to simply pass the <code>-f</code> flag to <code>guix build</code>. When we actually have a package
-to build, that&rsquo;s what we are going to do.
+to build, that's what we are going to do.
 </p>
 
 <p>
-First, let&rsquo;s create an empty scheme file, then type in an ill-formed package
+First, let's create an empty scheme file, then type in an ill-formed package
 definition.
 </p>
 
@@ -362,7 +362,7 @@ hint: Did you forget `(use-modules (guix packages))'?
 </div>
 
 <p>
-Oh! we need to actually import the module containing the <code>(package)</code> form. Let&rsquo;s try again.
+Oh! we need to actually import the module containing the <code>(package)</code> form. Let's try again.
 </p>
 
 <div class="org-src-container">
@@ -416,7 +416,7 @@ using <code>guix repl</code> and type the following form:
 <p>
 now, you can type <code>license:</code> and tab complete your way to the correct value. If
 we look at the github repository, we notice the project is licensed under the
-GPL 2. Let&rsquo;s update our code accordingly.
+GPL 2. Let's update our code accordingly.
 </p>
 
 <div class="org-src-container">
@@ -480,25 +480,25 @@ which requires a bit of an explanation.
 
 <p>
 Guix is what is called a functional package manager. One of the consequences of
-the &laquo;&nbsp;purely functional package manager&nbsp;&raquo; approach is that the dependencies of a
+the "purely functional package manager" approach is that the dependencies of a
 package are explicit. This means that every package, to be built, must come with
 an explicit list of all other packages which it will need to both run and
 compile. In the nix world, the smallest unit which possesses thes properties is
 the derivation. A derivation contains references to every build dependency:
 compilers, dynamic libraries, <i>et cetera</i>. Guix uses a similar but different
-approach. It has many types of objects which can be &laquo;&nbsp;compiled&nbsp;&raquo; down to a
+approach. It has many types of objects which can be "compiled" down to a
 derivation. A package is such an object. In the case of our package, the
 dependencies would be <code>gtk</code>, some other things and the compiler toolchain. The
-instructions on how to build it would be the <code>gnu-build-system</code> and it&rsquo;s output
+instructions on how to build it would be the <code>gnu-build-system</code> and it's output
 would be simply <code>out</code> (the default name of a package with only one output).
 </p>
 
 <p>
-Then, where does the source code of a package come from? It&rsquo;s certainly one
-of it&rsquo;s dependencies, but how can we define the source code in terms of
+Then, where does the source code of a package come from? It's certainly one
+of it's dependencies, but how can we define the source code in terms of
 derivations. To download data from the internet, we use something called fixed
 output derivations. While the build process of a normal derivation happens in an
-isolated sandbox to prevent reproducibility issues, fixed output derivations&rsquo;
+isolated sandbox to prevent reproducibility issues, fixed output derivations'
 output have a fixed hash, so we can let them communicate with the outside world
 at build time.
 </p>
@@ -593,7 +593,7 @@ evaluation phase and get an error in the build phase. What an improvement!
 
 <p>
 If you read carefully the output of the builder, you will see an <code>aclocal:
-command not found</code> Weren&rsquo;t we supposed to <b>explicitly</b> declare all dependencies?
+command not found</code> Weren't we supposed to <b>explicitly</b> declare all dependencies?
 Yes. Let me now introduce you to the <code>inputs</code> field.
 </p>
 
@@ -628,13 +628,13 @@ Yes. Let me now introduce you to the <code>inputs</code> field.
 
 <p>
 Inputs are a way to allow a package to reference other packages at compile
-time. Since we know that aclocal comes with the <code>automake</code> package, let&rsquo;s add it
+time. Since we know that aclocal comes with the <code>automake</code> package, let's add it
 to the list of inputs.
 </p>
 
 <p>
 If we retry to build the package, this time, we get an error about gettext.
-Let&rsquo;s add it.
+Let's add it.
 </p>
 
 <p>
@@ -725,7 +725,7 @@ Until <code>guix home</code> happened.
 
 <p>
 On the surface, <code>guix home</code> looks a bit like gnu stow, but with the idea of
-&laquo;&nbsp;services&nbsp;&raquo; which allow you to declaratively instruct your shell to load
+"services" which allow you to declaratively instruct your shell to load
 zsh-autosuggestions or direnv. However, combined with g-expressions and the
 power of the store, magic happens.
 </p>
@@ -735,7 +735,7 @@ power of the store, magic happens.
 <div class="outline-text-3" id="text-3-1">
 <p>
 What if you wanted to take the exact visual appearance of your window manager,
-put it into a scheme file and &laquo;&nbsp;evaluate&nbsp;&raquo; it later? Read: reproducible rice.
+put it into a scheme file and "evaluate" it later? Read: reproducible rice.
 </p>
 
 <p>
@@ -743,7 +743,7 @@ As an experiment, I once created a custom package that, when installed into the
 system profile, added an entry in <code>/share/xsessions/</code>. An entry that, when run
 by the display manager, instructed it to execute a script <code>~/.startup</code>. I was
 able to get from a display manager to an arbitrary script file while never
-leaving Guix&rsquo;s tender embrace.
+leaving Guix's tender embrace.
 </p>
 
 <p>
@@ -752,8 +752,8 @@ be managed by guix too, right ?
 </p>
 
 <p>
-In <code>guix home</code>&rsquo;s <code>home-environment</code>, you can add a <code>home-files-service-type</code>
-which lets you declare arbitrary &laquo;&nbsp;file-like objects&nbsp;&raquo; to be added into your home
+In <code>guix home</code>'s <code>home-environment</code>, you can add a <code>home-files-service-type</code>
+which lets you declare arbitrary "file-like objects" to be added into your home
 directory. Could a g-expression turned into a script be such an object? Yes it
 could.
 </p>
@@ -810,7 +810,7 @@ Now, my whole setup is controlled by a single command.
 <h3 id="orgc473890"><span class="section-number-3">3.2.</span> Code as data</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-Let&rsquo;s say I have a small function that I use in tandem with direnv to facilitate
+Let's say I have a small function that I use in tandem with direnv to facilitate
 the creation and the loading of anonymous guix profiles.
 </p>
 
@@ -848,7 +848,7 @@ the creation and the loading of anonymous guix profiles.
 
 <p>
 This function, when given a list of packages, will first check if a profile
-containing this exact list exists (if it doesn&rsquo;t, create it) and loads this
+containing this exact list exists (if it doesn't, create it) and loads this
 profile. This is useful both as a shell command (an alternative to the slow
 <code>guix environment --ad-hoc ...</code>) and inside direnv (a haskell project might
 contain in its .envrc <code>guix-load ghc cabal-install stylish-haskell</code>) I can give
@@ -862,13 +862,13 @@ Every time I want to modify the function, I can just modify it and run <code>gui
 home reconfigure ~/guix/home.scm</code>. No need to remember to keep <code>guix-load.sh</code> in
 a specific place or to synchronize the definition between two
 places. Automatically copy pasting the contents of this file into other files
-works well, because <code>guix-load</code> doesn&rsquo;t actually require any external
+works well, because <code>guix-load</code> doesn't actually require any external
 program. What about complex scripts ? You can do something similar, but it is
 necessary to write a bit of code.
 </p>
 
 <p>
-Let&rsquo;s say you have a script:
+Let's say you have a script:
 </p>
 
 <div class="org-src-container">
@@ -883,7 +883,7 @@ Let&rsquo;s say you have a script:
 </div>
 
 <p>
-You can&rsquo;t just drop it into your path or concatenate it with your bashrc: It
+You can't just drop it into your path or concatenate it with your bashrc: It
 depends on external programs.
 </p>
 
@@ -916,7 +916,7 @@ We wrap it with <code>wrap-program</code> (IIRC)
 </p>
 
 <p>
-Cool, because it enables you to edit the script as if it wasn&rsquo;t processed by
+Cool, because it enables you to edit the script as if it wasn't processed by
 guix at all. However it is not possible to use this method for functions that
 you want included into a startup file.
 </p></li>
@@ -937,7 +937,7 @@ This is what I went with.
 
 <p>
 Unless I had written a shell script parser to know exactly which occurences of
-&laquo;&nbsp;ps&nbsp;&raquo; to modify, I couldn&rsquo;t make this work on the original script file.
+"ps" to modify, I couldn't make this work on the original script file.
 </p>
 
 <p>
@@ -976,7 +976,7 @@ I opted for a syntax similar to .in files, this is what I came up with:
 
 <p>
 This function takes a file-like object and a pseudo alist =((name package)&#x2026;)
-and returns the &laquo;&nbsp;expanded&nbsp;&raquo; file. This is what such a file looks like:
+and returns the "expanded" file. This is what such a file looks like:
 </p>
 
 <div class="org-src-container">
@@ -1002,7 +1002,7 @@ It works reasonably well.
 <h2 id="org351f305"><span class="section-number-2">4.</span> G-expressions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-To hear it from the horse&rsquo;s mouth, read Ludovic Courtes&rsquo; <a href="https://hal.inria.fr/hal-01580582/document">Code staging in GNU Guix</a>.
+To hear it from the horse's mouth, read Ludovic Courtes' <a href="https://hal.inria.fr/hal-01580582/document">Code staging in GNU Guix</a>.
 </p>
 
 
@@ -1026,13 +1026,13 @@ However, they are quite cumbersome to use. Also, blablablablabla
 </p>
 
 <p>
-But we have G-expressions. Gexps are very similar to scheme&rsquo;s quasiquote, but
+But we have G-expressions. Gexps are very similar to scheme's quasiquote, but
 ungexp (the analog to unquote) has special behaviour with regards to file-like
 object.
 </p>
 
 <p>
-To create a G-expression, use the <code>gexp</code> form or it&rsquo;s abbreviation <code>#~</code>
+To create a G-expression, use the <code>gexp</code> form or it's abbreviation <code>#~</code>
 </p>
 
 <div class="org-src-container">
@@ -1048,7 +1048,7 @@ To create a G-expression, use the <code>gexp</code> form or it&rsquo;s abbreviat
 
 <p>
 However, G-expressions are useful only in combination with other g-expressions
-or when compiled down to a file-like object. Let&rsquo;s see how we can do that.
+or when compiled down to a file-like object. Let's see how we can do that.
 </p>
 
 <div class="org-src-container">
@@ -1083,7 +1083,7 @@ or when compiled down to a file-like object. Let&rsquo;s see how we can do that.
 <h2 id="org3b3ceec"><span class="section-number-2">5.</span> Profiles, environments and direnv</h2>
 <div class="outline-text-2" id="text-5">
 <p>
-Guix&rsquo;s <code>guix shell</code> command makes it easy to very quickly spawn a shell in a
+Guix's <code>guix shell</code> command makes it easy to very quickly spawn a shell in a
 fresh profile with the given packages.
 </p>
 
@@ -1097,8 +1097,8 @@ fresh profile with the given packages.
 However, for programs (or group of programs) that you use often or for setting
 up environment variables for direnv, this method is not fast enough. One method
 to accelerate the whole process is to bypass the evaluation of derivations
-entirely for profiles that were built in the past and &laquo;&nbsp;cache&nbsp;&raquo; these profiles. A
-very simple method is to keep a store of profiles which are &laquo;&nbsp;content-addressed&nbsp;&raquo;
+entirely for profiles that were built in the past and "cache" these profiles. A
+very simple method is to keep a store of profiles which are "content-addressed"
 by a hash of the packages that they contain.
 </p>
 
@@ -1135,8 +1135,8 @@ by a hash of the packages that they contain.
 
 <p>
 While it is true that using <code>guix-load</code> will pollute your installation with
-roots in <code>~/.anonymous-profiles</code>, it makes the &laquo;&nbsp;I want to run some program
-without installing it&nbsp;&raquo; use case much more realisable.
+roots in <code>~/.anonymous-profiles</code>, it makes the "I want to run some program
+without installing it" use case much more realisable.
 </p>
 
 <p>
@@ -1152,9 +1152,9 @@ initial buil is done) develop/compile/execute some project.
 <h2 id="org854f6d5"><span class="section-number-2">6.</span> Sending a patch</h2>
 <div class="outline-text-2" id="text-6">
 <p>
-You just found your favorite piece of software, but it&rsquo;s an obsolete version
+You just found your favorite piece of software, but it's an obsolete version
 missing that cool new feature you need in your workflow. You went and <code>git
-clone</code>&rsquo;ed the repo at <a href="https://git.savannah.gnu.org/git/guix.git">savannah</a> and you modified the package definition. What
+clone</code>'ed the repo at <a href="https://git.savannah.gnu.org/git/guix.git">savannah</a> and you modified the package definition. What
 now? You should submit a patch, of course.
 </p>
 </div>
@@ -1163,7 +1163,7 @@ now? You should submit a patch, of course.
 <div class="outline-text-3" id="text-6-1">
 <p>
 Before you can test wether your modified package works, you need to build
-guix. This can be done by invoking <code>guix shell</code> with guix&rsquo;s dependencies.
+guix. This can be done by invoking <code>guix shell</code> with guix's dependencies.
 </p>
 
 <div class="org-src-container">
@@ -1215,7 +1215,7 @@ First, start by building your package.
 
 <p>
 When you have a working build, verify the output is working correctly, then use
-the <code>guix lint</code> subcommand to verify you didn&rsquo;t make a silly mistake.
+the <code>guix lint</code> subcommand to verify you didn't make a silly mistake.
 </p>
 
 <div class="org-src-container">
@@ -1233,7 +1233,7 @@ the files you modified, then make a commit.
 <h3 id="org6ccc9e6"><span class="section-number-3">6.2.</span> Committing your changes</h3>
 <div class="outline-text-3" id="text-6-2">
 <p>
-When you write your commit message, make sure you follow GNU&rsquo;s <a href="https://www.gnu.org/prep/standards/html_node/Change-Logs.html">standard</a> for
+When you write your commit message, make sure you follow GNU's <a href="https://www.gnu.org/prep/standards/html_node/Change-Logs.html">standard</a> for
 commit messages. In the case of tiramisu, that means writing something like:
 </p>
 
@@ -1275,11 +1275,11 @@ as an attachment to an email sent to <a href="mailto:guix-patches@gnu.org">guix-
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li><p>
-<a href="https://www.youtube.com/channel/UCuj_loxODrOPxSsXDfJmpng">Andrew Tropin&rsquo;s channel</a>
+<a href="https://www.youtube.com/channel/UCuj_loxODrOPxSsXDfJmpng">Andrew Tropin's channel</a>
 </p>
 
 <p>
-He&rsquo;s <code>guix home</code>&rsquo;s author, so obviously, he knows a lot about Guix.
+He's <code>guix home</code>'s author, so obviously, he knows a lot about Guix.
 </p></li>
 
 <li><a href="https://guix.gnu.org/en/manual/devel/en/guix.html">The manual</a></li>
@@ -1315,8 +1315,8 @@ He&rsquo;s <code>guix home</code>&rsquo;s author, so obviously, he knows a lot a
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="author">Auteur: Justin Veilleux</p>
-<p class="date">Created: 2024-04-03 Wed 00:20</p>
+<p class="author">Author: Justin Veilleux</p>
+<p class="date">Created: 2024-04-18 Thu 19:40</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

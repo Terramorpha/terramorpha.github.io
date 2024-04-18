@@ -9,11 +9,15 @@ metaprogramming and mathematics. With this blog, I aim to write concise posts
 regarding concept, techniques and ideas that a(slightly) younger version of
 myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_development][zone of proximal development]].
 
+* [[id:d06c9885-40a8-49aa-b6e2-f84d0ede7bfd][Type level programming in julia]]
+
 * [[id:9b646ba8-977e-495a-a4c5-5e20aacd3d21][Interfaces in C using ~container_of~]]
 
 * [[id:df9ac546-8555-4c69-bb14-659a0b556f35][An explanation of higher order unification]]
 
 * [[id:6d25ece7-27de-4847-a5d8-a5586c72bc6f][Well scoped lambda terms]]
 
+
 * [[id:1ffbcfb3-9c0d-4776-b163-b737369328b4][Guix: elevate your computing]]
+
 
