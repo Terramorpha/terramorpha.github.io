@@ -190,15 +190,15 @@ order) of the dependencies.
 
 * File-like objects
 
-How do we manipulate (on the client side) files that don't exist yet and whose
-future location are unknown? File-like object. A file-like object is something
-like a ~#<package>~, an ~#<operating-system>~ or even a ~#<origin>~ (which represents
-a file on the internet). We can use them together with g-expressions to
-construct new file-like objects. We call these things file-like objects because
-once we ask the guix daemon to build them, they will become files (or
-directories) and will be placed within the store somewhere in ~/gnu/store/~. Our
-goal in the next section will be to construct a file-like object containing the
-upgraded version of every idf file in our dataset.
+How do we generate build side code (from the client side) acting on files that
+don't exist yet and whose future location are unknown? File-like object. A
+file-like object is something like a ~#<package>~, an ~#<operating-system>~ or even
+a ~#<origin>~ (which represents a file on the internet). We can use them together
+with g-expressions to construct new file-like objects. We call these things
+file-like objects because once we ask the guix daemon to build them, they will
+become files (or directories) and will be placed within the store somewhere in
+~/gnu/store/~. Our goal in the next section will be to construct a file-like
+object containing the upgraded version of every idf file in our dataset.
 
 * Guix script
 
