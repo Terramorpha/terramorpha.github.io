@@ -6,6 +6,7 @@
 #+title: An explanation of higher order unification
 #+LANGUAGE: english
 #+PROPERTY: header-args :exports code
+#+DATE: <2024-04-02 Tue>
 
 I'm interested in programming languages with [[https://en.wikipedia.org/wiki/Dependent_type][dependent types]] such as [[https://agda.readthedocs.io/en/v2.6.4.3/getting-started/what-is-agda.html][Agda]]. To
 make such a language more ergonomic and easier to use, we need a good type

@@ -42,7 +42,10 @@ typedef struct child {
 
 When using this pattern, you would generally initialise the function table at
 the same time as the rest of your struct and you would pass the interface around
-as a pointer.
+as a pointer. Methods would follow the following pattern:
+
+1. Extract a pointer to a concrete type from the interface type using ~container_of~.
+2. Act on the concrete struct through the pointer.
 
 Here is a working example of this pattern:
 

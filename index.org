@@ -3,11 +3,13 @@
 :CREATED:  2024-04-03T00:21:48
 :END:
 #+TITLE: Blog
-
+#+LANGUAGE: english
 Hi. I'm a computer science student interested in programming language theory,
 metaprogramming and mathematics. With this blog, I aim to write concise posts
 regarding concept, techniques and ideas that a(slightly) younger version of
 myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_development][zone of proximal development]].
+
+* [[id:94834d2e-4ab7-41d0-bede-3b0ff5ae2b30][Dataset preprocessing with Guix scripts]]
 
 * [[id:d06c9885-40a8-49aa-b6e2-f84d0ede7bfd][Type level programming in julia]]
 
@@ -17,7 +19,6 @@ myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_
 
 * [[id:6d25ece7-27de-4847-a5d8-a5586c72bc6f][Well scoped lambda terms]]
 
-
-* [[id:1ffbcfb3-9c0d-4776-b163-b737369328b4][Guix: elevate your computing]]
+# * [[id:1ffbcfb3-9c0d-4776-b163-b737369328b4][Guix: elevate your computing]]
 
 

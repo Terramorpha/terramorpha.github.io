@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-04-07 Sun 15:43 -->
+<!-- 2024-05-17 Fri 16:37 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Interfaces in C using ~container_of~</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -242,15 +242,20 @@ the interface struct into your concrete struct like this:
 <p>
 When using this pattern, you would generally initialise the function table at
 the same time as the rest of your struct and you would pass the interface around
-as a pointer.
+as a pointer. Methods would follow the following pattern:
 </p>
+
+<ol class="org-ol">
+<li>Extract a pointer to a concrete type from the interface type using <code>container_of</code>.</li>
+<li>Act on the concrete struct through the pointer.</li>
+</ol>
 
 <p>
 Here is a working example of this pattern:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C" id="org8ab9858"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
+<pre class="src src-C" id="org2baf58a"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdint.h&gt;</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stddef.h&gt;</span>
 
@@ -331,7 +336,7 @@ standard library.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-04-07 Sun 15:43</p>
+<p class="date">Created: 2024-05-17 Fri 16:37</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
