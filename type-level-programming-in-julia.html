@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-05-16 Thu 18:01 -->
+<!-- 2024-05-17 Fri 16:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Type level programming in julia</title>
@@ -195,7 +195,11 @@
 </style>
 </head>
 <body>
-<div id="content" class="content">
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
 <h1 class="title">Type level programming in julia</h1>
 <p>
 For a machine learning project, I needed a way to easily turn a big row from a
@@ -211,8 +215,8 @@ floats</li>
 <li>Given a type, generate a decoding function from a vector of floats to that
 type.</li>
 </ol>
-<div id="outline-container-org71b17f6" class="outline-2">
-<h2 id="org71b17f6"><span class="section-number-2">1.</span> Interface</h2>
+<div id="outline-container-org9c97ee1" class="outline-2">
+<h2 id="org9c97ee1"><span class="section-number-2">1.</span> Interface</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Doing programming at the type level is easy, since types are first class values
@@ -237,8 +241,8 @@ types as we will see later. Now, Let's write implementations for concrete types.
 </p>
 </div>
 </div>
-<div id="outline-container-org8e6ff87" class="outline-2">
-<h2 id="org8e6ff87"><span class="section-number-2">2.</span> Concrete types</h2>
+<div id="outline-container-org2c96c92" class="outline-2">
+<h2 id="org2c96c92"><span class="section-number-2">2.</span> Concrete types</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The encoding functions for primitive types are easy to write, as they do not
@@ -317,16 +321,16 @@ want to give the closest result, so we compare with 0.5.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf785a03" class="outline-2">
-<h2 id="orgf785a03"><span class="section-number-2">3.</span> Composite types</h2>
+<div id="outline-container-org9e23494" class="outline-2">
+<h2 id="org9e23494"><span class="section-number-2">3.</span> Composite types</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Most types we use daily are not simple primitive types: they are composite.
 Think tuples and unions. We need a way to encode values of these types too.
 </p>
 </div>
-<div id="outline-container-orge52c71c" class="outline-3">
-<h3 id="orge52c71c"><span class="section-number-3">3.1.</span> Tuples</h3>
+<div id="outline-container-org49a4739" class="outline-3">
+<h3 id="org49a4739"><span class="section-number-3">3.1.</span> Tuples</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Since a tuple contains multiple types of values, we need to know how to encode
@@ -378,8 +382,8 @@ each encoded component.
 </div>
 </div>
 </div>
-<div id="outline-container-orgd567737" class="outline-3">
-<h3 id="orgd567737"><span class="section-number-3">3.2.</span> Union</h3>
+<div id="outline-container-org8376c5f" class="outline-3">
+<h3 id="org8376c5f"><span class="section-number-3">3.2.</span> Union</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 This part was the most time-consuming, as I had to wrestle with Julia's method
@@ -497,8 +501,8 @@ Here is the code:
 </div>
 </div>
 </div>
-<div id="outline-container-org395d6b5" class="outline-2">
-<h2 id="org395d6b5"><span class="section-number-2">4.</span> Wrapping up</h2>
+<div id="outline-container-org0d19083" class="outline-2">
+<h2 id="org0d19083"><span class="section-number-2">4.</span> Wrapping up</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Here, let's test our code on semi-complex tuples:
@@ -534,7 +538,7 @@ decoded = de(encoded) = (2.0, true, 13.0)
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-05-16 Thu 18:01</p>
+<p class="date">Created: 2024-05-17 Fri 16:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

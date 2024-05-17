@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-05-17 Fri 16:36 -->
+<!-- 2024-05-17 Fri 16:56 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>An explanation of higher order unification</title>
@@ -227,15 +227,19 @@
 </script>
 </head>
 <body>
-<div id="content" class="content">
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
 <h1 class="title">An explanation of higher order unification</h1>
 <p>
 I'm interested in programming languages with <a href="https://en.wikipedia.org/wiki/Dependent_type">dependent types</a> such as <a href="https://agda.readthedocs.io/en/v2.6.4.3/getting-started/what-is-agda.html">Agda</a>. To
 make such a language more ergonomic and easier to use, we need a good type
 inference algorithm.
 </p>
-<div id="outline-container-org4ff7209" class="outline-2">
-<h2 id="org4ff7209"><span class="section-number-2">1.</span> What dependent types are</h2>
+<div id="outline-container-orgce057c5" class="outline-2">
+<h2 id="orgce057c5"><span class="section-number-2">1.</span> What dependent types are</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 For those who don't know, a dependent type system is a type system inwhich a
@@ -305,8 +309,8 @@ and more.
 </p>
 </div>
 </div>
-<div id="outline-container-org6fcab15" class="outline-2">
-<h2 id="org6fcab15"><span class="section-number-2">2.</span> Higher order unification</h2>
+<div id="outline-container-org03a634b" class="outline-2">
+<h2 id="org03a634b"><span class="section-number-2">2.</span> Higher order unification</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 A popular algorithm for type inference is bidirectional type checking. In this
@@ -377,8 +381,8 @@ solution to the halting problem on some given program.
 </p>
 </div>
 </div>
-<div id="outline-container-orgba2644e" class="outline-2">
-<h2 id="orgba2644e"><span class="section-number-2">3.</span> Huet's algorithm</h2>
+<div id="outline-container-org817c2af" class="outline-2">
+<h2 id="org817c2af"><span class="section-number-2">3.</span> Huet's algorithm</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 The algorithm that is usually used for HOU is Huet's algorithm. It consists of
@@ -402,8 +406,8 @@ more flex rigid equations.
 </p>
 </div>
 </div>
-<div id="outline-container-orgd3fa6de" class="outline-2">
-<h2 id="orgd3fa6de"><span class="section-number-2">4.</span> Simplification</h2>
+<div id="outline-container-orgce478fa" class="outline-2">
+<h2 id="orgce478fa"><span class="section-number-2">4.</span> Simplification</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Simplification works on equalities of <b>reduced</b> terms and has multiple purposes:
@@ -495,8 +499,8 @@ more.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orga91dc27" class="outline-2">
-<h2 id="orga91dc27"><span class="section-number-2">5.</span> Substitutions</h2>
+<div id="outline-container-orga565d3b" class="outline-2">
+<h2 id="orga565d3b"><span class="section-number-2">5.</span> Substitutions</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 When our simplification has halted, we are left with only flex-rigid and
@@ -532,8 +536,8 @@ This means a flex rigid equality has the following shape:
 In this situation, we can try two types of substitutions on \( M \).
 </p>
 </div>
-<div id="outline-container-orgfda261c" class="outline-3">
-<h3 id="orgfda261c"><span class="section-number-3">5.1.</span> Imitation</h3>
+<div id="outline-container-org1bb43a3" class="outline-3">
+<h3 id="org1bb43a3"><span class="section-number-3">5.1.</span> Imitation</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 Here, we "mimic" the right hand side of the equation by copying the \( f \).
@@ -581,8 +585,8 @@ One such "imitation" substitution can be generated for a given equality.
 </p>
 </div>
 </div>
-<div id="outline-container-org1f7bf80" class="outline-3">
-<h3 id="org1f7bf80"><span class="section-number-3">5.2.</span> Projection</h3>
+<div id="outline-container-orge2d6453" class="outline-3">
+<h3 id="orge2d6453"><span class="section-number-3">5.2.</span> Projection</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 Let's go back to our flex-rigid pair
@@ -620,8 +624,8 @@ can generate \( k \) different projection substitutions.
 </div>
 </div>
 </div>
-<div id="outline-container-org9ed9ae0" class="outline-2">
-<h2 id="org9ed9ae0"><span class="section-number-2">6.</span> Tying it all together</h2>
+<div id="outline-container-org39e2db8" class="outline-2">
+<h2 id="org39e2db8"><span class="section-number-2">6.</span> Tying it all together</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Some pseudocode for this algorithm would be:
@@ -649,8 +653,8 @@ term with all the holes filled-in!
 </p>
 </div>
 </div>
-<div id="outline-container-orga1857ef" class="outline-2">
-<h2 id="orga1857ef"><span class="section-number-2">7.</span> References</h2>
+<div id="outline-container-org4302b3f" class="outline-2">
+<h2 id="org4302b3f"><span class="section-number-2">7.</span> References</h2>
 <div class="outline-text-2" id="text-7">
 <style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
@@ -664,7 +668,7 @@ term with all the holes filled-in!
 <div id="postamble" class="status">
 <p class="date">Date: 2024-04-02 Tue 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-05-17 Fri 16:36</p>
+<p class="date">Created: 2024-05-17 Fri 16:56</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
