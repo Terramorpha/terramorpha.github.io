@@ -9,6 +9,8 @@ metaprogramming and mathematics. With this blog, I aim to write concise posts
 regarding concept, techniques and ideas that a(slightly) younger version of
 myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_development][zone of proximal development]].
 
+* [[id:bc6ba032-8b50-4403-95db-abb7da96ae83][Implementing ~async~-~await~ syntax using delimited continuations]]
+
 * [[id:94834d2e-4ab7-41d0-bede-3b0ff5ae2b30][Dataset preprocessing with Guix scripts]]
 
 * [[id:d06c9885-40a8-49aa-b6e2-f84d0ede7bfd][Type level programming in julia]]
