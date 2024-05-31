@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-05-30 Thu 21:58 -->
+<!-- 2024-05-30 Thu 22:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Implementing algebraic effects through typeclass prolog</title>
@@ -245,8 +245,8 @@ effects pattern through the use of typeclass metaprogramming and lots of haskell
 extensions.
 </p>
 
-<div id="outline-container-orgac37248" class="outline-2">
-<h2 id="orgac37248"><span class="section-number-2">1.</span> Obligatory pragmas</h2>
+<div id="outline-container-orgd9c2a94" class="outline-2">
+<h2 id="orgd9c2a94"><span class="section-number-2">1.</span> Obligatory pragmas</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 We will be writing a lot of type level code and consequently, we will need to
@@ -297,8 +297,8 @@ To disambiguate some types:
 </div>
 </div>
 
-<div id="outline-container-org4780b53" class="outline-2">
-<h2 id="org4780b53"><span class="section-number-2">2.</span> Imports</h2>
+<div id="outline-container-orgc2d62bd" class="outline-2">
+<h2 id="orgc2d62bd"><span class="section-number-2">2.</span> Imports</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Some of the type families we are going to define are actually constraints.
@@ -311,8 +311,8 @@ Some of the type families we are going to define are actually constraints.
 </div>
 </div>
 
-<div id="outline-container-org77b2b66" class="outline-2">
-<h2 id="org77b2b66"><span class="section-number-2">3.</span> Syntax tree as fixpoint of sum of functors</h2>
+<div id="outline-container-orgac53d31" class="outline-2">
+<h2 id="orgac53d31"><span class="section-number-2">3.</span> Syntax tree as fixpoint of sum of functors</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 One of the ideas explained in the paper <a href="#citeproc_bib_item_1">[1]</a> is that we can
@@ -345,12 +345,12 @@ functors.
 </div>
 </div>
 
-<div id="outline-container-orgd64645b" class="outline-2">
-<h2 id="orgd64645b"><span class="section-number-2">4.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span></code> constructor</h2>
+<div id="outline-container-org2097bc8" class="outline-2">
+<h2 id="org2097bc8"><span class="section-number-2">4.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span></code> constructor</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 If we have a list of effects <code class="src src-haskell"><span style="color: #8f0075;">fs</span> <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]</code>, we would like to have
-a way to combine these into a new functor \( * -> * \). This is what this type
+a way to combine these into a new functor <code class="src src-haskell"><span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span></code>. This is what this type
 does.
 </p>
 
@@ -368,8 +368,8 @@ A term of type <code class="src src-haskell"><span style="color: #531ab6; font-w
 </div>
 </div>
 
-<div id="outline-container-orga165456" class="outline-2">
-<h2 id="orga165456"><span class="section-number-2">5.</span> Inclusion of functors</h2>
+<div id="outline-container-org0b56a1c" class="outline-2">
+<h2 id="org0b56a1c"><span class="section-number-2">5.</span> Inclusion of functors</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 For type inference to work well for us, we want our "effect sets" relations to
@@ -382,7 +382,7 @@ for every relation we wish to have on effect sets. We will then define instances
 <p>
 We first need an "is-element" relation(it is very similar to the \( \prec \)
 typeclass they use in <a href="#citeproc_bib_item_1">[1]</a>) which will be witnessed by a way to
-turn an <code class="src src-haskell"><span style="color: #8f0075;">f</span> x</code> into a <code class="src src-haskell"><span style="color: #8f0075;">fs</span> x</code> whenever <code class="src src-haskell">f <span style="color: #8f0075;">:&#8712;:</span> fs</code>.
+turn an <code class="src src-haskell"><span style="color: #8f0075;">f</span> x</code> into a <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span> fs x</code> whenever <code class="src src-haskell">f <span style="color: #8f0075;">:&#8712;:</span> fs</code>.
 </p>
 
 <div class="org-src-container">
@@ -433,8 +433,8 @@ Here is an example of this typeclass in action. We use it to automatically
 </div>
 </div>
 
-<div id="outline-container-orgb68e5ed" class="outline-2">
-<h2 id="orgb68e5ed"><span class="section-number-2">6.</span> Subset relation</h2>
+<div id="outline-container-orgebb9c10" class="outline-2">
+<h2 id="orgebb9c10"><span class="section-number-2">6.</span> Subset relation</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 With the help of our membership relation, we can define a new relation which
@@ -450,8 +450,8 @@ This relation will be witnessed by a function very similar to
 </div>
 
 <p>
-The empty set which is a subset of everything (this is the base case of our
-typeclass recursion).
+The empty set is a subset of everything (this is the base case of our typeclass
+recursion).
 </p>
 
 <div class="org-src-container">
@@ -489,18 +489,18 @@ Here is an example of ho we might use this relation:
 <p>
 Because of the way we set up our derivation rules, whenever all the functors in
 a set are known, the instance search algorithm will automatically generate the
-necessary code to rearance the order of a functor sum.
+necessary code to rearange the order of a functor sum.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org92f80bf" class="outline-2">
-<h2 id="org92f80bf"><span class="section-number-2">7.</span> Effect type constructor</h2>
+<div id="outline-container-org54764ce" class="outline-2">
+<h2 id="org54764ce"><span class="section-number-2">7.</span> Effect type constructor</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 Now we ave a way to represent effects (as sum of functors), let's tie them in a
 circle using the free monad. The following construction is equivalent to the
-free monad on the sum of a list of effects, except it forces the 
+free monad on the sum of the effects.
 </p>
 
 <div class="org-src-container">
@@ -522,8 +522,8 @@ notice is that
 </div>
 </div>
 
-<div id="outline-container-org0582237" class="outline-2">
-<h2 id="org0582237"><span class="section-number-2">8.</span> Free monoids, free monads, <code class="src src-haskell">[x]</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code></h2>
+<div id="outline-container-orge4803ce" class="outline-2">
+<h2 id="orge4803ce"><span class="section-number-2">8.</span> Free monoids, free monads, <code class="src src-haskell">[x]</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code></h2>
 <div class="outline-text-2" id="text-8">
 <p>
 We all know the meme phrase "a monad is just a monoid in the category of
@@ -532,8 +532,8 @@ free monoid in the category of endofunctors.
 </p>
 </div>
 
-<div id="outline-container-orgfedba58" class="outline-3">
-<h3 id="orgfedba58"><span class="section-number-3">8.1.</span> What even is a free monoid?</h3>
+<div id="outline-container-org5c69cb1" class="outline-3">
+<h3 id="org5c69cb1"><span class="section-number-3">8.1.</span> What even is a free monoid?</h3>
 <div class="outline-text-3" id="text-8-1">
 <p>
 A monoid is an object with an associative operation \( * \) and a neutral
@@ -586,8 +586,8 @@ where \( x^0 \) is the singleton set and \( x^n \) is the \( n \)-tuple of \( x
 </div>
 </div>
 
-<div id="outline-container-org3f75bcb" class="outline-3">
-<h3 id="org3f75bcb"><span class="section-number-3">8.2.</span> Free monad</h3>
+<div id="outline-container-org97857fa" class="outline-3">
+<h3 id="org97857fa"><span class="section-number-3">8.2.</span> Free monad</h3>
 <div class="outline-text-3" id="text-8-2">
 <p>
 If we translate all of our operations from the set world to the endofunctor
@@ -619,8 +619,8 @@ This object &#x2013; the free monoid on an alphabet of endofunctors &#x2013; is 
 </div>
 </div>
 
-<div id="outline-container-orgc5a8e5b" class="outline-2">
-<h2 id="orgc5a8e5b"><span class="section-number-2">9.</span> Show for <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs x</code></h2>
+<div id="outline-container-orgf789d5c" class="outline-2">
+<h2 id="orgf789d5c"><span class="section-number-2">9.</span> Show for <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs x</code></h2>
 <div class="outline-text-2" id="text-9">
 <p>
 When working with effectful values, it will be useful to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Show</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs x)</code> when possible. To achieve this, we will need to define new
@@ -668,8 +668,8 @@ preserves show whenever <code class="src src-haskell"><span style="color: #531ab
 </div>
 </div>
 
-<div id="outline-container-org9fecfb7" class="outline-2">
-<h2 id="org9fecfb7"><span class="section-number-2">10.</span> When the effects <code class="src src-haskell">fs</code> are functors, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is a functor</h2>
+<div id="outline-container-org4710d6a" class="outline-2">
+<h2 id="org4710d6a"><span class="section-number-2">10.</span> When the effects <code class="src src-haskell">fs</code> are functors, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is a functor</h2>
 <div class="outline-text-2" id="text-10">
 <p>
 Further down, having <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Functor</span></code> instances for everything will be very
@@ -709,8 +709,8 @@ functor whenever <code class="src src-haskell">fs</code> are.
 </div>
 </div>
 
-<div id="outline-container-org83a1c66" class="outline-2">
-<h2 id="org83a1c66"><span class="section-number-2">11.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is also a monad</h2>
+<div id="outline-container-org9587ff6" class="outline-2">
+<h2 id="org9587ff6"><span class="section-number-2">11.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is also a monad</h2>
 <div class="outline-text-2" id="text-11">
 <p>
 The categorical presentation of a monad uses a <code class="src src-haskell">join</code> operator
@@ -745,8 +745,8 @@ naturally.
 </div>
 </div>
 
-<div id="outline-container-orgfcea681" class="outline-2">
-<h2 id="orgfcea681"><span class="section-number-2">12.</span> Why do we need <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Monad</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs)</code>?</h2>
+<div id="outline-container-orgd1a6a8e" class="outline-2">
+<h2 id="orgd1a6a8e"><span class="section-number-2">12.</span> Why do we need <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Monad</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs)</code>?</h2>
 <div class="outline-text-2" id="text-12">
 <p>
 I hear you ask: "At the beginning, you presented algebraic effects as an
@@ -762,8 +762,8 @@ Monads, in their normal form, don't. What we do here is compose the effects
 </div>
 </div>
 
-<div id="outline-container-orgfd3f8d7" class="outline-2">
-<h2 id="orgfd3f8d7"><span class="section-number-2">13.</span> Lift a term into an effect</h2>
+<div id="outline-container-org7eaba93" class="outline-2">
+<h2 id="org7eaba93"><span class="section-number-2">13.</span> Lift a term into an effect</h2>
 <div class="outline-text-2" id="text-13">
 <p>
 Now that we have built ourselves an ontology of typeclasses, functors and
@@ -773,15 +773,15 @@ a naked effect into a fully-clothed effectful value.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">effInj</span> <span style="color: #3548cf;">::</span> (<span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs, f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> fs) <span style="color: #3548cf;">=&gt;</span> f x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x
-<span style="color: #8f0075;">effInj</span> e <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> fmap <span style="color: #531ab6; font-weight: bold;">Pure</span> <span style="color: #3548cf;">$</span> inject e
+<pre class="src src-haskell"><span style="color: #8f0075;">effInj</span> <span style="color: #3548cf;">::</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span> f, f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> fs) <span style="color: #3548cf;">=&gt;</span> f x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x
+<span style="color: #8f0075;">effInj</span> e <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> inject <span style="color: #3548cf;">$</span> fmap <span style="color: #531ab6; font-weight: bold;">Pure</span> e
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org8af9736" class="outline-2">
-<h2 id="org8af9736"><span class="section-number-2">14.</span> Example</h2>
+<div id="outline-container-orgc71d7f0" class="outline-2">
+<h2 id="orgc71d7f0"><span class="section-number-2">14.</span> Example</h2>
 <div class="outline-text-2" id="text-14">
 <p>
 Here is how to use it. Let's say we defined two effects for asking for a string
@@ -812,8 +812,8 @@ operations.
 </div>
 </div>
 
-<div id="outline-container-org0d358dd" class="outline-2">
-<h2 id="org0d358dd"><span class="section-number-2">15.</span> Permuting effects</h2>
+<div id="outline-container-orge6c2612" class="outline-2">
+<h2 id="orge6c2612"><span class="section-number-2">15.</span> Permuting effects</h2>
 <div class="outline-text-2" id="text-15">
 <p>
 Here is an utility function to embed an effectful value into a bigger effect
@@ -829,8 +829,8 @@ space.
 </div>
 </div>
 
-<div id="outline-container-org52554e0" class="outline-2">
-<h2 id="org52554e0"><span class="section-number-2">16.</span> Handlers</h2>
+<div id="outline-container-orgb95dec3" class="outline-2">
+<h2 id="orgb95dec3"><span class="section-number-2">16.</span> Handlers</h2>
 <div class="outline-text-2" id="text-16">
 <p>
 The idea of a handler is what makes algebraic effects ergonomic. It lets us
@@ -866,14 +866,15 @@ must do so using one of the remaining effects in the set.
 </div>
 </div>
 
-<div id="outline-container-org7003a3c" class="outline-2">
-<h2 id="org7003a3c"><span class="section-number-2">17.</span> More advanced handler</h2>
+<div id="outline-container-org67f2c67" class="outline-2">
+<h2 id="org67f2c67"><span class="section-number-2">17.</span> More advanced handler</h2>
 <div class="outline-text-2" id="text-17">
 <p>
 Let's say you want an effect <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">GenSym</span> <span style="color: #3548cf;">::</span> (<span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> x) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> x</code> that
 generates unique integers. We need some kind of way to remember the last number
-we gave out. We would like to remember some state during our traversal of the
-effect tree. A <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">FoldHandler</span></code> lets us do that.
+we gave out. A <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Handler</span> f fs</code> lets us handle a <code class="src src-haskell">f</code> effect
+using <code class="src src-haskell">fs</code> and also, at the same time, give the next
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Handler</span> f fs</code> to use.
 </p>
 
 <div class="org-src-container">
@@ -922,8 +923,8 @@ Example:
 </div>
 </div>
 
-<div id="outline-container-orgd6c65c5" class="outline-2">
-<h2 id="orgd6c65c5"><span class="section-number-2">18.</span> References</h2>
+<div id="outline-container-orgbed8adb" class="outline-2">
+<h2 id="orgbed8adb"><span class="section-number-2">18.</span> References</h2>
 <div class="outline-text-2" id="text-18">
 <style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
@@ -937,7 +938,7 @@ Example:
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-29 Wed 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-05-30 Thu 21:58</p>
+<p class="date">Created: 2024-05-30 Thu 22:32</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

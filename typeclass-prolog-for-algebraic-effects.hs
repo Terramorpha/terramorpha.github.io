@@ -104,8 +104,8 @@ instance (AllFunctors fs) => Applicative (Eff fs) where
 instance (AllFunctors fs) => Monad (Eff fs) where
   (>>=) = effBind
 
-effInj :: (AllFunctors fs, f :∈: fs) => f x -> Eff fs x
-effInj e = Impure $ fmap Pure $ inject e
+effInj :: (Functor f, f :∈: fs) => f x -> Eff fs x
+effInj e = Impure $ inject $ fmap Pure e
 
 data GetString a = GetString (String -> a)
   deriving Functor

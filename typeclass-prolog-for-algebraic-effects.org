@@ -108,7 +108,7 @@ data Free f x = Return x | Join (f (Free f x))
 * The src_haskell{Sum} constructor
 
 If we have a list of effects src_haskell{fs :: [* -> *]}, we would like to have
-a way to combine these into a new functor \( * -> * \). This is what this type
+a way to combine these into a new functor src_haskell{* -> *}. This is what this type
 does.
 
 #+begin_src haskell
@@ -130,7 +130,7 @@ for every relation we wish to have on effect sets. We will then define instances
 
 We first need an "is-element" relation(it is very similar to the \( \prec \)
 typeclass they use in [cite:@swierstra2008]) which will be witnessed by a way to
-turn an src_haskell{f x} into a src_haskell{fs x} whenever src_haskell{f :∈:
+turn an src_haskell{f x} into a src_haskell{Sum fs x} whenever src_haskell{f :∈:
 fs}.
 
 #+begin_src haskell
@@ -179,8 +179,8 @@ class (l :: [* -> *]) :⊆: (r :: [* -> *]) where
   permute :: Sum l x -> Sum r x
 #+end_src
 
-The empty set which is a subset of everything (this is the base case of our
-typeclass recursion).
+The empty set is a subset of everything (this is the base case of our typeclass
+recursion).
 
 #+begin_src haskell
 instance '[] :⊆: fs where
@@ -209,13 +209,13 @@ test2 = permute test1
 
 Because of the way we set up our derivation rules, whenever all the functors in
 a set are known, the instance search algorithm will automatically generate the
-necessary code to rearance the order of a functor sum.
+necessary code to rearange the order of a functor sum.
 
 * Effect type constructor
 
 Now we ave a way to represent effects (as sum of functors), let's tie them in a
 circle using the free monad. The following construction is equivalent to the
-free monad on the sum of a list of effects, except it forces the 
+free monad on the sum of the effects.
 
 #+begin_src haskell
 data Eff (fs :: [* -> *]) (x :: *) where
@@ -398,8 +398,8 @@ of them will be this simple src_haskell{effInj} function which will let us turn
 a naked effect into a fully-clothed effectful value.
 
 #+begin_src haskell
-effInj :: (AllFunctors fs, f :∈: fs) => f x -> Eff fs x
-effInj e = Impure $ fmap Pure $ inject e
+effInj :: (Functor f, f :∈: fs) => f x -> Eff fs x
+effInj e = Impure $ inject $ fmap Pure e
 #+end_src
 
 * Example
@@ -471,8 +471,9 @@ comp' = handle func comp
 
 Let's say you want an effect src_haskell{GenSym :: (Int -> x) -> GenSym x} that
 generates unique integers. We need some kind of way to remember the last number
-we gave out. We would like to remember some state during our traversal of the
-effect tree. A src_haskell{FoldHandler} lets us do that.
+we gave out. A src_haskell{Handler f fs} lets us handle a src_haskell{f} effect
+using src_haskell{fs} and also, at the same time, give the next
+src_haskell{Handler f fs} to use.
 
 #+begin_src haskell
 data Handler (f :: * -> *) (fs :: [* -> *]) where
