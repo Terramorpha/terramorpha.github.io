@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-05-27 Mon 20:13 -->
+<!-- 2024-07-21 Sun 15:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Implementing ~async~-~await~ syntax using delimited continuations</title>
@@ -263,15 +263,15 @@ function would wrap a pure value without effects whereas the <code class="src sr
 function would thread effectful computations.
 </p>
 
-<div id="outline-container-orgffc34da" class="outline-2">
-<h2 id="orgffc34da"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
+<div id="outline-container-orga361990" class="outline-2">
+<h2 id="orga361990"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 One very popular monad (it is very much used outside the functional programming
 community) is the concept of promise. A promise is a value that you do not yet
 have, but that you want to manipulate. For instance, the javascript
 <code class="src src-js">fetch</code> function returns promises which you manipulate through the
-<code class="src src-js">fetch</code> method:
+<code class="src src-js">.then</code> method:
 </p>
 
 <div class="org-src-container">
@@ -317,8 +317,8 @@ said delimited continuation.
 </div>
 </div>
 
-<div id="outline-container-org9da9e3b" class="outline-2">
-<h2 id="org9da9e3b"><span class="section-number-2">2.</span> The concept of continuation</h2>
+<div id="outline-container-org15331a6" class="outline-2">
+<h2 id="org15331a6"><span class="section-number-2">2.</span> The concept of continuation</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Before we dive into the technical details of implementing <code>async</code> / <code>await</code> syntax,
@@ -408,12 +408,12 @@ support passing functions around.
 </div>
 </div>
 
-<div id="outline-container-orgff148d7" class="outline-2">
-<h2 id="orgff148d7"><span class="section-number-2">3.</span> Examples</h2>
+<div id="outline-container-org6db199b" class="outline-2">
+<h2 id="org6db199b"><span class="section-number-2">3.</span> Examples</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org573bd11" class="outline-3">
-<h3 id="org573bd11"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
+<div id="outline-container-org37b17db" class="outline-3">
+<h3 id="org37b17db"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
 <div class="outline-text-3" id="text-3-1">
 <div class="org-src-container">
 <pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">exception_handler</span> = <span style="color: #531ab6;">null</span>;
@@ -484,8 +484,8 @@ got result: null
 </div>
 </div>
 
-<div id="outline-container-org53d0320" class="outline-3">
-<h3 id="org53d0320"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
+<div id="outline-container-org367014f" class="outline-3">
+<h3 id="org367014f"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
 <div class="outline-text-3" id="text-3-2">
 <div class="org-src-container">
 <pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">callcc</span>(<span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
@@ -506,8 +506,8 @@ everything in CPS!</b>
 </div>
 </div>
 
-<div id="outline-container-orgde25ddd" class="outline-2">
-<h2 id="orgde25ddd"><span class="section-number-2">4.</span> <code class="src src-scheme">call/cc</code> in scheme</h2>
+<div id="outline-container-orgcb9aab6" class="outline-2">
+<h2 id="orgcb9aab6"><span class="section-number-2">4.</span> <code class="src src-scheme">call/cc</code> in scheme</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 The way <code class="src src-scheme">call/cc</code> works is that it gives as an argument to the thunk
@@ -516,15 +516,15 @@ works in scheme.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span>
-  <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">call/cc</span> <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #972500;">(</span>ret<span style="color: #972500;">)</span>
-             <span style="color: #972500;">(</span>display <span style="color: #a0132f;">"one\n"</span><span style="color: #972500;">)</span>
-             <span style="color: #972500;">(</span>display <span style="color: #a0132f;">"two\n"</span><span style="color: #972500;">)</span>
-             <span style="color: #972500;">(</span>ret 12345<span style="color: #972500;">)</span>
-             <span style="color: #972500;">(</span>display <span style="color: #a0132f;">"tree\n"</span><span style="color: #972500;">)</span>
-             <span style="color: #972500;">(</span>display <span style="color: #a0132f;">"four\n"</span><span style="color: #972500;">)</span><span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span>
+  (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (ret)
+             (display <span style="color: #a0132f;">"one\n"</span>)
+             (display <span style="color: #a0132f;">"two\n"</span>)
+             (ret 12345)
+             (display <span style="color: #a0132f;">"tree\n"</span>)
+             (display <span style="color: #a0132f;">"four\n"</span>))))
 
-<span style="color: #000000;">(</span>format #t <span style="color: #a0132f;">"value is ~a\n"</span> value<span style="color: #000000;">)</span>
+(format #t <span style="color: #a0132f;">"value is ~a\n"</span> value)
 </pre>
 </div>
 
@@ -542,8 +542,8 @@ thousand levels of nesting).
 </p>
 </div>
 
-<div id="outline-container-org101bb63" class="outline-3">
-<h3 id="org101bb63"><span class="section-number-3">4.1.</span> Note</h3>
+<div id="outline-container-org244e381" class="outline-3">
+<h3 id="org244e381"><span class="section-number-3">4.1.</span> Note</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 It might be very confusing at first, (because up until now, our use of
@@ -553,16 +553,16 @@ things.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">kont</span>
-  <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">call/cc</span> <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #972500;">(</span>k<span style="color: #972500;">)</span> k<span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">kont</span>
+  (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (k) k)))
 
-<span style="color: #000000;">(</span>display <span style="color: #a0132f;">"exited call/cc block\n"</span><span style="color: #000000;">)</span>
+(display <span style="color: #a0132f;">"exited call/cc block\n"</span>)
 
-<span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">if</span> <span style="color: #dd22dd;">(</span>procedure? kont<span style="color: #dd22dd;">)</span>
-    <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">begin</span>
-      <span style="color: #008899;">(</span>display <span style="color: #a0132f;">"hello\n"</span><span style="color: #008899;">)</span>
-      <span style="color: #008899;">(</span>kont 123<span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span>
-    <span style="color: #dd22dd;">(</span>format #t <span style="color: #a0132f;">"the value: ~a\n"</span> kont<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+(<span style="color: #005e8b; font-weight: bold;">if</span> (procedure? kont)
+    (<span style="color: #005e8b; font-weight: bold;">begin</span>
+      (display <span style="color: #a0132f;">"hello\n"</span>)
+      (kont 123))
+    (format #t <span style="color: #a0132f;">"the value: ~a\n"</span> kont))
 </pre>
 </div>
 
@@ -575,8 +575,8 @@ the value: 123
 </div>
 </div>
 
-<div id="outline-container-org39a9c18" class="outline-3">
-<h3 id="org39a9c18"><span class="section-number-3">4.2.</span> Problems with <code class="src src-scheme">call/cc</code></h3>
+<div id="outline-container-org46a0ed2" class="outline-3">
+<h3 id="org46a0ed2"><span class="section-number-3">4.2.</span> Problems with <code class="src src-scheme">call/cc</code></h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 The <code class="src src-scheme">call/cc</code> operator, however has flaws. Systems written using this
@@ -589,8 +589,8 @@ continuations are called delimited.
 </div>
 
 
-<div id="outline-container-org64720e8" class="outline-2">
-<h2 id="org64720e8"><span class="section-number-2">5.</span> Delimited continuations</h2>
+<div id="outline-container-orgf432004" class="outline-2">
+<h2 id="orgf432004"><span class="section-number-2">5.</span> Delimited continuations</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Delimited continuations are continuations that end with a value, their
@@ -603,8 +603,8 @@ and <code class="src src-scheme">abort-to-prompt</code> scheme operators.
 </div>
 </div>
 
-<div id="outline-container-orgd01e38e" class="outline-2">
-<h2 id="orgd01e38e"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
+<div id="outline-container-org3f7088d" class="outline-2">
+<h2 id="org3f7088d"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
 <div class="outline-text-2" id="text-6">
 <p>
 In <a href="https://www.gnu.org/software/guile/">Guile Scheme</a>, delimited continuations are created through two procedures.
@@ -618,18 +618,18 @@ location at which continuation will <b>start</b>.</dd>
 </dl>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> <span style="color: #dd22dd;">(</span>make-prompt-tag<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
 
-<span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
-  <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #008899;">()</span>
-    <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #972500;">(</span><span style="color: #808000;">(</span>x 12345<span style="color: #808000;">)</span><span style="color: #972500;">)</span>
+(<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
+  (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
+    (<span style="color: #005e8b; font-weight: bold;">let</span> ((x 12345))
       <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...</span>
-      <span style="color: #972500;">(</span><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #808000;">(</span><span style="color: #531ab6;">(</span>y <span style="color: #008900;">(</span>+ x <span style="color: #3548cf;">(</span>abort-to-prompt tag<span style="color: #3548cf;">)</span><span style="color: #008900;">)</span><span style="color: #531ab6;">)</span><span style="color: #808000;">)</span>
+      (<span style="color: #005e8b; font-weight: bold;">let</span> ((y (+ x (abort-to-prompt tag))))
         <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...</span>
-        y<span style="color: #972500;">)</span><span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span>
-  <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #008899;">(</span>kont<span style="color: #008899;">)</span>
+        y)))
+  (<span style="color: #005e8b; font-weight: bold;">lambda</span> (kont)
     <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...</span>
-    <span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+    ))
 </pre>
 </div>
 
@@ -646,19 +646,19 @@ called. To better understand how it works, here is an example:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme" id="org67cddfb"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> <span style="color: #dd22dd;">(</span>make-prompt-tag<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
-<span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">cont</span>
-  <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
-    <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #972500;">()</span>
-      <span style="color: #972500;">(</span>display <span style="color: #a0132f;">"hello!\n"</span><span style="color: #972500;">)</span>
-      <span style="color: #972500;">(</span><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #808000;">(</span><span style="color: #531ab6;">(</span>x <span style="color: #008900;">(</span>abort-to-prompt tag <span style="color: #a0132f;">"some-value"</span><span style="color: #008900;">)</span><span style="color: #531ab6;">)</span><span style="color: #808000;">)</span>
-        <span style="color: #808000;">(</span>+ 5 x<span style="color: #808000;">)</span><span style="color: #972500;">)</span><span style="color: #008899;">)</span>
-    <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #972500;">(</span>k val<span style="color: #972500;">)</span>
-      <span style="color: #972500;">(</span>format #t <span style="color: #a0132f;">"got value: ~s\n"</span> val<span style="color: #972500;">)</span>
-      k<span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+<pre class="src src-scheme" id="org8d08f64">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
+(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">cont</span>
+  (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
+    (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
+      (display <span style="color: #a0132f;">"hello!\n"</span>)
+      (<span style="color: #005e8b; font-weight: bold;">let</span> ((x (abort-to-prompt tag <span style="color: #a0132f;">"some-value"</span>)))
+        (+ 5 x)))
+    (<span style="color: #005e8b; font-weight: bold;">lambda</span> (k val)
+      (format #t <span style="color: #a0132f;">"got value: ~s\n"</span> val)
+      k)))
 
-<span style="color: #000000;">(</span>display <span style="color: #dd22dd;">(</span>cont 1<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span> <span style="color: #000000;">(</span>newline<span style="color: #000000;">)</span>
-<span style="color: #000000;">(</span>display <span style="color: #dd22dd;">(</span>cont 3<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span> <span style="color: #000000;">(</span>newline<span style="color: #000000;">)</span>
+(display (cont 1)) (newline)
+(display (cont 3)) (newline)
 </pre>
 </div>
 
@@ -686,8 +686,8 @@ captures the continuation starting from the innermost
 </div>
 </div>
 
-<div id="outline-container-orgb929788" class="outline-2">
-<h2 id="orgb929788"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
+<div id="outline-container-orgedb633f" class="outline-2">
+<h2 id="orgedb633f"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 Now that we understand better the concept of continuation, let's use it to
@@ -745,8 +745,8 @@ Let's use this technique to implement nondeterministic computation.
 </div>
 </div>
 
-<div id="outline-container-orgcdacdb3" class="outline-2">
-<h2 id="orgcdacdb3"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
+<div id="outline-container-orgf64ffd8" class="outline-2">
+<h2 id="orgf64ffd8"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
 <div class="outline-text-2" id="text-8">
 <p>
 One way of modeling nondeterministic computation is through lists. Each time we
@@ -754,17 +754,17 @@ want to say "this value contains a superposition of many <code class="src src-ha
 will say <code class="src src-haskell">[<span style="color: #531ab6; font-weight: bold;">Int</span>]</code>. When we want to model a nondeterministic
 computation on <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code>s (let's say, into strings), we use
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> [<span style="color: #531ab6; font-weight: bold;">String</span>]</code>. we combine those two values through first applying
-the function to each possible value (getting a <code class="src src-haskell">[[<span style="color: #531ab6; font-weight: bold;">String</span>]]</code>, then by
+the function to each possible value (getting a <code class="src src-haskell">[[<span style="color: #531ab6; font-weight: bold;">String</span>]]</code>), then by
 flattening the lists together into a <code class="src src-haskell">[<span style="color: #531ab6; font-weight: bold;">String</span>]</code>. When implemented in
 Scheme, it looks like this:
 </p>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 1: </span>For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.</label><pre class="src src-scheme"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #dd22dd;">(</span><span style="color: #8f0075;">.then</span> l func<span style="color: #dd22dd;">)</span>
-  <span style="color: #dd22dd;">(</span>apply append <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">map</span> func l<span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.</label><pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">.then</span> l func)
+  (apply append (<span style="color: #005e8b; font-weight: bold;">map</span> func l)))
 
-<span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #dd22dd;">(</span><span style="color: #8f0075;">pure</span> x<span style="color: #dd22dd;">)</span>
-  <span style="color: #dd22dd;">(</span>list x<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">pure</span> x)
+  (list x))
 </pre>
 </div>
 
@@ -773,77 +773,78 @@ Actually implementing the syntax is slightly more tricky.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">prompt-tag</span> <span style="color: #dd22dd;">(</span>make-prompt-tag<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">prompt-tag</span> (make-prompt-tag))
 
 <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Awaiting a value (choosing a value among nondeterministic choices)</span>
 <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">is simple, just abort to the nearest handler and give the list.</span>
-<span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #dd22dd;">(</span><span style="color: #8f0075;">await</span> mval<span style="color: #dd22dd;">)</span>
-  <span style="color: #dd22dd;">(</span>abort-to-prompt prompt-tag
-                   mval<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">await</span> mval)
+  (abort-to-prompt prompt-tag
+                   mval))
 
 <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">When the continuation is to be threaded using nondeterministic</span>
 <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">value (a list of things), we use .then on the continuation while</span>
 <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">making sure we re-delimit the end of the continuation using another</span>
 <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">async block.</span>
-<span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #dd22dd;">(</span><span style="color: #8f0075;">async</span> thunk<span style="color: #dd22dd;">)</span>
-  <span style="color: #dd22dd;">(</span><span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> prompt-tag
+(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">async</span> thunk)
+  (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> prompt-tag
     thunk
-    <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #972500;">(</span>cont value<span style="color: #972500;">)</span>
-      <span style="color: #972500;">(</span>.then value <span style="color: #808000;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #531ab6;">(</span>v<span style="color: #531ab6;">)</span>
-                   <span style="color: #531ab6;">(</span>async
-                    <span style="color: #008900;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #3548cf;">()</span>
-                      <span style="color: #3548cf;">(</span>cont v<span style="color: #3548cf;">)</span><span style="color: #008900;">)</span><span style="color: #531ab6;">)</span><span style="color: #808000;">)</span><span style="color: #972500;">)</span><span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+    (<span style="color: #005e8b; font-weight: bold;">lambda</span> (cont value)
+      (.then value (<span style="color: #005e8b; font-weight: bold;">lambda</span> (v)
+                   (async
+                    (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
+                      (cont v))))))))
 </pre>
 </div>
 
 <p>
 Finally we can test our code on a toy example. Here, a sequential nondeterminist
-choice of number letter and fruit should yield every combination of number,
+choice of number, letter and fruit should yield every combination of number,
 letter and fruit.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #000000;">(</span><span style="color: #005e8b; font-weight: bold;">use-modules</span> <span style="color: #dd22dd;">(</span>ice-9 pretty-print<span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span> <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">for pretty-printing</span>
+<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 pretty-print))
 
-<span style="color: #000000;">(</span>pretty-print
- <span style="color: #dd22dd;">(</span>async
-  <span style="color: #008899;">(</span><span style="color: #005e8b; font-weight: bold;">lambda</span> <span style="color: #972500;">()</span>
-    <span style="color: #972500;">(</span><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #808000;">(</span><span style="color: #531ab6;">(</span>num <span style="color: #008900;">(</span>await '<span style="color: #3548cf;">(</span>1 2 3<span style="color: #3548cf;">)</span><span style="color: #008900;">)</span><span style="color: #531ab6;">)</span>
-          <span style="color: #531ab6;">(</span>letter <span style="color: #008900;">(</span>await '<span style="color: #3548cf;">(</span>a b c<span style="color: #3548cf;">)</span><span style="color: #008900;">)</span><span style="color: #531ab6;">)</span>
-          <span style="color: #531ab6;">(</span>fruit <span style="color: #008900;">(</span>await '<span style="color: #3548cf;">(</span><span style="color: #a0132f;">"pomme"</span> <span style="color: #a0132f;">"orange"</span> <span style="color: #a0132f;">"banane"</span><span style="color: #3548cf;">)</span><span style="color: #008900;">)</span><span style="color: #531ab6;">)</span><span style="color: #808000;">)</span>
-      <span style="color: #808000;">(</span>pure <span style="color: #531ab6;">(</span>list num letter fruit<span style="color: #531ab6;">)</span><span style="color: #808000;">)</span><span style="color: #972500;">)</span><span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+(pretty-print
+ (async
+  (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
+    (<span style="color: #005e8b; font-weight: bold;">let</span> ((num (await '(1 2 3)))
+          (letter (await '(a b c)))
+          (fruit (await '(<span style="color: #a0132f;">"apple"</span> <span style="color: #a0132f;">"orange"</span> <span style="color: #a0132f;">"banana"</span>))))
+      (pure (list num letter fruit))))))
 </pre>
 </div>
 
-<pre class="example" id="orgab7ba12">
-((1 a "pomme")
- (1 a "orange")
- (1 a "banane")
- (1 b "pomme")
- (1 b "orange")
- (1 b "banane")
- (1 c "pomme")
- (1 c "orange")
- (1 c "banane")
- (2 a "pomme")
- (2 a "orange")
- (2 a "banane")
- (2 b "pomme")
- (2 b "orange")
- (2 b "banane")
- (2 c "pomme")
- (2 c "orange")
- (2 c "banane")
- (3 a "pomme")
- (3 a "orange")
- (3 a "banane")
- (3 b "pomme")
- (3 b "orange")
- (3 b "banane")
- (3 c "pomme")
- (3 c "orange")
- (3 c "banane"))
+<div class="org-src-container">
+<pre class="src src-scheme">((1 a <span style="color: #a0132f;">"apple"</span>)
+ (1 a <span style="color: #a0132f;">"orange"</span>)
+ (1 a <span style="color: #a0132f;">"banana"</span>)
+ (1 b <span style="color: #a0132f;">"apple"</span>)
+ (1 b <span style="color: #a0132f;">"orange"</span>)
+ (1 b <span style="color: #a0132f;">"banana"</span>)
+ (1 c <span style="color: #a0132f;">"apple"</span>)
+ (1 c <span style="color: #a0132f;">"orange"</span>)
+ (1 c <span style="color: #a0132f;">"banana"</span>)
+ (2 a <span style="color: #a0132f;">"apple"</span>)
+ (2 a <span style="color: #a0132f;">"orange"</span>)
+ (2 a <span style="color: #a0132f;">"banana"</span>)
+ (2 b <span style="color: #a0132f;">"apple"</span>)
+ (2 b <span style="color: #a0132f;">"orange"</span>)
+ (2 b <span style="color: #a0132f;">"banana"</span>)
+ (2 c <span style="color: #a0132f;">"apple"</span>)
+ (2 c <span style="color: #a0132f;">"orange"</span>)
+ (2 c <span style="color: #a0132f;">"banana"</span>)
+ (3 a <span style="color: #a0132f;">"apple"</span>)
+ (3 a <span style="color: #a0132f;">"orange"</span>)
+ (3 a <span style="color: #a0132f;">"banana"</span>)
+ (3 b <span style="color: #a0132f;">"apple"</span>)
+ (3 b <span style="color: #a0132f;">"orange"</span>)
+ (3 b <span style="color: #a0132f;">"banana"</span>)
+ (3 c <span style="color: #a0132f;">"apple"</span>)
+ (3 c <span style="color: #a0132f;">"orange"</span>)
+ (3 c <span style="color: #a0132f;">"banana"</span>))
 </pre>
+</div>
 
 <p>
 It works! Note that for the types to work, the output of every <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">async</span></code>
@@ -860,7 +861,7 @@ have seen, continuation passing style) and other effects.
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-26 Sun 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-05-27 Mon 20:13</p>
+<p class="date">Created: 2024-07-21 Sun 15:23</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

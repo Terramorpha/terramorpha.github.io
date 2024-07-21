@@ -36,7 +36,7 @@ One very popular monad (it is very much used outside the functional programming
 community) is the concept of promise. A promise is a value that you do not yet
 have, but that you want to manipulate. For instance, the javascript
 src_js{fetch} function returns promises which you manipulate through the
-src_js{fetch} method:
+src_js{.then} method:
 
 #+begin_src js
 const resp_promise = fetch("http://example.org/");
@@ -432,7 +432,7 @@ want to say "this value contains a superposition of many src_haskell{Int}s", we
 will say src_haskell{[Int]}. When we want to model a nondeterministic
 computation on src_haskell{Int}s (let's say, into strings), we use
 src_haskell{Int -> [String]}. we combine those two values through first applying
-the function to each possible value (getting a src_haskell{[[String]]}, then by
+the function to each possible value (getting a src_haskell{[[String]]}), then by
 flattening the lists together into a src_haskell{[String]}. When implemented in
 Scheme, it looks like this:
 
@@ -473,52 +473,54 @@ Actually implementing the syntax is slightly more tricky.
                       (cont v))))))))
 #+end_src
 
+#+RESULTS:
+
 Finally we can test our code on a toy example. Here, a sequential nondeterminist
-choice of number letter and fruit should yield every combination of number,
+choice of number, letter and fruit should yield every combination of number,
 letter and fruit.
 
-#+begin_src scheme :session :results output :exports both
-(use-modules (ice-9 pretty-print)) ;; for pretty-printing
+#+begin_src scheme :session :results output code :exports both
+(use-modules (ice-9 pretty-print))
 
 (pretty-print
  (async
   (lambda ()
     (let ((num (await '(1 2 3)))
           (letter (await '(a b c)))
-          (fruit (await '("pomme" "orange" "banane"))))
+          (fruit (await '("apple" "orange" "banana"))))
       (pure (list num letter fruit))))))
 #+end_src
 
 #+RESULTS:
-#+begin_example
-((1 a "pomme")
+#+begin_src scheme
+((1 a "apple")
  (1 a "orange")
- (1 a "banane")
- (1 b "pomme")
+ (1 a "banana")
+ (1 b "apple")
  (1 b "orange")
- (1 b "banane")
- (1 c "pomme")
+ (1 b "banana")
+ (1 c "apple")
  (1 c "orange")
- (1 c "banane")
- (2 a "pomme")
+ (1 c "banana")
+ (2 a "apple")
  (2 a "orange")
- (2 a "banane")
- (2 b "pomme")
+ (2 a "banana")
+ (2 b "apple")
  (2 b "orange")
- (2 b "banane")
- (2 c "pomme")
+ (2 b "banana")
+ (2 c "apple")
  (2 c "orange")
- (2 c "banane")
- (3 a "pomme")
+ (2 c "banana")
+ (3 a "apple")
  (3 a "orange")
- (3 a "banane")
- (3 b "pomme")
+ (3 a "banana")
+ (3 b "apple")
  (3 b "orange")
- (3 b "banane")
- (3 c "pomme")
+ (3 b "banana")
+ (3 c "apple")
  (3 c "orange")
- (3 c "banane"))
-#+end_example
+ (3 c "banana"))
+#+end_src
 
 It works! Note that for the types to work, the output of every src_js{async}
 thunk must be wrapped into a monadic value. You do not have to do this when

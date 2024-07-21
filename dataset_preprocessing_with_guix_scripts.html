@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-05-17 Fri 16:55 -->
+<!-- 2024-05-26 Sun 22:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dataset preprocessing with Guix scripts</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style type="text/css">
+<style>
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -207,8 +207,9 @@ package management paradigm that Eelco Dolstra pioneered. While they share the
 same idea and function in a very similar way, some differences make their
 day-to-day use quite different.
 </p>
-<div id="outline-container-orgc36a418" class="outline-2">
-<h2 id="orgc36a418"><span class="section-number-2">1.</span> Licensing and reproducibility standpoint</h2>
+
+<div id="outline-container-org306245e" class="outline-2">
+<h2 id="org306245e"><span class="section-number-2">1.</span> Licensing and reproducibility standpoint</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Guix is a GNU project and respect the <a href="https://www.gnu.org/distros/free-system-distribution-guidelines.html">Free System Distribution Guidelines
@@ -223,8 +224,9 @@ prebuilt binaries when the compilation process is too complicated.
 </p>
 </div>
 </div>
-<div id="outline-container-orgc9e2a7f" class="outline-2">
-<h2 id="orgc9e2a7f"><span class="section-number-2">2.</span> Package declaration language</h2>
+
+<div id="outline-container-org755c254" class="outline-2">
+<h2 id="org755c254"><span class="section-number-2">2.</span> Package declaration language</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Packages definitions in Nix are written in a special Domain specific language.
@@ -306,8 +308,9 @@ very exotic ways! As tool for distributed data processing, for instance.
 </p>
 </div>
 </div>
-<div id="outline-container-org1b8aa8b" class="outline-2">
-<h2 id="org1b8aa8b"><span class="section-number-2">3.</span> The problem</h2>
+
+<div id="outline-container-org7774f8d" class="outline-2">
+<h2 id="org7774f8d"><span class="section-number-2">3.</span> The problem</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 I want to develop a policy that will optimize HVAC system's energy consumption.
@@ -335,8 +338,9 @@ easier.
 </p>
 </div>
 </div>
-<div id="outline-container-org054290b" class="outline-2">
-<h2 id="org054290b"><span class="section-number-2">4.</span> G expressions</h2>
+
+<div id="outline-container-org55f4ce1" class="outline-2">
+<h2 id="org55f4ce1"><span class="section-number-2">4.</span> G expressions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Most of the languages in the LISP family are homoiconic. This means that the
@@ -396,7 +400,7 @@ solution to this problem is G-expressions
 </div>
 
 <pre class="example">
-#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.1 gnu/packages/base.scm:92 7fbd2e6ba6e0&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7fbd41b938a0&gt;
+#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.1 gnu/packages/base.scm:92 7f88688ba6e0&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f887be51ae0&gt;
 </pre>
 
 
@@ -412,8 +416,9 @@ order) of the dependencies.
 </p>
 </div>
 </div>
-<div id="outline-container-orgefaa544" class="outline-2">
-<h2 id="orgefaa544"><span class="section-number-2">5.</span> File-like objects</h2>
+
+<div id="outline-container-org15b36bd" class="outline-2">
+<h2 id="org15b36bd"><span class="section-number-2">5.</span> File-like objects</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 How do we generate build side code (from the client side) acting on files that
@@ -428,8 +433,9 @@ object containing the upgraded version of every idf file in our dataset.
 </p>
 </div>
 </div>
-<div id="outline-container-org70a0ee0" class="outline-2">
-<h2 id="org70a0ee0"><span class="section-number-2">6.</span> Guix script</h2>
+
+<div id="outline-container-orga9d597c" class="outline-2">
+<h2 id="orga9d597c"><span class="section-number-2">6.</span> Guix script</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Here is what the code to do the multiple version updates look like.
@@ -585,16 +591,11 @@ new-dataset
 When the Guix build daemon tries to build the <code>new-dataset</code> object, it will
 encounter 3000 independent jobs containing about 6 steps each.
 </p>
+</div>
+</div>
 
-
-<div id="org99dd764" class="figure">
-<p><img src="assets/guix-gexp-parallel.png" alt="guix-gexp-parallel.png" />
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-org27c477a" class="outline-2">
-<h2 id="org27c477a"><span class="section-number-2">7.</span> Offloading</h2>
+<div id="outline-container-org98e756b" class="outline-2">
+<h2 id="org98e756b"><span class="section-number-2">7.</span> Offloading</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 If you have set up offloading, the guix daemon will automatically dispatch each
@@ -608,8 +609,9 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 </p>
 </div>
 </div>
-<div id="outline-container-org6e5c74c" class="outline-2">
-<h2 id="org6e5c74c"><span class="section-number-2">8.</span> References</h2>
+
+<div id="outline-container-org9d809cd" class="outline-2">
+<h2 id="org9d809cd"><span class="section-number-2">8.</span> References</h2>
 <div class="outline-text-2" id="text-8">
 <style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
@@ -623,7 +625,7 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-17 Fri 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-05-17 Fri 16:55</p>
+<p class="date">Created: 2024-05-26 Sun 22:24</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
