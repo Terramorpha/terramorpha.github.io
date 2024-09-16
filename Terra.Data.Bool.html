@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Terra.Data.Bool</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--cubical-compatible</a> <a id="34" class="Symbol">#-}</a>
+
+<a id="39" class="Keyword">module</a> <a id="46" href="Terra.Data.Bool.html" class="Module">Terra.Data.Bool</a> <a id="62" class="Keyword">where</a>
+<a id="68" class="Keyword">open</a> <a id="73" class="Keyword">import</a> <a id="80" href="Agda.Builtin.Bool.html" class="Module">Agda.Builtin.Bool</a> <a id="98" class="Keyword">public</a>
+<a id="105" class="Keyword">open</a> <a id="110" class="Keyword">import</a> <a id="117" href="Terra.Data.Level.Variables.html" class="Module">Terra.Data.Level.Variables</a>
+
+
+<a id="146" class="Comment">-- data Bool : Set where</a>
+<a id="171" class="Comment">--   true : Bool</a>
+<a id="188" class="Comment">--   false : Bool</a>
+
+<a id="207" class="Comment">-- {-# BUILTIN BOOL  Bool  #-}</a>
+<a id="238" class="Comment">-- {-# BUILTIN TRUE  true  #-}</a>
+<a id="269" class="Comment">-- {-# BUILTIN FALSE false #-}</a>
+
+<a id="if_then_else_"></a><a id="301" href="Terra.Data.Bool.html#301" class="Function Operator">if_then_else_</a> <a id="315" class="Symbol">:</a> <a id="317" class="Symbol">{</a><a id="318" href="Terra.Data.Bool.html#318" class="Bound">A</a> <a id="320" class="Symbol">:</a> <a id="322" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="326" href="Terra.Data.Level.Variables.html#127" class="Generalizable">ℓ</a><a id="327" class="Symbol">}</a> <a id="329" class="Symbol">-&gt;</a> <a id="332" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a> <a id="337" class="Symbol">-&gt;</a> <a id="340" href="Terra.Data.Bool.html#318" class="Bound">A</a> <a id="342" class="Symbol">-&gt;</a> <a id="345" href="Terra.Data.Bool.html#318" class="Bound">A</a> <a id="347" class="Symbol">-&gt;</a> <a id="350" href="Terra.Data.Bool.html#318" class="Bound">A</a>
+<a id="352" href="Terra.Data.Bool.html#301" class="Function Operator">if</a> <a id="355" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="360" href="Terra.Data.Bool.html#301" class="Function Operator">then</a> <a id="365" href="Terra.Data.Bool.html#365" class="Bound">y</a> <a id="367" href="Terra.Data.Bool.html#301" class="Function Operator">else</a> <a id="372" href="Terra.Data.Bool.html#372" class="Bound">n</a> <a id="374" class="Symbol">=</a> <a id="376" href="Terra.Data.Bool.html#365" class="Bound">y</a>
+<a id="378" href="Terra.Data.Bool.html#301" class="Function Operator">if</a> <a id="381" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="387" href="Terra.Data.Bool.html#301" class="Function Operator">then</a> <a id="392" href="Terra.Data.Bool.html#392" class="Bound">y</a> <a id="394" href="Terra.Data.Bool.html#301" class="Function Operator">else</a> <a id="399" href="Terra.Data.Bool.html#399" class="Bound">n</a> <a id="401" class="Symbol">=</a> <a id="403" href="Terra.Data.Bool.html#399" class="Bound">n</a>
+
+<a id="not"></a><a id="406" href="Terra.Data.Bool.html#406" class="Function">not</a> <a id="410" class="Symbol">:</a> <a id="412" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a> <a id="417" class="Symbol">-&gt;</a> <a id="420" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
+<a id="425" href="Terra.Data.Bool.html#406" class="Function">not</a> <a id="429" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="434" class="Symbol">=</a> <a id="436" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a>
+<a id="442" href="Terra.Data.Bool.html#406" class="Function">not</a> <a id="446" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="452" class="Symbol">=</a> <a id="454" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a>
+
+<a id="_xor_"></a><a id="460" href="Terra.Data.Bool.html#460" class="Function Operator">_xor_</a> <a id="466" class="Symbol">:</a> <a id="468" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a> <a id="473" class="Symbol">-&gt;</a> <a id="476" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a> <a id="481" class="Symbol">-&gt;</a> <a id="484" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
+<a id="489" href="Agda.Builtin.Bool.html#192" class="InductiveConstructor">false</a> <a id="495" href="Terra.Data.Bool.html#460" class="Function Operator">xor</a> <a id="499" href="Terra.Data.Bool.html#499" class="Bound">b</a> <a id="501" class="Symbol">=</a> <a id="503" href="Terra.Data.Bool.html#499" class="Bound">b</a>
+<a id="505" href="Agda.Builtin.Bool.html#198" class="InductiveConstructor">true</a> <a id="510" href="Terra.Data.Bool.html#460" class="Function Operator">xor</a> <a id="514" href="Terra.Data.Bool.html#514" class="Bound">b</a> <a id="516" class="Symbol">=</a> <a id="518" href="Terra.Data.Bool.html#406" class="Function">not</a> <a id="522" href="Terra.Data.Bool.html#514" class="Bound">b</a>
+</pre></body></html>

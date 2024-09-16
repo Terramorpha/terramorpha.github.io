@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<head>
+<!-- 2024-09-15 Sun 21:36 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Towards monads</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
+<h1 class="title">Towards monads
+<br />
+<span class="subtitle">(or yet another monad tutorial)</span>
+</h1>
+<p>
+This page on the Haskell wiki is very good and looks like what I wanted to
+write: <a href="https://wiki.haskell.org/All_About_Monads">https://wiki.haskell.org/All_About_Monads</a>.
+</p>
+
+<p>
+Monads are a very useful concept/design pattern in functional programming that
+has unfortunately attained <i>meme status</i> partly because of the following phrase<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>:
+</p>
+
+<blockquote>
+<p>
+A monad is a monoid in the category of endofunctors, what's the problem?
+</p>
+</blockquote>
+
+<p>
+However, I propose that the usual way of explaining monads through metaphors is
+bad. Monads are much easier the understand when viewed as the common abstraction over
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">State</span> s</code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">IO</span></code>,
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span> o</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span> o</code>.
+</p>
+
+<div id="outline-container-org0dcc36a" class="outline-2">
+<h2 id="org0dcc36a"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code> type is a good place to start. This is the type we use
+when we realise we have a partial function (that might not be able to return
+what it promised) and we want to signal that information in the type itself.
+</p>
+
+<p>
+Here is an exemple of how we might use it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+
+<span style="color: #8f0075;">couldFailInt</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span>
+
+<span style="color: #8f0075;">program</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> (<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">String</span>)
+<span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">case</span> couldFailString <span style="color: #005e8b; font-weight: bold;">of</span>
+  <span style="color: #531ab6; font-weight: bold;">Nothing</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Nothing</span>
+  <span style="color: #531ab6; font-weight: bold;">Just</span> str <span style="color: #3548cf;">-&gt;</span> <span style="color: #005e8b; font-weight: bold;">let</span> strlen <span style="color: #3548cf;">=</span> length str <span style="color: #005e8b; font-weight: bold;">in</span>
+    <span style="color: #005e8b; font-weight: bold;">case</span> couldFailInt <span style="color: #005e8b; font-weight: bold;">of</span>
+      <span style="color: #531ab6; font-weight: bold;">Nothing</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Nothing</span>
+      <span style="color: #531ab6; font-weight: bold;">Just</span> int <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Just</span> (int, str)
+</pre>
+</div>
+
+
+<p>
+We achieved correctness! However, this is very annoying to write and to read.
+The "look at the results, if we get nothing, return nothing but otherwise,
+continue" pattern repeated <i>ad nauseum</i> hinders readibility. To the rescue:
+monads! We know we have an <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Monad</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span></code> instance, so we can rely on
+the two functions:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">bind</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> m <span style="color: #3548cf;">=&gt;</span> m a <span style="color: #3548cf;">-&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> m b) <span style="color: #3548cf;">-&gt;</span> m b
+<span style="color: #8f0075;">return</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> m <span style="color: #3548cf;">=&gt;</span> a <span style="color: #3548cf;">-&gt;</span> m a
+</pre>
+</div>
+
+<p>
+<code class="src src-haskell">return</code> is simple enough: it would wrap(for instance) an
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code> into a <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span></code>. The signature of
+<code class="src src-haskell">bind</code>, however is confusing. Let's make the signature more concrete:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">bindMaybe</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> a <span style="color: #3548cf;">-&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b
+</pre>
+</div>
+
+<p>
+The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span> a</code> part is the object we would pattern match on(the
+results) and <code class="src src-haskell">a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b</code> is the "if we get something, continue"
+part. Let's rewrite our program using these functions.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+
+<span style="color: #8f0075;">couldFailInt</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span>
+
+<span style="color: #8f0075;">program</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> (<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">String</span>)
+<span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> bindMaybe couldFailString
+          (<span style="color: #3548cf;">\</span>str <span style="color: #3548cf;">-&gt;</span> <span style="color: #005e8b; font-weight: bold;">let</span> strlen <span style="color: #3548cf;">=</span> length str <span style="color: #005e8b; font-weight: bold;">in</span>
+              bindMaybe couldFailInt
+                (<span style="color: #3548cf;">\</span>int <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Just</span> (int, str)))
+</pre>
+</div>
+
+<p>
+This is more pleasing to the eye, but still slightly confusing. You could
+imagine what happens to the nesting when we do many operations.<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
+</p>
+
+<p>
+However, in Haskell, there is syntactic sugar for this kind of operation: <code>do</code>
+notation. Let's change our code to use <code>do</code> notation:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+
+<span style="color: #8f0075;">couldFailInt</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span>
+
+<span style="color: #8f0075;">program</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> (<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">String</span>)
+<span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+  str <span style="color: #3548cf;">&lt;-</span> bindMaybe couldFailString
+  <span style="color: #005e8b; font-weight: bold;">let</span> strlen <span style="color: #3548cf;">=</span> length str
+  int <span style="color: #3548cf;">&lt;-</span> couldFailInt
+  <span style="color: #531ab6; font-weight: bold;">Just</span> (int, str)
+</pre>
+</div>
+
+<p>
+This <code>do</code> notation has exactly the same semantics(in terms of <code>bind</code>) as <code>await</code> (in
+terms of <code>.then</code>) in Javascript. In other words,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+  x <span style="color: #3548cf;">&lt;-</span> doSomething
+  <span style="color: #3548cf;">...</span>
+</pre>
+</div>
+
+<p>
+becomes
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> bind doSomething (<span style="color: #3548cf;">\</span>x <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">...</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbd63fca" class="outline-2">
+<h2 id="orgbd63fca"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Whereas <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span> a</code> means "potentially an <code class="src src-haskell">a</code>",
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e a</code> means "potentially an <code class="src src-haskell">a</code>, or else an error
+of type <code class="src src-haskell">e</code>".
+</p>
+
+<p>
+If you know the <code>go</code> programming language, using do notation on <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> <span style="color: #531ab6; font-weight: bold;">SomeErrorType</span> x</code> is the same as doing
+</p>
+
+<div class="org-src-container">
+<pre class="src src-go"><span style="color: #3548cf;">results</span>, <span style="color: #3548cf;">err</span> := <span style="color: #8f0075;">doSomething</span>()
+<span style="color: #005e8b; font-weight: bold;">if</span> err != <span style="color: #531ab6;">nil</span> {
+    <span style="color: #005e8b; font-weight: bold;">return</span> err
+}
+...
+</pre>
+</div>
+
+<p>
+The semantics is similar to <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb5c99ff" class="outline-2">
+<h2 id="orgb5c99ff"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
+<div class="outline-text-2" id="text-3">
+<p>
+One might wonder why it would be useful to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> as a monad.
+The answer is modelling nondeterminism in a functional way.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">:</span>{
+<span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">::</span> [(<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">String</span>)]
+<span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span> 
+  int <span style="color: #3548cf;">&lt;-</span> [1, 2, 3, 4, 5]
+  str <span style="color: #3548cf;">&lt;-</span> [<span style="color: #a0132f;">"one"</span>, <span style="color: #a0132f;">"two"</span>, <span style="color: #a0132f;">"three"</span>]
+  <span style="color: #005e8b; font-weight: bold;">if</span> int <span style="color: #3548cf;">`mod`</span> 2 <span style="color: #3548cf;">==</span> 0
+    <span style="color: #005e8b; font-weight: bold;">then</span> <span style="color: #531ab6; font-weight: bold;">[]</span>
+    <span style="color: #005e8b; font-weight: bold;">else</span> return (int, str)
+<span style="color: #531ab6; font-weight: bold;">:</span>}
+
+prog
+</pre>
+</div>
+
+<pre class="example">
+[(1,"one"),(1,"two"),(1,"three"),(3,"one"),(3,"two"),(3,"three"),(5,"one"),(5,"two"),(5,"three")]
+</pre>
+
+
+<p>
+Here, the <code>&lt;-</code> operation splits the universe into parallel branches. The end
+result is a list of all the branches that got to the end. For instance, here is
+how you might find Pythagorean triples:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">:</span>{
+<span style="color: #8f0075;">n</span> <span style="color: #3548cf;">=</span> 40
+
+<span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">::</span> [(<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">Int</span>)]
+<span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+  a <span style="color: #3548cf;">&lt;-</span> [1<span style="color: #3548cf;">..</span>n]
+  b <span style="color: #3548cf;">&lt;-</span> [a<span style="color: #3548cf;">..</span>n]
+  c <span style="color: #3548cf;">&lt;-</span> [b<span style="color: #3548cf;">..</span>n]
+  <span style="color: #005e8b; font-weight: bold;">if</span> a<span style="color: #3548cf;">*</span>a <span style="color: #3548cf;">+</span> b<span style="color: #3548cf;">*</span>b <span style="color: #3548cf;">==</span> c<span style="color: #3548cf;">*</span>c
+    <span style="color: #005e8b; font-weight: bold;">then</span> return (a, b, c)
+    <span style="color: #005e8b; font-weight: bold;">else</span> <span style="color: #531ab6; font-weight: bold;">[]</span>
+  <span style="color: #531ab6; font-weight: bold;">:</span>}
+
+prog
+</pre>
+</div>
+
+<pre class="example">
+[(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(10,24,26),(12,16,20),(12,35,37),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40)]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgf299bac" class="outline-2">
+<h2 id="orgf299bac"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Let's say you want to do logging. In an imperative language, you would use
+mutability and append to a log object (or even put prints everywhere). Here, you
+can't do that. Instead, you accumulate a list of "entries" with each computation
+you do.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> o t <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (t, [o])
+
+<span style="color: #8f0075;">wReturn</span> x <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (x, <span style="color: #531ab6; font-weight: bold;">[]</span>)
+<span style="color: #531ab6; font-weight: bold;">Writer</span> (val, log) <span style="color: #3548cf;">&gt;&gt;=</span> f <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (v2, log2) <span style="color: #3548cf;">=</span> f val
+                          <span style="color: #005e8b; font-weight: bold;">in</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (v2, log <span style="color: #3548cf;">++</span> log2)
+
+
+<span style="color: #531ab6; font-weight: bold;">Writer</span> (<span style="color: #a0132f;">"allo"</span>, <span style="color: #a0132f;">"truc"</span>) <span style="color: #3548cf;">&gt;&gt;=</span> <span style="color: #3548cf;">\</span>x <span style="color: #3548cf;">-&gt;</span> wReturn <span style="color: #3548cf;">$</span> x <span style="color: #3548cf;">++</span> <span style="color: #a0132f;">"truuuc"</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org06b4d2b" class="outline-2">
+<h2 id="org06b4d2b"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
+<div class="outline-text-2" id="text-5">
+<p>
+This time, you want to propagate "global variables" though your whole program,
+but you can't actually mutate any global variables.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+<a href="http://james-iry.blogspot.com/2009/05/brief-incomplete-and-mostly-wrong.html">http://james-iry.blogspot.com/2009/05/brief-incomplete-and-mostly-wrong.html</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+For those who use javascript Promises, <code class="src src-haskell">bind</code> is essentially
+the same thing as <code class="src src-js">.then(x =&gt; ...)</code> for promises. If you know the solution
+to the nesting problem, you won't be surprised by what comes next.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Justin Veilleux</p>
+<p class="date">Created: 2024-09-15 Sun 21:36</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

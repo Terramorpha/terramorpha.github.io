@@ -1,0 +1,273 @@
+# -*- ispell-dictionary: "english" -*-
+:PROPERTIES:
+:ID:       df9ac546-8555-4c69-bb14-659a0b556f35
+:CREATED:  2024-04-02T23:15:27
+:END:
+#+title: An explanation of higher order unification
+#+LANGUAGE: english
+#+PROPERTY: header-args :exports code
+#+DATE: <2024-04-02 Tue>
+
+I'm interested in programming languages with [[https://en.wikipedia.org/wiki/Dependent_type][dependent types]] such as [[https://agda.readthedocs.io/en/v2.6.4.3/getting-started/what-is-agda.html][Agda]]. To
+make such a language more ergonomic and easier to use, we need a good type
+inference algorithm.
+
+* What dependent types are
+
+For those who don't know, a dependent type system is a type system inwhich a
+type can depend on a value. For instance, in Haskell, a value can depend
+(contain a reference to) on a value like this:
+
+#+begin_src haskell
+f x = x + 1
+#+end_src
+
+Here, the body of ~f~ contains a reference to ~x~.
+
+In Haskell, types can depend on other types:
+
+#+begin_src haskell
+data Tree a = Leaf a | Node (Tree a) (Tree a)
+#+end_src
+
+Here, src_haskell{Tree a} is a type containing a reference to an other type src_haskell{a}.
+
+In Haskell, values can also depend on types. We see this in polymorphic
+functions (and typeclasses), but it is hidden from us through implicit type
+arguments.
+
+What dependent types get us is types with term variables. For instance, we could
+define a "function" src_haskell{isEven} like so:
+
+#+begin_src haskell
+isEven :: Int -> Type
+isEven x = if x % 2 == 0
+           then ()
+           else Null
+#+end_src
+
+Have you ever heard the phrase "propositions as types"? This is what it is.
+src_haskell{isEven x} is a type and it can be inhabited by a term if and only if
+the number src_haskell{x} is even. Someone writing a function can use this as
+one of the arguments to force the user of the function to prove that
+src_haskell{x} is even.
+
+#+begin_src haskell
+thing :: (x : Int) -> isEven x -> ...
+thing x () = ...
+#+end_src
+
+Having dependent types lets us use the type system to verify proofs. Programming
+languages with these are sometimes called proof assistants. See [[https://coq.inria.fr/][Coq]], [[https://lean-lang.org/][Lean]], [[https://agda.readthedocs.io/en/v2.6.4.3/index.html][Agda]]
+and more.
+
+* Higher order unification
+
+A popular algorithm for type inference is bidirectional type checking. In this
+algorithm, one part of syntax constructors "inherit" a type: they are checked
+against the type the system expects them to have. The other half synthesize a
+type: the algorithm guesses their types. We can see that, in this algorithm,
+typing information can flow in two directions. This is why it's called
+"bidirectional".
+
+Another algorithm for type inference is called higher order unification. In a
+variant of this algorithm(see [cite:@mazzoli2016]), we generate a bunch of
+metavariables and a bunch of constraints on terms. For instance, when checking
+the following term:
+
+\[ f(a) : t \]
+
+We generate the following constraints:
+
+\[ \text{typeof}(f) = \prod_{v : X} T(v) \]
+
+\[ T(a) = t \]
+
+\[ \text{typeof}(a) = X \]
+
+Note: throughout this text, I use uppercase letters to denote /metavariables/.
+Whereas variables stand in (during the execution) for a /value/, metavariables
+stand in (during the typechecking phase) for a piece of syntax that we don't
+know yet. I suppose I would need a way to denote metametavariables (that stand
+in for an unknown piece of syntax in the context of this text), but the absence
+of such a notation doesn't hinder readibility.
+
+Higher order unification is an algorithm that tries to find, for each
+metavariable, a piece of syntax that will satisfy the equations. It is called
+/higher order/ (as opposed to first order), because the algorithm must consider
+that terms are subject to reduction rules. For instance, in the following
+unification problem:
+
+\[ X a = a \]
+
+\[ X b = b \]
+
+We would have to replace \( X \) by \( \lambda_x. x \) so that \( (\lambda_x.x)a \leadsto a
+\) and \( (\lambda_x.x)b \leadsto b \). Note that this procedure is generally
+undecidable: one could accidentally generate a constraint whose solution is the
+solution to the halting problem on some given program.
+
+* Huet's algorithm
+
+The algorithm that is usually used for HOU is Huet's algorithm. It consists of
+tree procedures
+
+1. *Simplification* is used on a set of constraints. It first reduces every term,
+   then it decomposes (as much as possible) rigid-rigid constraints(we will see
+   what those are).
+2. For each flex-rigid pair, two kinds of substitutions are attempted: *imitation*
+   and *projection*.
+
+I say "attempted" here because a substitution might fail whereas another would
+have succeded. Therefore, we must (say, with the list monad) explore the tree of
+all possible substitutions by applying simplification, then one substitution,
+then simplification again until we have exhausted the tree or until we have no
+more flex rigid equations.
+
+* Simplification
+
+Simplification works on equalities of *reduced* terms and has multiple purposes:
+
+1. It eliminates equalities that are solved.
+2. It puts each equality in some sort of "canonical form" which will be
+   necessary for the later phases.
+
+Simplification will run until it signals an error (an equation was unsolvable)
+or every equation is completly simplified. It might never halt, because some
+terms might have no normal form (think the Y combinator and friends).
+
+Here's how one step works. Let's say we have the following equality:
+
+\[ (A, B) = (C, D) \]
+
+We can decompose it into a set of two equalities:
+
+\[ \left\{ A = C, B = D \right\} \]
+
+Here, our \( (A,B) = (C,D) \) constraint was what we call a rigid-rigid pair.
+When we encounter such a pair, we can either decompose it into a set of smaller
+equalities or signal failure.
+
+For instance, If we have following equality:
+
+\[ (A, B) = \lambda_T.U \]
+
+then we know we are unable to generate a substitution for \( A, B, U \) that
+satisfies the equality, so we signal failure. In the algorithm, this would cause
+us to backtrack in the search tree and try another substitution.
+
+other rigid-rigid pairs include:
+
+
+- function applications where the function is not a metavariable:
+
+  \[ f(A) = g(B) \leadsto \left\{ f = g, A = B \right\} \]
+
+- lambda abstractions:
+
+  \[ \lambda_{x : t_1}.b(x) = \lambda_{y : t_2}.c(y) \leadsto \left\{ t_1 = t_2, b(z) = c(z)
+  \right\} \]
+
+  Where \( z \) is a generated variable. (if one used DeBruijn indices, this
+  kind of \alpha-conversion is unnecessary).
+
+- Pi types (same as lambda abstractions)
+
+- References: if two references don't refer to the same variable, they are not
+  the same.
+
+- Other primitives such as numbers, strings (if your language has those), and
+  more.
+
+* Substitutions
+
+When our simplification has halted, we are left with only flex-rigid and
+flex-flex pairs. We don't concern ourselves with flex-flex pairs, as those are
+constraints with possibly infinite solutions.
+
+A rigid term has the shape we saw earlier.
+
+A flex term has the following shape:
+
+\[ M(a_1, \dots, a_k) \]
+
+It consists an application with a metavariable as the function.
+
+This means a flex rigid equality has the following shape:
+
+\[ M(a_1,\dots,a_k) = f(b_1, \dots, b_l) \]
+
+In this situation, we can try two types of substitutions on \( M \).
+
+** Imitation
+
+Here, we "mimic" the right hand side of the equation by copying the \( f \).
+
+\[ M \Rightarrow \lambda_{a_1 : A_1} \cdots \lambda_{a_k : A_k}. f(X_1(a_1, \dots, a_k), \dots, X_l(a_1, \dots, a_k)) \]
+
+We reuse every argument that was given to the \( M \) function, but leave it to
+a future iteration to find how. This is why we generate fresh metavariables \(
+X_i \) for each argument we see \( f \) is supposed to take.
+
+When this substitution is applied, we get the following constraint:
+
+
+\[ (\lambda_{a_1 : A_1} \cdots \lambda_{a_k : A_k}. f(X_1(a_1, \dots, a_k), \dots, X_l(a_1, \dots,
+a_k)))(a_1, \dots, a_k) = f(b_1, \dots, b_l) \]
+
+Which simplifies (by reduction of the terms) to:
+
+\[ f(X_1(a_1, \dots, a_k), \dots, X_l(a_1, \dots, a_k)) = f(b_1, \dots, b_l) \]
+
+Which further simplifies (this is a rigid-rigid pair) to the following set of
+constraints:
+
+\[ \left\{ X_1(a_1, \dots, a_k) = b_1, \dots, X_l(a_1, \dots, a_k) = b_l \right\} \]
+
+One such "imitation" substitution can be generated for a given equality.
+
+** Projection
+
+Let's go back to our flex-rigid pair
+
+\[ M(a_1,\dots,a_k) = f(b_1, \dots, b_l) \]
+
+Another substitution we could have tried is:
+
+\[ M \Rightarrow \lambda_{a_1 : A_1} \cdots \lambda_{a_k : A_k}. a_1 \]
+
+or even
+
+\[ M \Rightarrow \lambda_{a_1 : A_1} \cdots \lambda_{a_k : A_k}. a_2 \]
+
+This substitution is called "projection" because it generates a function that
+simply returns one of its arguments.
+
+If The "flex" part of the flex rigid constraint has \( k \) arguments, then we
+can generate \( k \) different projection substitutions.
+
+* Tying it all together
+
+Some pseudocode for this algorithm would be:
+
+#+begin_src haskell
+hou :: [Substitutions] -> [(Term, Term)] -> [Substitution]
+hou subs cs = do
+  -- This part could fail
+  simplified <- simplifyConstraints (subInConstraints subs cs)
+  let flexRigids, flexFlexes = separate flexrigidp simplified
+  if length fr == 0
+    then return subs
+    else
+    let fr = flexRigids !! 0
+    oneSub <- generateImitation fr :: generateProjections fr
+    hou (oneSub :: subs) cs
+#+end_src
+
+
+Then, it would suffice to call src_haskell{subInTerm subs term} to get back a
+term with all the holes filled-in!
+
+* References
+
+#+print_bibliography: 

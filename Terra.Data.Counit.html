@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Terra.Data.Counit</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--cubical-compatible</a> <a id="34" class="Symbol">#-}</a>
+<a id="38" class="Keyword">module</a> <a id="45" href="Terra.Data.Counit.html" class="Module">Terra.Data.Counit</a> <a id="63" class="Keyword">where</a>
+<a id="69" class="Keyword">open</a> <a id="74" class="Keyword">import</a> <a id="81" href="Terra.Data.Level.html" class="Module">Terra.Data.Level</a>
+<a id="98" class="Keyword">private</a>
+  <a id="108" class="Keyword">variable</a>
+    <a id="121" href="Terra.Data.Counit.html#121" class="Generalizable">ℓ</a> <a id="123" class="Symbol">:</a> <a id="125" href="Agda.Primitive.html#742" class="Postulate">Level</a>
+
+<a id="132" class="Keyword">data</a> <a id="⊥"></a><a id="137" href="Terra.Data.Counit.html#137" class="Datatype">⊥</a> <a id="139" class="Symbol">:</a> <a id="141" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="145" class="Keyword">where</a>
+  <a id="153" class="Comment">-- rien</a>
+
+<a id="⊥-elim"></a><a id="162" href="Terra.Data.Counit.html#162" class="Function">⊥-elim</a> <a id="169" class="Symbol">:</a> <a id="171" class="Symbol">{</a><a id="172" href="Terra.Data.Counit.html#172" class="Bound">T</a> <a id="174" class="Symbol">:</a> <a id="176" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="180" href="Terra.Data.Counit.html#121" class="Generalizable">ℓ</a><a id="181" class="Symbol">}</a> <a id="183" class="Symbol">-&gt;</a> <a id="186" href="Terra.Data.Counit.html#137" class="Datatype">⊥</a> <a id="188" class="Symbol">-&gt;</a> <a id="191" href="Terra.Data.Counit.html#172" class="Bound">T</a>
+<a id="193" href="Terra.Data.Counit.html#162" class="Function">⊥-elim</a> <a id="200" class="Symbol">()</a>
+
+<a id="absurd"></a><a id="204" href="Terra.Data.Counit.html#204" class="Function">absurd</a> <a id="211" class="Symbol">:</a> <a id="213" class="Symbol">{</a><a id="214" href="Terra.Data.Counit.html#214" class="Bound">A</a> <a id="216" class="Symbol">:</a> <a id="218" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="222" href="Terra.Data.Counit.html#121" class="Generalizable">ℓ</a><a id="223" class="Symbol">}</a> <a id="225" class="Symbol">-&gt;</a> <a id="228" href="Terra.Data.Counit.html#137" class="Datatype">⊥</a> <a id="230" class="Symbol">-&gt;</a> <a id="233" href="Terra.Data.Counit.html#214" class="Bound">A</a>
+<a id="235" href="Terra.Data.Counit.html#204" class="Function">absurd</a> <a id="242" class="Symbol">()</a>
+</pre></body></html>

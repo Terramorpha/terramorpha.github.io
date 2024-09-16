@@ -1,0 +1,25 @@
+.Agda .Keyword { color: #005e8b; font-weight: bold;}
+.Agda .String { color: #a0132f;}
+.Agda .Number { color: #531ab6;}
+.Agda .Symbol { color: #005e8b; font-weight: bold;}
+.Agda .PrimitiveType { color: #005e8b; font-weight: bold;}
+.Agda .Bound { color: #3548cf;}
+.Agda .Generalizable { color: #3548cf;}
+.Agda .InductiveConstructor { color: #531ab6; font-weight: bold;}
+.Agda .CoinductiveConstructor { color: #531ab6; font-weight: bold;}
+.Agda .Datatype { color: #531ab6; font-weight: bold;}
+.Agda .Field { color: #3548cf;}
+.Agda .Function { color: #8f0075;}
+.Agda .Module { color: #531ab6; font-weight: bold;}
+.Agda .Postulate { color: #531ab6; font-weight: bold;}
+.Agda .Primitive { color: #531ab6;}
+.Agda .Macro { color: #8f0075;}
+.Agda .Record { color: #3548cf;}
+.Agda .DottedPattern { color: #3548cf;}
+.Agda .Operator { color: #8f0075;}
+.Agda .Error { color: #884900; font-weight: bold;}
+.Agda .TypeChecks { color: #531ab6; font-weight: bold;}
+.Agda .TypeChecking { color: #005f5f;}/* Standard attributes. */
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }

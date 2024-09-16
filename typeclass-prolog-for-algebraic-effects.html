@@ -1,0 +1,945 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<head>
+<!-- 2024-09-15 Sun 21:36 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Implementing algebraic effects through typeclass prolog</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
+<h1 class="title">Implementing algebraic effects through typeclass prolog</h1>
+<p>
+Monads are a popular way to model effects in purely functional programming
+languages, but they come with problems. For instance, to compose them(and
+compose their effects), we have to use <a href="https://en.wikipedia.org/wiki/Monad_transformer">Monad transformers</a>. An alternative that
+has started to emerge is algebraic effects. Algebraic effects are composable and
+one could see them as a type safe incarnation of delimited continuations. We
+used delimited continuations to implement <code>async</code> and <code>await</code> syntax in <a href="async-await-syntax.html#ID-bc6ba032-8b50-4403-95db-abb7da96ae83">the last
+post</a>. Here, however, we will try to derive a useful usage for algebraic
+effects pattern through the use of typeclass metaprogramming and lots of haskell
+extensions.
+</p>
+
+<div id="outline-container-org7588df4" class="outline-2">
+<h2 id="org7588df4"><span class="section-number-2">1.</span> Obligatory pragmas</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+We will be writing a lot of type level code and consequently, we will need to
+give the compiler a a lot of <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">LANGUAGE</span></code> pragmas.
+</p>
+
+<p>
+To be able to construct a <code class="src src-haskell">[<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005f5f;">{-# LANGUAGE DataKinds #-}</span>
+</pre>
+</div>
+
+<p>
+To be able to express that every element of a <code class="src src-haskell">[<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]</code> is a
+functor:
+</p>
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005f5f;">{-# LANGUAGE TypeFamilies #-}</span>
+</pre>
+</div>
+
+<p>
+For more complex instance declarations:
+</p>
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005f5f;">{-# LANGUAGE UndecidableInstances #-}</span>
+</pre>
+</div>
+
+<p>
+To be able to express <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">PreservesShow</span></code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005f5f;">{-# LANGUAGE QuantifiedConstraints #-}</span>
+</pre>
+</div>
+
+<p>
+To disambiguate some types:
+</p>
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005f5f;">{-# LANGUAGE TypeApplications #-}</span>
+<span style="color: #005f5f;">{-# LANGUAGE ScopedTypeVariables #-}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbf7cf28" class="outline-2">
+<h2 id="orgbf7cf28"><span class="section-number-2">2.</span> Imports</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Some of the type families we are going to define are actually constraints.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">import</span> <span style="color: #531ab6; font-weight: bold;">GHC.Exts</span> (<span style="color: #531ab6; font-weight: bold;">Constraint</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7b03921" class="outline-2">
+<h2 id="org7b03921"><span class="section-number-2">3.</span> Syntax tree as fixpoint of sum of functors</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+One of the ideas explained in the paper <a href="#citeproc_bib_item_1">[1]</a> is that we can
+create an extensible syntax tree by representing each constructor with a
+functor, by combining constructors with sums of functors and by making this type
+recusive through the fixpoint operator for functors.
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>The fixpoint operator and an example of a constructor we might want to add to a syntax tree.</label><pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Fix</span> f <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">In</span> (f (<span style="color: #531ab6; font-weight: bold;">Fix</span> f))
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Plus</span> s <span style="color: #3548cf;">=</span> <span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">s for self. This is the point of recursion</span>
+  <span style="color: #531ab6; font-weight: bold;">Plus</span> s s
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span>, <span style="color: #531ab6; font-weight: bold;">Show</span>)
+</pre>
+</div>
+
+<p>
+We will reuse the idea of sums of functors to represent different effects (each
+functor is responsible for an effect), but instead of making the tree recursive
+through the fixpoint operator, we will take the free monad from the sum of
+functors.
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>The free monad <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Free</span> f</code> makes <code class="src src-haskell">f</code> into a monad, because a term of type <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Free</span> f x</code> is inhabited by terms of shape \( f^n(x) \) for some \( n \in \mathbb{N} \). \( f^0(x) = x \) is <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Return</span></code> and the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Join</span></code> operation works becaus \( f^n(f^m(x)) = f^{n+m}(x) \).</label><pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Free</span> f x <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Return</span> x <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Join</span> (f (<span style="color: #531ab6; font-weight: bold;">Free</span> f x))
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> <span style="color: #531ab6; font-weight: bold;">Functor</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0167377" class="outline-2">
+<h2 id="org0167377"><span class="section-number-2">4.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span></code> constructor</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+If we have a list of effects <code class="src src-haskell"><span style="color: #8f0075;">fs</span> <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]</code>, we would like to have
+a way to combine these into a new functor <code class="src src-haskell"><span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span></code>. This is what this type
+does.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> (fs <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) (x <span style="color: #3548cf;">::</span> <span style="color: #3548cf;">*</span>) <span style="color: #005e8b; font-weight: bold;">where</span>
+  <span style="color: #531ab6; font-weight: bold;">Head</span> <span style="color: #3548cf;">::</span> f x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> (f '<span style="color: #531ab6; font-weight: bold;">:</span> fs) x
+  <span style="color: #531ab6; font-weight: bold;">Tail</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> fs x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Sum</span>  (f '<span style="color: #531ab6; font-weight: bold;">:</span> fs) x
+</pre>
+</div>
+
+<p>
+A term of type <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span> '[<span style="color: #531ab6; font-weight: bold;">A</span>, <span style="color: #531ab6; font-weight: bold;">B</span>, <span style="color: #531ab6; font-weight: bold;">C</span>] x</code> is either a term of type
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">A</span> x</code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">B</span> x</code> or <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">C</span> x</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga5507bd" class="outline-2">
+<h2 id="orga5507bd"><span class="section-number-2">5.</span> Inclusion of functors</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+For type inference to work well for us, we want our "effect sets" relations to
+be computed by Haskell's instance resolution system. We will define a typeclass
+for every relation we wish to have on effect sets. We will then define instances
+(derivation rules) through with the Haskell compiler will generate code for us.
+</p>
+
+
+<p>
+We first need an "is-element" relation(it is very similar to the \( \prec \)
+typeclass they use in <a href="#citeproc_bib_item_1">[1]</a>) which will be witnessed by a way to
+turn an <code class="src src-haskell"><span style="color: #8f0075;">f</span> x</code> into a <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span> fs x</code> whenever <code class="src src-haskell">f <span style="color: #8f0075;">:&#8712;:</span> fs</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">class</span> (e <span style="color: #3548cf;">::</span> <span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>) <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> (es <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) <span style="color: #005e8b; font-weight: bold;">where</span>
+  inject <span style="color: #3548cf;">::</span> e x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> es x
+</pre>
+</div>
+
+<p>
+To make the compiler automatically verify this relation, we will give it
+derivation rules:
+</p>
+
+<p>
+An effect is an element of an effect set if it is the first element of the set.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> <span style="color: #005f5f;">{-# OVERLAPPING #-}</span> f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> (f '<span style="color: #531ab6; font-weight: bold;">:</span> fs) <span style="color: #005e8b; font-weight: bold;">where</span>
+  inject <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Head</span>
+</pre>
+</div>
+
+<p>
+An effect is also an element of an effect set if it is an element of the tail of
+the set.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> fs <span style="color: #3548cf;">=&gt;</span> f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> (g'<span style="color: #531ab6; font-weight: bold;">:</span>fs) <span style="color: #005e8b; font-weight: bold;">where</span>
+  inject <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Tail</span> <span style="color: #3548cf;">.</span> inject
+</pre>
+</div>
+
+<p>
+Here is an example of this typeclass in action. We use it to automatically
+"cast" a term to a "bigger" type.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">A</span> s <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">A</span> s
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">B</span> s <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">B</span> s
+
+<span style="color: #8f0075;">test1</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> '[<span style="color: #531ab6; font-weight: bold;">A</span>, <span style="color: #531ab6; font-weight: bold;">B</span>] <span style="color: #531ab6; font-weight: bold;">Int</span>
+<span style="color: #8f0075;">test1</span> <span style="color: #3548cf;">=</span> inject <span style="color: #3548cf;">$</span> <span style="color: #531ab6; font-weight: bold;">B</span> 12
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf686b6f" class="outline-2">
+<h2 id="orgf686b6f"><span class="section-number-2">6.</span> Subset relation</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+With the help of our membership relation, we can define a new relation which
+will let us express the fact an effect <b>set</b> is smaller than an other effect set.
+This relation will be witnessed by a function very similar to
+<code class="src src-haskell">inject</code>, apart for the fact it converts from a <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span></code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">class</span> (l <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> (r <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) <span style="color: #005e8b; font-weight: bold;">where</span>
+  permute <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> l x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> r x
+</pre>
+</div>
+
+<p>
+The empty set is a subset of everything (this is the base case of our typeclass
+recursion).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> '<span style="color: #531ab6; font-weight: bold;">[]</span> <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> fs <span style="color: #005e8b; font-weight: bold;">where</span>
+  <span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">no constructors for Sum '[] x</span>
+  permute <span style="color: #005e8b; font-weight: bold;">_</span> <span style="color: #3548cf;">=</span> error <span style="color: #a0132f;">"impossible"</span>
+</pre>
+</div>
+
+<p>
+If the first element of the LHS set is a member of the RHS set and the last
+elements of the LHS set are a subset of the RHS, then the LHS is a subset of the
+RHS. (this is the induction case of our typeclass recursion)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> (f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> gs, fs <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> gs) <span style="color: #3548cf;">=&gt;</span> (f '<span style="color: #531ab6; font-weight: bold;">:</span> fs) <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> gs <span style="color: #005e8b; font-weight: bold;">where</span>
+  permute (<span style="color: #531ab6; font-weight: bold;">Head</span> h) <span style="color: #3548cf;">=</span> inject h
+  permute (<span style="color: #531ab6; font-weight: bold;">Tail</span> t) <span style="color: #3548cf;">=</span> permute t
+</pre>
+</div>
+
+<p>
+Here is an example of ho we might use this relation:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">C</span> s <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">C</span> s
+
+<span style="color: #8f0075;">test2</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> '[<span style="color: #531ab6; font-weight: bold;">B</span>, <span style="color: #531ab6; font-weight: bold;">C</span>, <span style="color: #531ab6; font-weight: bold;">A</span>] <span style="color: #531ab6; font-weight: bold;">Int</span>
+<span style="color: #8f0075;">test2</span> <span style="color: #3548cf;">=</span> permute test1
+</pre>
+</div>
+
+<p>
+Because of the way we set up our derivation rules, whenever all the functors in
+a set are known, the instance search algorithm will automatically generate the
+necessary code to rearange the order of a functor sum.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7fa03ea" class="outline-2">
+<h2 id="org7fa03ea"><span class="section-number-2">7.</span> Effect type constructor</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Now we ave a way to represent effects (as sum of functors), let's tie them in a
+circle using the free monad. The following construction is equivalent to the
+free monad on the sum of the effects.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> (fs <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) (x <span style="color: #3548cf;">::</span> <span style="color: #3548cf;">*</span>) <span style="color: #005e8b; font-weight: bold;">where</span>
+  <span style="color: #531ab6; font-weight: bold;">Pure</span> <span style="color: #3548cf;">::</span> x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x
+  <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Sum</span> fs (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs x) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x
+
+<span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">To unwrapp empty effects into pure values</span>
+<span style="color: #8f0075;">unwrapEff</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> '<span style="color: #531ab6; font-weight: bold;">[]</span> x <span style="color: #3548cf;">-&gt;</span> x
+<span style="color: #8f0075;">unwrapEff</span> (<span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #005e8b; font-weight: bold;">_</span>) <span style="color: #3548cf;">=</span> error <span style="color: #a0132f;">"impossible"</span>
+<span style="color: #8f0075;">unwrapEff</span> (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> x
+</pre>
+</div>
+
+<p>
+This construction will let us sequence many effects together. Another thing to
+notice is that
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7657948" class="outline-2">
+<h2 id="org7657948"><span class="section-number-2">8.</span> Free monoids, free monads, <code class="src src-haskell">[x]</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code></h2>
+<div class="outline-text-2" id="text-8">
+<p>
+We all know the meme phrase "a monad is just a monoid in the category of
+endofunctors", but what does it tell us about the free monad? It is just the
+free monoid in the category of endofunctors. 
+</p>
+</div>
+
+<div id="outline-container-org670e2e5" class="outline-3">
+<h3 id="org670e2e5"><span class="section-number-3">8.1.</span> What even is a free monoid?</h3>
+<div class="outline-text-3" id="text-8-1">
+<p>
+A monoid is an object with an associative operation \( * \) and a neutral
+element \( 1 \). This means that for every \( a, b, c \):
+</p>
+
+<p>
+\[ a * (b * c) = (a * b) * c \]
+</p>
+
+<p>
+\[ 1 * a = a = a * 1 \]
+</p>
+
+<p>
+The free monoid on an alphabet is the smallest monoid made from this alphabet.
+It is the smalles in the sense that it has no more equalities than absolutely
+necessary to make it a monoid.
+</p>
+
+<p>
+The free monoid on an alphabet set is the list containing elements of this set.
+The neutral element \( 1 \) is the empty list and \( * \) is <code>append</code>.
+</p>
+
+<p>
+As it turns out, we can concisely express the type of lists of \( x \) with this
+equation:
+</p>
+
+<p>
+\[ L(x) = 1 + x \times L(x) \]
+</p>
+
+<p>
+Here, \( 1 \) is the singleton set (a set with one element) which acts as the
+neutral element for the cartesian product \( \times \) on sets and \( + \) is the
+disjoint union of sets. If we expand this recursive definition, we will see
+that:
+</p>
+
+<p>
+\[ L(x) = \sum_{n=0}^{\infty} x^n \]
+</p>
+
+<p>
+where \( x^0 \) is the singleton set and \( x^n \) is the \( n \)-tuple of \( x
+\)s.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd080df9" class="outline-3">
+<h3 id="orgd080df9"><span class="section-number-3">8.2.</span> Free monad</h3>
+<div class="outline-text-3" id="text-8-2">
+<p>
+If we translate all of our operations from the set world to the endofunctor
+world, this is what happens:
+</p>
+
+<ol class="org-ol">
+<li>\( + \) which is the set disjoint union becomes the functor disjoint union
+where \( (f + g)(x) = f(x) + g(x) \).</li>
+<li>\( \times \) which was the cartesian product becomes \( \circ \) the functor
+composition.</li>
+<li>\( 1 \) which was the singleton set (neutral element of \( \times \)) becomes \(
+   \text{id} \) (neutral element of \( \circ \)).</li>
+</ol>
+
+<p>
+Finally, when translating the recursive equation for the list, we get:
+</p>
+
+<p>
+\[ L(f) = \text{id} + f \circ L(f) \]
+</p>
+
+<p>
+This object &#x2013; the free monoid on an alphabet of endofunctors &#x2013; is exactly
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code>.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4ff8e60" class="outline-2">
+<h2 id="org4ff8e60"><span class="section-number-2">9.</span> Show for <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs x</code></h2>
+<div class="outline-text-2" id="text-9">
+<p>
+When working with effectful values, it will be useful to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Show</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs x)</code> when possible. To achieve this, we will need to define new
+typeclasses and some instances.
+</p>
+
+
+<p>
+We say that a <code class="src src-haskell"><span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span></code> "preserves show" when <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Show</span> (f x)</code>
+whenever <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Show</span> x</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">class</span> (<span style="color: #005e8b; font-weight: bold;">forall</span> x<span style="color: #3548cf;">.</span> <span style="color: #531ab6; font-weight: bold;">Show</span> x <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Show</span> (f x)) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">PreservesShow</span> f
+</pre>
+</div>
+
+<p>
+We know that <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span> fs</code> preserves show if and only if al of the
+elements of <code class="src src-haskell">fs</code> preserve it too.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">type</span> <span style="color: #005e8b; font-weight: bold;">family</span> <span style="color: #531ab6; font-weight: bold;">AllPreserveShow</span> (fs <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Constraint</span> <span style="color: #005e8b; font-weight: bold;">where</span>
+  <span style="color: #531ab6; font-weight: bold;">AllPreserveShow</span> (f '<span style="color: #531ab6; font-weight: bold;">:</span> fs) <span style="color: #3548cf;">=</span> (<span style="color: #531ab6; font-weight: bold;">PreservesShow</span> f, <span style="color: #531ab6; font-weight: bold;">AllPreserveShow</span> fs)
+  <span style="color: #531ab6; font-weight: bold;">AllPreserveShow</span> '<span style="color: #531ab6; font-weight: bold;">[]</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">()</span>
+
+<span style="color: #005e8b; font-weight: bold;">instance</span> (<span style="color: #531ab6; font-weight: bold;">AllPreserveShow</span> fs, <span style="color: #531ab6; font-weight: bold;">Show</span> x) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Show</span> (<span style="color: #531ab6; font-weight: bold;">Sum</span> fs x) <span style="color: #005e8b; font-weight: bold;">where</span>
+  show (<span style="color: #531ab6; font-weight: bold;">Head</span> h) <span style="color: #3548cf;">=</span> show h
+  show (<span style="color: #531ab6; font-weight: bold;">Tail</span> t) <span style="color: #3548cf;">=</span> show t
+</pre>
+</div>
+
+<p>
+Finally, because <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs x</code> uses <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span> fs</code>, it also
+preserves show whenever <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Sum</span> fs</code> preserves show.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> (<span style="color: #531ab6; font-weight: bold;">AllPreserveShow</span> fs, <span style="color: #531ab6; font-weight: bold;">Show</span> x) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Show</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs x) <span style="color: #005e8b; font-weight: bold;">where</span>
+  show (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> show x
+  show (<span style="color: #531ab6; font-weight: bold;">Impure</span> t) <span style="color: #3548cf;">=</span> show t
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2311426" class="outline-2">
+<h2 id="org2311426"><span class="section-number-2">10.</span> When the effects <code class="src src-haskell">fs</code> are functors, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is a functor</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+Further down, having <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Functor</span></code> instances for everything will be very
+useful. This is why it is important automatically derive <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Functor</span></code>
+instances whenever possible.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">type</span> <span style="color: #005e8b; font-weight: bold;">family</span> <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> (fs <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Constraint</span> <span style="color: #005e8b; font-weight: bold;">where</span>
+  <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> (f '<span style="color: #531ab6; font-weight: bold;">:</span> fs) <span style="color: #3548cf;">=</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span> f, <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs)
+  <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> '<span style="color: #531ab6; font-weight: bold;">[]</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">()</span>
+</pre>
+</div>
+
+<p>
+Again, a sum of <code class="src src-haskell"><span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span></code>s is a functor if and only if they all are.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Functor</span> (<span style="color: #531ab6; font-weight: bold;">Sum</span> fs) <span style="color: #005e8b; font-weight: bold;">where</span>
+  fmap f (<span style="color: #531ab6; font-weight: bold;">Head</span> h) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Head</span> <span style="color: #3548cf;">$</span> fmap f h
+  fmap f (<span style="color: #531ab6; font-weight: bold;">Tail</span> t) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Tail</span> <span style="color: #3548cf;">$</span> fmap f t
+</pre>
+</div>
+
+<p>
+By the same reasoning as with <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Show</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is a
+functor whenever <code class="src src-haskell">fs</code> are.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Functor</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs) <span style="color: #005e8b; font-weight: bold;">where</span>
+  fmap f (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Pure</span> <span style="color: #3548cf;">$</span> f x
+  fmap f (<span style="color: #531ab6; font-weight: bold;">Impure</span> fx) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> (fmap <span style="color: #3548cf;">.</span> fmap) f fx
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgbf5b3e4" class="outline-2">
+<h2 id="orgbf5b3e4"><span class="section-number-2">11.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> is also a monad</h2>
+<div class="outline-text-2" id="text-11">
+<p>
+The categorical presentation of a monad uses a <code class="src src-haskell">join</code> operator
+instead of <code class="src src-haskell"><span style="color: #3548cf;">&gt;&gt;=</span></code>. Here, we will first implement <code class="src src-haskell">effJoin</code>
+(it simply removes a <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Pure</span></code> between the two layers of <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code>) and derive <code class="src src-haskell">effBind</code> with it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">effJoin</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs x) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x
+<span style="color: #8f0075;">effJoin</span> (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> x
+<span style="color: #8f0075;">effJoin</span> (<span style="color: #531ab6; font-weight: bold;">Impure</span> fx) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> (fmap effJoin) fx
+
+<span style="color: #8f0075;">effBind</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x <span style="color: #3548cf;">-&gt;</span> (x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs y) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs y
+<span style="color: #8f0075;">effBind</span> fx f <span style="color: #3548cf;">=</span> effJoin <span style="color: #3548cf;">$</span> fmap f fx
+</pre>
+</div>
+
+<p>
+The two instances we need to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Monad</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs)</code> then flow
+naturally.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">instance</span> (<span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Applicative</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs) <span style="color: #005e8b; font-weight: bold;">where</span>
+  pure <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Pure</span>
+  ff <span style="color: #3548cf;">&lt;*&gt;</span> fx <span style="color: #3548cf;">=</span> effBind ff (<span style="color: #3548cf;">\</span>f <span style="color: #3548cf;">-&gt;</span> fmap f fx)
+
+<span style="color: #005e8b; font-weight: bold;">instance</span> (<span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs) <span style="color: #005e8b; font-weight: bold;">where</span>
+  (<span style="color: #3548cf;">&gt;&gt;=</span>) <span style="color: #3548cf;">=</span> effBind
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org01726a1" class="outline-2">
+<h2 id="org01726a1"><span class="section-number-2">12.</span> Why do we need <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Monad</span> (<span style="color: #531ab6; font-weight: bold;">Eff</span> fs)</code>?</h2>
+<div class="outline-text-2" id="text-12">
+<p>
+I hear you ask: "At the beginning, you presented algebraic effects as an
+alternative to monads, so why are you making <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span> fs</code> a monad?"
+</p>
+
+<p>
+The reason algebraic effects are interesting is because they compose very well.
+Monads, in their normal form, don't. What we do here is compose the effects
+<b>before</b> turning them into a monad. This way, we only have to think about a single
+"monad constructor": <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Eff</span></code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org290221e" class="outline-2">
+<h2 id="org290221e"><span class="section-number-2">13.</span> Lift a term into an effect</h2>
+<div class="outline-text-2" id="text-13">
+<p>
+Now that we have built ourselves an ontology of typeclasses, functors and
+monads, we need utilities to actually use the algebraic effects. The first one
+of them will be this simple <code class="src src-haskell">effInj</code> function which will let us turn
+a naked effect into a fully-clothed effectful value.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">effInj</span> <span style="color: #3548cf;">::</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span> f, f <span style="color: #531ab6; font-weight: bold;">:&#8712;:</span> fs) <span style="color: #3548cf;">=&gt;</span> f x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x
+<span style="color: #8f0075;">effInj</span> e <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> inject <span style="color: #3548cf;">$</span> fmap <span style="color: #531ab6; font-weight: bold;">Pure</span> e
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgff45747" class="outline-2">
+<h2 id="orgff45747"><span class="section-number-2">14.</span> Example</h2>
+<div class="outline-text-2" id="text-14">
+<p>
+Here is how to use it. Let's say we defined two effects for asking for a string
+and asking for an integer. The function that will find itself inside the
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">GetInt</span></code> or the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">GetString</span></code> will be the continuation (you
+can read more about continuations in <a href="async-await-syntax.html#ID-bc6ba032-8b50-4403-95db-abb7da96ae83">My last post</a>) to which will be passed the
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">String</span></code> or <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code>. Here, we use <code class="src src-haskell">id</code>, because
+the continuation of our block will automatically be add through the monadic
+operations.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">GetString</span> a <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">GetString</span> (<span style="color: #531ab6; font-weight: bold;">String</span> <span style="color: #3548cf;">-&gt;</span> a)
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> <span style="color: #531ab6; font-weight: bold;">Functor</span>
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">GetInt</span> a <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">GetInt</span> (<span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> a)
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> <span style="color: #531ab6; font-weight: bold;">Functor</span>
+
+<span style="color: #005e8b; font-weight: bold;">type</span> <span style="color: #531ab6; font-weight: bold;">MyEff</span> <span style="color: #3548cf;">=</span> [<span style="color: #531ab6; font-weight: bold;">GetString</span>, <span style="color: #531ab6; font-weight: bold;">GetInt</span>]
+
+<span style="color: #8f0075;">comp</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> <span style="color: #531ab6; font-weight: bold;">MyEff</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+<span style="color: #8f0075;">comp</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+  int <span style="color: #3548cf;">&lt;-</span> effInj <span style="color: #3548cf;">$</span> <span style="color: #531ab6; font-weight: bold;">GetInt</span> id
+  str <span style="color: #3548cf;">&lt;-</span> effInj <span style="color: #3548cf;">$</span> <span style="color: #531ab6; font-weight: bold;">GetString</span> id
+  return <span style="color: #3548cf;">$</span> str <span style="color: #3548cf;">++</span> show int
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge050ce1" class="outline-2">
+<h2 id="orge050ce1"><span class="section-number-2">15.</span> Permuting effects</h2>
+<div class="outline-text-2" id="text-15">
+<p>
+Here is an utility function to embed an effectful value into a bigger effect
+space.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">effPerm</span> <span style="color: #3548cf;">::</span> <span style="color: #005e8b; font-weight: bold;">forall</span> fs gs x<span style="color: #3548cf;">.</span> (<span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs, fs <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> gs) <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> gs x
+<span style="color: #8f0075;">effPerm</span> (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Pure</span> x
+<span style="color: #8f0075;">effPerm</span> (<span style="color: #531ab6; font-weight: bold;">Impure</span> sx) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> permute <span style="color: #3548cf;">@</span>fs <span style="color: #3548cf;">@</span>gs <span style="color: #3548cf;">$</span> fmap (effPerm <span style="color: #3548cf;">@</span>fs <span style="color: #3548cf;">@</span>gs) sx
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0cea4b5" class="outline-2">
+<h2 id="org0cea4b5"><span class="section-number-2">16.</span> Handlers</h2>
+<div class="outline-text-2" id="text-16">
+<p>
+The idea of a handler is what makes algebraic effects ergonomic. It lets us
+easily handle one of the effects using the other effects in the set.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">handle</span> <span style="color: #3548cf;">::</span> <span style="color: #005e8b; font-weight: bold;">forall</span> fs g gs x<span style="color: #3548cf;">.</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span> g, <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> gs, <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs,fs <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> (g '<span style="color: #531ab6; font-weight: bold;">:</span> gs))
+  <span style="color: #3548cf;">=&gt;</span> (<span style="color: #005e8b; font-weight: bold;">forall</span> x<span style="color: #3548cf;">.</span> g x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> gs x) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> gs x
+<span style="color: #8f0075;">handle</span> trans (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> (<span style="color: #531ab6; font-weight: bold;">Pure</span> x)
+<span style="color: #8f0075;">handle</span> trans (<span style="color: #531ab6; font-weight: bold;">Impure</span> x) <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">case</span> permute <span style="color: #3548cf;">@</span>fs <span style="color: #3548cf;">@</span>(g '<span style="color: #531ab6; font-weight: bold;">:</span> gs) x <span style="color: #005e8b; font-weight: bold;">of</span>
+  <span style="color: #531ab6; font-weight: bold;">Head</span> h <span style="color: #3548cf;">-&gt;</span> <span style="color: #005e8b; font-weight: bold;">let</span> val <span style="color: #3548cf;">=</span> fmap (handle trans) h
+                val' <span style="color: #3548cf;">=</span> trans val
+            <span style="color: #005e8b; font-weight: bold;">in</span> effJoin val'
+  <span style="color: #531ab6; font-weight: bold;">Tail</span> t <span style="color: #3548cf;">-&gt;</span> <span style="color: #005e8b; font-weight: bold;">let</span> val <span style="color: #3548cf;">=</span> fmap (handle <span style="color: #3548cf;">@</span>fs <span style="color: #3548cf;">@</span>g <span style="color: #3548cf;">@</span>gs trans) t
+            <span style="color: #005e8b; font-weight: bold;">in</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> val
+</pre>
+</div>
+
+<p>
+You use <code class="src src-haskell">handle</code> a bit like you use <code>try</code> / <code>catch</code> blocks in other
+programming languages. Whenever the effect you want to eliminate is used, you
+must do so using one of the remaining effects in the set.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">comp'</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> '[<span style="color: #531ab6; font-weight: bold;">GetString</span>] <span style="color: #531ab6; font-weight: bold;">String</span>
+<span style="color: #8f0075;">comp'</span> <span style="color: #3548cf;">=</span> handle func comp
+  <span style="color: #005e8b; font-weight: bold;">where</span> func <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">GetInt</span> x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> '[<span style="color: #531ab6; font-weight: bold;">GetString</span>] x
+        func (<span style="color: #531ab6; font-weight: bold;">GetInt</span> f) <span style="color: #3548cf;">=</span> return <span style="color: #3548cf;">$</span> f 0
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdd3c204" class="outline-2">
+<h2 id="orgdd3c204"><span class="section-number-2">17.</span> More advanced handler</h2>
+<div class="outline-text-2" id="text-17">
+<p>
+Let's say you want an effect <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">GenSym</span> <span style="color: #3548cf;">::</span> (<span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> x) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> x</code> that
+generates unique integers. We need some kind of way to remember the last number
+we gave out. A <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Handler</span> f fs</code> lets us handle a <code class="src src-haskell">f</code> effect
+using <code class="src src-haskell">fs</code> and also, at the same time, give the next
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Handler</span> f fs</code> to use.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Handler</span> (f <span style="color: #3548cf;">::</span> <span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>) (fs <span style="color: #3548cf;">::</span> [<span style="color: #3548cf;">*</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">*</span>]) <span style="color: #005e8b; font-weight: bold;">where</span>
+  <span style="color: #531ab6; font-weight: bold;">Handler</span> <span style="color: #3548cf;">::</span> (<span style="color: #005e8b; font-weight: bold;">forall</span> x<span style="color: #3548cf;">.</span> f x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs (x, <span style="color: #531ab6; font-weight: bold;">Handler</span> f fs)) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Handler</span> f fs
+</pre>
+</div>
+
+<p>
+Now we need a <code class="src src-haskell">handleFold</code> function.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">handleFold</span> <span style="color: #3548cf;">::</span> <span style="color: #005e8b; font-weight: bold;">forall</span> fs g gs x<span style="color: #3548cf;">.</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span> g, <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> gs, <span style="color: #531ab6; font-weight: bold;">AllFunctors</span> fs,fs <span style="color: #531ab6; font-weight: bold;">:&#8838;:</span> (g '<span style="color: #531ab6; font-weight: bold;">:</span> gs))
+  <span style="color: #3548cf;">=&gt;</span> <span style="color: #531ab6; font-weight: bold;">Handler</span> g gs <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> fs x <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> gs x
+<span style="color: #8f0075;">handleFold</span> <span style="color: #005e8b; font-weight: bold;">_</span> (<span style="color: #531ab6; font-weight: bold;">Pure</span> x) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Pure</span> x
+<span style="color: #8f0075;">handleFold</span> (<span style="color: #531ab6; font-weight: bold;">Handler</span> fold) (<span style="color: #531ab6; font-weight: bold;">Impure</span> x) <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">case</span> permute <span style="color: #3548cf;">@</span>fs <span style="color: #3548cf;">@</span>(g '<span style="color: #531ab6; font-weight: bold;">:</span> gs) x <span style="color: #005e8b; font-weight: bold;">of</span>
+  <span style="color: #531ab6; font-weight: bold;">Tail</span> t <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Impure</span> <span style="color: #3548cf;">$</span> fmap (handleFold (<span style="color: #531ab6; font-weight: bold;">Handler</span> fold)) t
+  <span style="color: #531ab6; font-weight: bold;">Head</span> h <span style="color: #3548cf;">-&gt;</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+    (val, fold') <span style="color: #3548cf;">&lt;-</span> fold h
+    handleFold fold' val
+</pre>
+</div>
+
+<p>
+Example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> x <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> (<span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> x)
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> <span style="color: #531ab6; font-weight: bold;">Functor</span>
+
+<span style="color: #8f0075;">syms</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> '[<span style="color: #531ab6; font-weight: bold;">GenSym</span>] [<span style="color: #531ab6; font-weight: bold;">Int</span>]
+<span style="color: #8f0075;">syms</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+  x <span style="color: #3548cf;">&lt;-</span> effInj <span style="color: #3548cf;">$</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> id
+  y <span style="color: #3548cf;">&lt;-</span> effInj <span style="color: #3548cf;">$</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> id
+  z <span style="color: #3548cf;">&lt;-</span> effInj <span style="color: #3548cf;">$</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> id
+  return [x, y, z<span style="color: #3548cf;">+</span>1]
+
+<span style="color: #8f0075;">symsEvaled</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Eff</span> '<span style="color: #531ab6; font-weight: bold;">[]</span> [<span style="color: #531ab6; font-weight: bold;">Int</span>]
+<span style="color: #8f0075;">symsEvaled</span> <span style="color: #3548cf;">=</span> handleFold (fh 0) syms
+  <span style="color: #005e8b; font-weight: bold;">where</span> fh <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Handler</span> <span style="color: #531ab6; font-weight: bold;">GenSym</span> '<span style="color: #531ab6; font-weight: bold;">[]</span>
+        fh k <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Handler</span> <span style="color: #3548cf;">$</span> <span style="color: #3548cf;">\</span>(<span style="color: #531ab6; font-weight: bold;">GenSym</span> cont) <span style="color: #3548cf;">-&gt;</span> return <span style="color: #3548cf;">$</span> (cont k, fh (k<span style="color: #3548cf;">+</span>1))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgef9b595" class="outline-2">
+<h2 id="orgef9b595"><span class="section-number-2">18.</span> References</h2>
+<div class="outline-text-2" id="text-18">
+<style>.csl-left-margin{float: left; padding-right: 0em;}
+ .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
+  <div class="csl-entry"><a id="citeproc_bib_item_1"></a>
+    <div class="csl-left-margin">[1]</div><div class="csl-right-inline">W. Swierstra, “Data types à la carte,” <i>J. funct. program.</i>, vol. 18, no. 4, pp. 423–436, Jul. 2008, doi: <a href="https://doi.org/10.1017/S0956796808006758">10.1017/S0956796808006758</a>.</div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2024-05-29 Wed 00:00</p>
+<p class="author">Author: Justin Veilleux</p>
+<p class="date">Created: 2024-09-15 Sun 21:36</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

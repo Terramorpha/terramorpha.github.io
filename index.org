@@ -1,0 +1,32 @@
+:PROPERTIES:
+:ID:       b06c90e5-4e23-4833-bd0d-23a6b989e6e6
+:CREATED:  2024-04-03T00:21:48
+:END:
+#+TITLE: Blog
+#+LANGUAGE: english
+Hi. I'm a computer science student interested in programming language theory,
+metaprogramming and mathematics. With this blog, I aim to write concise posts
+regarding concept, techniques and ideas that a(slightly) younger version of
+myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_development][zone of proximal development]].
+
+* [[id:6c8af10c-6dad-4cd6-a028-353067b80266][Getting Agda code export to work for my blog]]
+
+* [[id:d652fd73-f650-4db8-b2b0-9d94ffe7058b][Guile scheme's syntax parameters]]
+
+* [[id:db5e5ed5-987b-428a-a402-c267c09cf0c4][Implementing algebraic effects through typeclass prolog]]
+
+* [[id:bc6ba032-8b50-4403-95db-abb7da96ae83][Implementing ~async~-~await~ syntax using delimited continuations]]
+
+* [[id:94834d2e-4ab7-41d0-bede-3b0ff5ae2b30][Dataset preprocessing with Guix scripts]]
+
+* [[id:d06c9885-40a8-49aa-b6e2-f84d0ede7bfd][Type level programming in julia]]
+
+* [[id:9b646ba8-977e-495a-a4c5-5e20aacd3d21][Interfaces in C using ~container_of~]]
+
+* [[id:df9ac546-8555-4c69-bb14-659a0b556f35][An explanation of higher order unification]]
+
+* [[id:6d25ece7-27de-4847-a5d8-a5586c72bc6f][Well scoped lambda terms]]
+
+# * [[id:1ffbcfb3-9c0d-4776-b163-b737369328b4][Guix: elevate your computing]]
+
+

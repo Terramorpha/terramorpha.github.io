@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<head>
+<!-- 2024-09-15 Sun 21:36 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Type level programming in julia</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
+<h1 class="title">Type level programming in julia</h1>
+<p>
+For a machine learning project, I needed a way to easily turn a big row from a
+<code class="src src-julia">DataFrame</code> into a <code class="src src-julia">Float64</code> vector. The columns of the
+dataset contained everything from categorical data to ordinal data (with lots of
+<code class="src src-julia"><span style="color: #531ab6;">missing</span></code>'s). Writing an encoder manually would have been long and
+tedious. Here is what I wanted to do instead:
+</p>
+
+<ol class="org-ol">
+<li>Given a type, generate an encoding function from that type to a vector of
+floats</li>
+<li>Given a type, generate a decoding function from a vector of floats to that
+type.</li>
+</ol>
+
+<div id="outline-container-orgcfd2ecc" class="outline-2">
+<h2 id="orgcfd2ecc"><span class="section-number-2">1.</span> Interface</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Doing programming at the type level is easy, since types are first class values
+in julia. Here is what the api of what we want to build looks like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">abstract type</span> <span style="color: #531ab6; font-weight: bold;">Encodable</span> <span style="color: #005e8b; font-weight: bold;">end</span>
+<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(t::<span style="color: #531ab6; font-weight: bold;">Type</span>{A}) <span style="color: #005e8b; font-weight: bold;">where</span> {A &lt;: <span style="color: #531ab6; font-weight: bold;">Encodable</span>}
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">...</span>
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">...</span>
+    encodefunc, decodefunc, sizeofencoding
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+
+<p>
+The <code class="src src-julia">encodefunc</code> turns a value of our type into a <b>constant size</b> vector
+of floats. The <code class="src src-julia">decodefunc</code> reverses that transformation. The
+<code class="src src-julia">sizeofencoding</code> output is useful for methods that work on parametric
+types as we will see later. Now, Let's write implementations for concrete types.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org58659cd" class="outline-2">
+<h2 id="org58659cd"><span class="section-number-2">2.</span> Concrete types</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The encoding functions for primitive types are easy to write, as they do not
+require much more knowledge about Julia's type system than simple
+<code class="src src-julia">::<span style="color: #531ab6; font-weight: bold;">Type</span>{Thing}</code> dispatching.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Float64})
+    <span style="color: #8f0075;">encode</span>(f) = [f]
+    <span style="color: #8f0075;">decode</span>(v) = v[1]
+    encode, decode, 1
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+
+
+<p>
+Here, <code class="src src-julia">Type{Float64}</code> is the type of <code class="src src-julia">Float64</code> itself.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #721045; font-weight: bold;">@show</span> Float64 isa Type{Float64}
+</pre>
+</div>
+
+<pre class="example">
+Float64 isa Type{Float64} = true
+</pre>
+
+
+<p>
+Let's see if it works
+</p>
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #721045; font-weight: bold;">@show</span> en, de, s = encdecsize(Float64)
+<span style="color: #721045; font-weight: bold;">@show</span> encoded = en(1.0)
+<span style="color: #721045; font-weight: bold;">@show</span> decoded = de(encoded)
+</pre>
+</div>
+
+<pre class="example">
+(en, de, s) = encdecsize(Float64) = (var"#encode#30"(), var"#decode#31"(), 1)
+encoded = en(1.0) = [1.0]
+decoded = de(encoded) = 1.0
+</pre>
+
+
+<p>
+Here, the size of the encoding of a <code class="src src-julia">Missing</code> is zero, since a value of
+such a type contains zero information. It is always <code class="src src-julia"><span style="color: #531ab6;">missing</span></code>!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Missing})
+    <span style="color: #8f0075;">encode</span>(v) = Float64[]
+    <span style="color: #8f0075;">decode</span>(v) = <span style="color: #531ab6;">missing</span>
+    encode, decode, 0
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+
+<p>
+Another (slightly) interesting case is the one with <code class="src src-julia">Bool</code>. In the
+decoding function, we might receive a number that is not exactly zero or one. We
+want to give the closest result, so we compare with 0.5.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Bool})
+    <span style="color: #8f0075;">encode</span>(v) = [1.0*v]
+    <span style="color: #8f0075;">decode</span>(v) = v[1] &gt; 0.5
+    encode, decode, 1
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1904007" class="outline-2">
+<h2 id="org1904007"><span class="section-number-2">3.</span> Composite types</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Most types we use daily are not simple primitive types: they are composite.
+Think tuples and unions. We need a way to encode values of these types too.
+</p>
+</div>
+
+<div id="outline-container-org67a0033" class="outline-3">
+<h3 id="org67a0033"><span class="section-number-3">3.1.</span> Tuples</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Since a tuple contains multiple types of values, we need to know how to encode
+(and decode) each of those types. Here, I chose to encode each component of the
+tuple one after the other. This is why we need our API to produce encoding
+sizes. Since each encoded component will live in a different offset of the
+vector, we need these sizes to calculate (when decoding) the vector slice of
+each encoded component.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{T}) <span style="color: #005e8b; font-weight: bold;">where</span> {T &lt;: <span style="color: #531ab6; font-weight: bold;">Tuple</span>}
+    encs = []
+    decs = []
+    sizes = Int[]
+    
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We collect encoding functions, decoding functions and encoding</span>
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">sizes for each component type.</span>
+    <span style="color: #005e8b; font-weight: bold;">for</span> t <span style="color: #005e8b; font-weight: bold;">in</span> T.types
+        enc, dec, s = encdecsize(t)
+        push!(encs, enc)
+        push!(decs, dec)
+        push!(sizes, s)
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+
+    <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encode</span>(tuple::<span style="color: #531ab6; font-weight: bold;">T</span>)
+        out = Float64[]
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We concatenate the encoded components.</span>
+        <span style="color: #005e8b; font-weight: bold;">for</span> (i, elem) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(tuple)
+            out = vcat(out, encs[i](elem))
+        <span style="color: #005e8b; font-weight: bold;">end</span>
+        out
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+    <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">decode</span>(v)::<span style="color: #531ab6; font-weight: bold;">T</span>
+        start = 1
+        out = []
+        <span style="color: #005e8b; font-weight: bold;">for</span> (i, s) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(sizes)
+            <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">each time we decode a component, we must "consume" the</span>
+            <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">associated part of the vector</span>
+            push!(out, decs[i](v[start:start+s-1]))
+            start += s
+        <span style="color: #005e8b; font-weight: bold;">end</span>
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">we turn back the Vector of Any into a tuple</span>
+        (out...,)
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+    encode, decode, sum(sizes)
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org20e68d1" class="outline-3">
+<h3 id="org20e68d1"><span class="section-number-3">3.2.</span> Union</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+This part was the most time-consuming, as I had to wrestle with Julia's method
+dispatch system to get it to recognise "union of exactly two types, none of
+which is the empty union". I discovered that the type of a "Union type"
+is <code class="src src-julia">Union</code> itself. Nice!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #721045; font-weight: bold;">@show</span> Union{Float32, Bool} isa Union
+</pre>
+</div>
+
+<pre class="example">
+true
+</pre>
+
+
+<p>
+The most complicated part of this function is the correct treatment of the <b>tag</b>
+of the value. It is necessary to tell the union decoder what child decoding
+function to use.
+</p>
+
+<p>
+We need first need a padding function to ensure every output of our encoding
+function is of equal length.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">pad</span>(v, len)
+    vcat(v, zeros(max(0, len - length(v))))
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+
+<p>
+Then, we need a way to encode(and decode) the type of the value itself.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">binenc</span>(n, len)
+    [1.0 * (n&gt;&gt;i &amp; 1)
+
+     <span style="color: #005e8b; font-weight: bold;">for</span> i <span style="color: #005e8b; font-weight: bold;">in</span> 0:len-1]
+<span style="color: #005e8b; font-weight: bold;">end</span>
+<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">bindec</span>(v)
+    sum(v[i+1] * 2^i
+        <span style="color: #005e8b; font-weight: bold;">for</span> i <span style="color: #005e8b; font-weight: bold;">in</span> 0:length(v)-1)
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+
+<p>
+Finally, we need a way to collect every leaf in a tree of <code class="src src-julia">Union</code>s
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #8f0075;">gettypes</span>(u::<span style="color: #531ab6; font-weight: bold;">Type</span>) = [u]
+<span style="color: #8f0075;">gettypes</span>(u::<span style="color: #531ab6; font-weight: bold;">Union</span>) = [u.a;gettypes(u.b)]
+</pre>
+</div>
+
+<p>
+Here is the code:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(un::<span style="color: #531ab6; font-weight: bold;">Union</span>)
+    encs = []
+    decs = []
+    sizes = Int[]
+    types = gettypes(un)
+
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">As before, we collect enc, dec and size of each subtype.</span>
+    <span style="color: #005e8b; font-weight: bold;">for</span> t <span style="color: #005e8b; font-weight: bold;">in</span> types
+        enc, dec, s = encdecsize(t)
+        push!(encs, enc)
+        push!(decs, dec)
+        push!(sizes, s)
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+
+    n = length(types)
+
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">The tag must contain enough "bits" to encode every variant.</span>
+    tagsize = Int(ceil(log(2, n)))
+
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">Apart from the tag, we must be able to encode the biggest</span>
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">variant.</span>
+    innersize = maximum(sizes)
+
+    <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encode</span>(v)
+        <span style="color: #005e8b; font-weight: bold;">for</span> (i, t) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(types)
+            <span style="color: #005e8b; font-weight: bold;">if</span> v isa t
+                <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We write the tag, then the padded encoded value.</span>
+                <span style="color: #005e8b; font-weight: bold;">return</span> vcat(
+                    binenc(i-1, tagsize),
+                    pad(encs[i](v), innersize),
+                )
+            <span style="color: #005e8b; font-weight: bold;">end</span>
+        <span style="color: #005e8b; font-weight: bold;">end</span>
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+
+    <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">decode</span>(v)
+        tag = v[1:tagsize]
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We calculate the tag, then retrieve the correct decoding</span>
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">function.</span>
+        dectag = bindec(tag) |&gt; round |&gt; Int
+        d = decs[dectag+1](v[tagsize+1:tagsize+sizes[dectag+1]])
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+    encode, decode, tagsize+innersize
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd8e627a" class="outline-2">
+<h2 id="orgd8e627a"><span class="section-number-2">4.</span> Wrapping up</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Here, let's test our code on semi-complex tuples:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">let</span>
+    vec = Tuple{Float64, Bool, Union{Missing, Float64}}[
+        (1.0, <span style="color: #531ab6;">false</span>, <span style="color: #531ab6;">missing</span>),
+        (2.0, <span style="color: #531ab6;">true</span>, 15.0),
+        (2.0, <span style="color: #531ab6;">true</span>, 13.0),
+    ]
+
+    en, de, _ = encdecsize(eltype(typeof(vec)))
+    <span style="color: #005e8b; font-weight: bold;">for</span> v <span style="color: #005e8b; font-weight: bold;">in</span> vec
+        <span style="color: #721045; font-weight: bold;">@show</span> encoded = en(v)
+        <span style="color: #721045; font-weight: bold;">@show</span> decoded = de(encoded)
+    <span style="color: #005e8b; font-weight: bold;">end</span>
+<span style="color: #005e8b; font-weight: bold;">end</span>
+</pre>
+</div>
+
+<pre class="example">
+encoded = en(v) = [1.0, 0.0, 0.0, 0.0]
+decoded = de(encoded) = (1.0, false, missing)
+encoded = en(v) = [2.0, 1.0, 1.0, 15.0]
+decoded = de(encoded) = (2.0, true, 15.0)
+encoded = en(v) = [2.0, 1.0, 1.0, 13.0]
+decoded = de(encoded) = (2.0, true, 13.0)
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Justin Veilleux</p>
+<p class="date">Created: 2024-09-15 Sun 21:36</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

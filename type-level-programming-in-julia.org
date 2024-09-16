@@ -1,0 +1,302 @@
+:PROPERTIES:
+:ID:       d06c9885-40a8-49aa-b6e2-f84d0ede7bfd
+:CREATED:  2024-04-18T18:41:35
+:END:
+#+TITLE: Type level programming in julia
+#+LANGUAGE: english
+#+PROPERTY: header-args :exports code
+
+For a machine learning project, I needed a way to easily turn a big row from a
+src_julia{DataFrame} into a src_julia{Float64} vector. The columns of the
+dataset contained everything from categorical data to ordinal data (with lots of
+src_julia{missing}'s). Writing an encoder manually would have been long and
+tedious. Here is what I wanted to do instead:
+
+1. Given a type, generate an encoding function from that type to a vector of
+   floats
+2. Given a type, generate a decoding function from a vector of floats to that
+   type.
+
+* Interface
+
+Doing programming at the type level is easy, since types are first class values
+in julia. Here is what the api of what we want to build looks like:
+
+#+begin_src julia :session
+abstract type Encodable end
+function encdecsize(t::Type{A}) where {A <: Encodable}
+    # ...
+    # ...
+    encodefunc, decodefunc, sizeofencoding
+end
+#+end_src
+
+#+RESULTS:
+: encdecsize
+
+The src_julia{encodefunc} turns a value of our type into a *constant size* vector
+of floats. The src_julia{decodefunc} reverses that transformation. The
+src_julia{sizeofencoding} output is useful for methods that work on parametric
+types as we will see later. Now, Let's write implementations for concrete types.
+
+* Concrete types
+
+The encoding functions for primitive types are easy to write, as they do not
+require much more knowledge about Julia's type system than simple
+src_julia{::Type{Thing}} dispatching.
+
+#+begin_src julia :session
+function encdecsize(::Type{Float64})
+	encode(f) = [f]
+	decode(v) = v[1]
+	encode, decode, 1
+end
+#+end_src
+
+#+RESULTS:
+: encdecsize
+
+
+Here, src_julia{Type{Float64}} is the type of src_julia{Float64} itself.
+
+#+begin_src julia :session :results output :exports both
+@show Float64 isa Type{Float64}
+#+end_src
+
+#+RESULTS:
+: Float64 isa Type{Float64} = true
+
+Let's see if it works
+#+begin_src julia :session :results output :exports both
+@show en, de, s = encdecsize(Float64)
+@show encoded = en(1.0)
+@show decoded = de(encoded)
+#+end_src
+
+#+RESULTS:
+: (en, de, s) = encdecsize(Float64) = (var"#encode#34"(), var"#decode#35"(), 1)
+: encoded = en(1.0) = [1.0]
+: decoded = de(encoded) = 1.0
+
+Here, the size of the encoding of a src_julia{Missing} is zero, since a value of
+such a type contains zero information. It is always src_julia{missing}!
+
+#+begin_src julia :session
+function encdecsize(::Type{Missing})
+	encode(v) = Float64[]
+	decode(v) = missing
+	encode, decode, 0
+end
+#+end_src
+
+#+RESULTS:
+: encdecsize
+
+Another (slightly) interesting case is the one with src_julia{Bool}. In the
+decoding function, we might receive a number that is not exactly zero or one. We
+want to give the closest result, so we compare with 0.5.
+
+#+begin_src julia :session
+function encdecsize(::Type{Bool})
+	encode(v) = [1.0*v]
+	decode(v) = v[1] > 0.5
+	encode, decode, 1
+end
+#+end_src
+
+#+RESULTS:
+: encdecsize
+
+* Composite types
+
+Most types we use daily are not simple primitive types: they are composite.
+Think tuples and unions. We need a way to encode values of these types too.
+
+** Tuples
+
+Since a tuple contains multiple types of values, we need to know how to encode
+(and decode) each of those types. Here, I chose to encode each component of the
+tuple one after the other. This is why we need our API to produce encoding
+sizes. Since each encoded component will live in a different offset of the
+vector, we need these sizes to calculate (when decoding) the vector slice of
+each encoded component.
+
+#+begin_src julia :session
+function encdecsize(::Type{T}) where {T <: Tuple}
+	encs = []
+	decs = []
+	sizes = Int[]
+    
+    # We collect encoding functions, decoding functions and encoding
+    # sizes for each component type.
+	for t in T.types
+		enc, dec, s = encdecsize(t)
+		push!(encs, enc)
+		push!(decs, dec)
+		push!(sizes, s)
+	end
+
+	function encode(tuple::T)
+		out = Float64[]
+        # We concatenate the encoded components.
+		for (i, elem) in enumerate(tuple)
+			out = vcat(out, encs[i](elem))
+		end
+		out
+	end
+	function decode(v)::T
+		start = 1
+		out = []
+		for (i, s) in enumerate(sizes)
+            # each time we decode a component, we must "consume" the
+            # associated part of the vector
+			push!(out, decs[i](v[start:start+s-1]))
+			start += s
+		end
+        # we turn back the Vector of Any into a tuple
+		(out...,)
+	end
+	encode, decode, sum(sizes)
+end
+#+end_src
+
+#+RESULTS:
+: encdecsize
+
+** Union
+
+
+This part was the most time-consuming, as I had to wrestle with Julia's method
+dispatch system to get it to recognise "union of exactly two types, none of
+which is the empty union". I discovered that the type of a "Union type"
+is src_julia{Union} itself. Nice!
+
+#+begin_src julia :session :exports both
+@show Union{Float32, Bool} isa Union
+#+end_src
+
+#+RESULTS:
+: true
+
+The most complicated part of this function is the correct treatment of the *tag*
+of the value. It is necessary to tell the union decoder what child decoding
+function to use.
+
+We need first need a padding function to ensure every output of our encoding
+function is of equal length.
+
+#+begin_src julia :session
+function pad(v, len)
+	vcat(v, zeros(max(0, len - length(v))))
+end
+#+end_src
+
+#+RESULTS:
+: pad
+
+Then, we need a way to encode(and decode) the type of the value itself.
+
+#+begin_src julia :session
+function binenc(n, len)
+	[1.0 * (n>>i & 1)
+
+     for i in 0:len-1]
+end
+function bindec(v)
+	sum(v[i+1] * 2^i
+		for i in 0:length(v)-1)
+end
+#+end_src
+
+#+RESULTS:
+: bindec
+
+Finally, we need a way to collect every leaf in a tree of src_julia{Union}s
+
+#+begin_src julia :session
+gettypes(u::Type) = [u]
+gettypes(u::Union) = [u.a;gettypes(u.b)]
+#+end_src
+
+#+RESULTS:
+: gettypes
+
+Here is the code:
+
+#+begin_src julia :session
+function encdecsize(un::Union)
+	encs = []
+	decs = []
+	sizes = Int[]
+	types = gettypes(un)
+
+    # As before, we collect enc, dec and size of each subtype.
+	for t in types
+		enc, dec, s = encdecsize(t)
+		push!(encs, enc)
+		push!(decs, dec)
+		push!(sizes, s)
+	end
+
+	n = length(types)
+
+    # The tag must contain enough "bits" to encode every variant.
+	tagsize = Int(ceil(log(2, n)))
+
+    # Apart from the tag, we must be able to encode the biggest
+    # variant.
+	innersize = maximum(sizes)
+
+	function encode(v)
+		for (i, t) in enumerate(types)
+			if v isa t
+                # We write the tag, then the padded encoded value.
+				return vcat(
+                    binenc(i-1, tagsize),
+                    pad(encs[i](v), innersize),
+                )
+			end
+		end
+	end
+
+	function decode(v)
+		tag = v[1:tagsize]
+        # We calculate the tag, then retrieve the correct decoding
+        # function.
+		dectag = bindec(tag) |> round |> Int
+		d = decs[dectag+1](v[tagsize+1:tagsize+sizes[dectag+1]])
+	end
+	encode, decode, tagsize+innersize
+end
+#+end_src
+
+#+RESULTS:
+: encdecsize
+
+* Wrapping up
+
+Here, let's test our code on semi-complex tuples:
+
+#+begin_src julia :session :results output :exports both
+let
+    vec = Tuple{Float64, Bool, Union{Missing, Float64}}[
+        (1.0, false, missing),
+        (2.0, true, 15.0),
+        (2.0, true, 13.0),
+    ]
+
+    en, de, _ = encdecsize(eltype(typeof(vec)))
+    for v in vec
+        @show encoded = en(v)
+        @show decoded = de(encoded)
+    end
+end
+#+end_src
+
+#+RESULTS:
+: encoded = en(v) = [1.0, 0.0, 0.0, 0.0]
+: decoded = de(encoded) = (1.0, false, missing)
+: encoded = en(v) = [2.0, 1.0, 1.0, 15.0]
+: decoded = de(encoded) = (2.0, true, 15.0)
+: encoded = en(v) = [2.0, 1.0, 1.0, 13.0]
+: decoded = de(encoded) = (2.0, true, 13.0)

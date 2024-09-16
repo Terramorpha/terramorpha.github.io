@@ -1,0 +1,404 @@
+# -*- ispell-dictionary: "english" -*-
+:PROPERTIES:
+:ID:       6d25ece7-27de-4847-a5d8-a5586c72bc6f
+:CREATED:  2024-04-02T14:05:22
+:REFERRER:
+:END:
+#+title: Well scoped lambda terms
+#+LANGUAGE: english
+#+PROPERTY: header-args :exports code
+#+DATE: <2024-05-21 Tue>
+
+
+
+In [cite:@scott2017], I stumbled upon the following type declarations[fn:1]:
+
+#+begin_src haskell
+data Var a = Z | S a
+  deriving (Show, Functor)
+
+data Term a = V a         -- Variable references
+  | Abs (Term (Var a))    -- λ abstraction
+  | App (Term a) (Term a) -- Function application
+  deriving (Show, Functor)
+#+end_src
+
+This made me finally understand the "Syntax is an endofunctor on the category of
+substitutions" point of view. In this post, I will try to condense as much as
+possible the parts I would have needed to understand it sooner.
+
+[fn:1]I took the liberty of simplifying it for the purpose of this article. I
+also added a ~deriving~ annotation, because, as we will see later, those two type
+constructors are functors.
+
+* The anatomy of the term
+
+This datatype defines the syntax of well-scoped untyped \lambda-calculus terms where
+the free variables live in an alphabet \( a \). What we mean by "alphabet" is
+that if you had the following data type:
+
+#+begin_src haskell
+data ABC = A | B | C
+#+end_src
+
+Then you would be able to access three different variables from a term.
+
+#+begin_src haskell
+t :: Term ABC
+t = App (V A) (V B)
+#+end_src
+
+Notice, however, the src_haskell{Var} type constructor. This type is necessary
+to be able to take an alphabet of free variables (like src_haskell{ABC}) and add
+a new fresh value to it.
+
+#+begin_src haskell
+type ABCZ = Var ABC
+
+fresh :: ABCZ
+fresh = Z -- The new variable added by `Var`.
+#+end_src
+
+This fresh value is necessary for the src_haskell{Abs} term to be able to "bind"
+a variable, removing it from the set of free variables.
+
+* Renaming and substitution
+
+The \( \alpha \)-renaming operation in \lambda-calculus is used to change the name of
+variables without changing the meaning of the term. It is necessary (in some
+encodings of \lambda-calculus) to do renaming to ensure there are no variable name
+clashes after substitution. For instance, we can see that, except for the names
+of the variables, the following terms are identical.
+
+\begin{equation*}
+\begin{aligned}
+\lambda f. \lambda x. f(x)(x) \\
+\lambda g. \lambda y. g(y)(y) \\
+\end{aligned}
+\end{equation*}
+
+When two terms like these are equivalent after some renaming of the variables,
+we say they are \( \alpha \)-equivalent. One interesting thing about this
+presentation of \lambda-terms is the fact that the "renaming" operation that one will
+often see when dealing with \lambda-calculus is simply the functorial action of
+src_haskell{Term} on free variables:
+
+#+begin_src haskell
+rename :: (a -> b) -> Term a -> Term b
+rename = fmap
+#+end_src
+
+This was very surprising to me, because the correct treatment of bound(by a
+src_haskell{Abs} term) variables is always slightly annoying (because of
+shifting) to implement. The fact that this renaming is simply an instance of a
+larger and common pattern (functors) is conceptually beautiful.
+
+Normally, to implement renaming, we would need a function
+src_haskell{renameShift :: (a -> b) -> Var a -> Var b} that injects the renaming
+function to a domain and codomain with one more variable. However, here, this is
+done by the functorial action of the src_haskell{Var} type of the
+src_haskell{Abs} constructor.
+
+Another operation that is necessary when manipulating \( \lambda \)-terms is
+substitution. Here is its type signature.
+
+#+begin_src haskell
+sub :: (v1 -> Term v2) -> Term v1 -> Term v2
+#+end_src
+
+The substitution operation takes a term with free variables in \( v_1 \), and
+substitutes each of those free variables for terms with free variables in \( v_2
+\). Here, \( v_1 \) could be equal to \( v_2 \) (this is simply a renaming), \(
+v_2 \) could be an empty set (meaning the term is closed) and \( v_2 \) could
+even be a subset of \( v_1 \). This operation is very general as we will see
+later.
+
+The first two branches of this function are easy to write. We simply apply the
+substitution when we encounter a reference and recur on src_haskell{App}s.
+
+#+begin_src haskell
+sub s (V ref) = s ref
+sub s (App a b) = App (sub s a) (sub s b)
+#+end_src
+
+This branch is harder to write, because needs to correctly treat bound variables
+in src_haskell{Abs}. We will use a helper function src_haskell{shiftSub} to
+ignore variables that are bound by this src_haskell{Abs} term and shift (extend
+the free variable set) the terms that are substituted into its body.
+
+#+begin_src haskell
+sub s (Abs body) = Abs (sub (shiftSub s) body)
+#+end_src
+
+This one lets us "lift" our substitution to a context with one more free
+variable.
+
+#+begin_src haskell
+shiftSub :: (a -> Term b) -> Var a -> Term (Var b)
+-- If this variable is bound by the `Abs`, we must not touch it
+shiftSub f Z = V Z
+-- If it is not, we must compute its replacement and shift it.
+shiftSub f (S r) = rename S (f r)
+#+end_src
+
+* An example of what a term would look like
+
+A very useful way of encoding variable references is through [[https://en.wikipedia.org/wiki/De_Bruijn_index][De-Bruijn indices]].
+However, here, we use De-Bruijn indices only for bound variables, letting the
+user use (for instance) src_haskell{String} as a free variable type or even
+src_haskell{Null} to signal the absence of free variables. Here is what it looks
+like:
+
+#+begin_src haskell
+-- Example
+
+data Null
+  deriving Show
+
+body :: Term (Var Null)
+body = (App (V Z) (V Z))
+
+func :: Term Null
+func = Abs body
+
+x = sub (const func) body
+#+end_src
+
+* \( \lambda \)-terms are monads
+
+If we look back at the signature of our src_haskell{sub} function. We notice it
+has (apart from the order of the arguments) the same shape as the
+src_haskell{>>=} operator. Indeed, if we implement src_haskell{return}, we have
+a monad.
+
+#+begin_src haskell
+termRet :: a -> Term a
+termRet = V
+#+end_src
+
+The fact our \( \lambda \)-calculus term is actually a monad is a specific case of a
+larger phenomenon: Algebraic syntax trees with variables are monads. Notice that
+we could have defined a syntax tree (with free variables \( v \)) for some
+semiring:
+
+#+begin_src haskell
+data Semiring v = Zero
+  | One
+  | Add (Semiring v) (Semiring v)
+  | Mul (Semiring v) (Semiring v)
+  | Sref v
+  deriving (Functor)
+#+end_src
+
+The substitution would have been[fn:2]:
+
+#+begin_src haskell
+srSub :: (v1 -> Semiring v2) -> Semiring v1 -> Semiring v2
+srSub f Zero = Zero
+srSub f One = One
+srSub f (Add a b) = Add (srSub f a) (srSub f b)
+srSub f (Mul a b) = Mul (srSub f a) (srSub f b)
+srSub f (Sref v) = f v
+#+end_src
+
+When you have such a monad (with type constructor \( T \)), when the
+substitution operations respect certain coherence conditions and when you also
+have some alphabet src_haskell{a} such that src_haskell{f :: T a -> a} (think of
+the alphabet not as an alphabet of variables, but as elements of a concrete
+set), you get what category theorists call a [[https://ncatlab.org/nlab/show/algebra+over+a+monad][\( t \)-algebra]].
+
+[fn:2]Notice however, that we don't have to think about bound variables here.
+
+* \lambda-calculi as monads with extra structure
+
+This way of characterising untyped \lambda-calculi is explored in the paper
+[cite:@maggesi2006]. In that paper, a (notice there can be many) \lambda-calculus is a
+functor with:
+
+1. A substitution operation that makes it a monad.
+2. Natural transformations that embody \lambda abstraction (src_haskell{Abs})
+3. Certains identities (commutative diagrams) on these natural transformations.
+
+Let's call the src_haskell{Term} monad \( t \). Then, we have polymorphic
+function (natural transformation) \( \eta_v : id(v) \to t(v) \) which is just
+src_haskell{Var} and we also have \( \mu_v : t(t(v)) \to t(v) \) which is just
+src_haskell{(>>= id)}. Now that we are working with functors and their
+compositions, we can drop the arguments of \( t \). The monad laws are expressed
+by the following commuting diagrams:
+
+#+begin_src latex :file assets/monad-law-mu.svg :exports results 
+\begin{tikzcd}
+ttt \ar[d, "\mu t"] \ar[r, "t \mu"] & tt \ar[d, "\mu"] \\
+tt \ar[r, "\mu"] & t \\
+\end{tikzcd}
+#+end_src
+
+#+CAPTION: The monad associativity law: \mu is associative
+#+RESULTS:
+[[file:assets/monad-law-mu.svg]]
+
+#+begin_src latex :file assets/monad-law-eta.svg :exports results 
+\begin{tikzcd}
+t \ar[r, "\eta t"] \ar[dr, "id"] & t & t \ar[l, "t \eta"] \ar[dl, "id"] \\
+& t & \\
+\end{tikzcd}
+#+end_src
+
+#+CAPTION: The monad unitality law: the result of \eta is the left and right identity on \mu.
+#+RESULTS:
+[[file:assets/monad-law-eta.svg]]
+
+** An aside on horizontal composition
+
+In the following section, you will see that I use the notation \( t \mu \) where
+\( t \) is a functor and \( \mu \) a natural transformation. What does it mean?
+
+Recall the commuting diagram which defines a natural transformation.
+
+Here, \( G, H : C \to D \) are functors, \( x, y : C \) are objects in the source
+category, \( f : X \to Y \) is a morphism and \( \phi_{i : C} : G(i) \to H(i) \) is a
+family of morphisms. This family is a natural transformation if for any \( x, y
+\) the following diagram commutes:
+
+#+name: nat-trans
+#+begin_src latex :file assets/natural-transformation.svg :exports results 
+\begin{tikzcd}
+G(x) \ar[d, "G(f)"] \ar[r, "\phi_x"] & H(x) \ar[d, "H(f)"] \\
+G(y) \ar[r, "\phi_y"] & H(y) \\
+\end{tikzcd}
+#+end_src
+
+#+CAPTION: The naturality square
+#+RESULTS: nat-trans
+[[file:assets/natural-transformation.svg]]
+
+
+
+Moreover, suppose we have four functors
+
+\begin{equation*}
+\begin{aligned}
+F : A \to B \\
+G : A \to B \\
+U : B \to C \\
+V : B \to C \\
+\end{aligned}
+\end{equation*}
+
+and two natural transformations
+
+\begin{equation*}
+\begin{aligned}
+\phi : F \Rightarrow G \\
+\psi : U \Rightarrow V \\
+\end{aligned}
+\end{equation*}
+
+We can create a new natural transformation \( UF \to VG \) in two ways:
+
+\begin{equation*}
+\begin{aligned}
+\rho_{x} &= V(\phi_{x}) \circ \psi_{F(x)}  \\
+\theta_{x} &= \psi_{G(x)} \circ U(\phi_x) \\
+\end{aligned}
+\end{equation*}
+
+If we write down those two candidates in a diagram,
+
+#+name: whiskering
+#+begin_src latex :file assets/whiskering.svg :exports results
+\begin{tikzcd}
+U(F(x)) \ar[r, "\psi_{F(x)}"] \ar[d, "U(\phi_x)"] & V(F(x)) \ar[d, "V(\phi_x)"] \\
+U(G(x)) \ar[r, "\psi_{G(x)}"] & V(G(x)) \\
+\end{tikzcd}
+#+end_src
+
+
+#+CAPTION: The diagram is (up to a renaming of variables) identical to the naturality square.
+#+RESULTS: whiskering
+[[file:assets/whiskering.svg]]
+
+We realise it has the shape of the naturality square and that those two ways of
+combining \( \phi : F \Rightarrow G \) and \( \psi : U \Rightarrow V \) into \( \sigma : UF \Rightarrow VG \) (called the
+[[https://ncatlab.org/nlab/show/Godement+product][Godement product]]) are actually identical! The associativity of this product
+means that when doing the same thing for 3+ natural transformations, we don't
+need to specify the order of composition. The Godement product is sometimes
+called horizontal composition, because of the way it looks in a commuting
+diagram.
+
+#+name: horizontal-composition
+#+begin_src latex :file assets/horizontal-composition.svg :exports results
+\begin{tikzcd}[column sep=huge, row sep=huge]
+A \ar[r, bend left, "F"{name=F, description}] \ar[r, bend right, "G"{name=G, description}] & B \ar[r, bend left, "U"{name=U, description}] \ar[r, bend right, "V"{name=V, description}] & C \\
+\arrow[Rightarrow, from=F, to=G, "\phi"]
+\arrow[Rightarrow, from=U, to=V, "\psi"]
+\end{tikzcd}
+#+end_src
+
+#+caption: The arrows are composed parallelly instead of sequentially.
+#+RESULTS: horizontal-composition
+[[file:assets/horizontal-composition.svg]]
+
+But what about the explanation for the weird \( t \mu \) syntax that was promised?
+When we "compose" a natural transformation with a functor this way, we usually
+use it as a shorthand for \( \text{id}_t \mu \) where we don't do anything to the
+outer functor layer, but apply \( \mu \) to the inner layer.
+
+** The extra structure
+
+Now that we've established that our categorical construction must be a monad (it
+must enjoy substitution, after all) to be a lambda calculus, let's explore the
+other properties it must have.
+
+*** src_haskell{Var} and src_haskell{Abs}
+
+If we isolate the type signature of the src_haskell{Abs} constructor
+
+#+begin_src haskell :tangle no
+Abs :: Term (Var x) -> Term x
+#+end_src
+
+we see that this constructor is parametric (it doesn't look at the
+src_haskell{x} inside). Another word for parametricity is naturality and we can
+express the existence of this constructor through a functor and a natural
+transformation.
+
+\begin{equation*}
+\begin{aligned}
+(-)^* :  C \to C \\
+\lambda : t^* \to t \\
+\end{aligned}
+\end{equation*}
+
+*** \( t \) algebras
+
+Here, \( (-)^* \) adds (like src_haskell{Var} a new free variable) and \( \lambda \)
+is the "abstraction" constructor. We read \( t^* \) as "a term with an extra
+free variable".
+
+
+#+begin_src latex :file assets/lambda-is-action.svg :exports results
+\begin{tikzcd}
+tt^* \ar[d, "\mu ^*"] \ar[r, "t \lambda"] & t^* \ar[d, "\lambda"] \\
+t^* \ar[r, "\lambda"] & t \\
+\end{tikzcd}
+#+end_src
+
+#+RESULTS:
+[[file:assets/lambda-is-action.svg]]
+
+* COMMENT Tangle this org document
+
+#+begin_src emacs-lisp
+(org-babel-tangle-file (buffer-file-name) "scoped-lambda-terms.hs" "haskell")
+#+end_src
+
+#+RESULTS:
+| /home/terramorpha/org-roam/blog/scoped-lambda-terms.hs |
+
+
+* References
+
+#+print_bibliography:
+
+

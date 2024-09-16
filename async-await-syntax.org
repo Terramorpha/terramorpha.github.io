@@ -1,0 +1,533 @@
+:PROPERTIES:
+:ID:       bc6ba032-8b50-4403-95db-abb7da96ae83
+:CREATED:  2024-05-26T22:42:33
+:END:
+#+title: Implementing ~async~-~await~ syntax using delimited continuations
+#+date: <2024-05-26 Sun>
+#+LANGUAGE: english
+#+PROPERTY: header-args :exports code
+
+When we are writing Haskell code and we need access to weird control operators
+(such as ~call/cc~), we usually use the [[https://www.haskellforall.com/2012/12/the-continuation-monad.html][continuation monad]]. Because of Haskell's
+~do~ notation, having to write monadic code to get control operators is not so
+bad. However, it turns out that if you already have access to some of those
+weird control operators, you can get back the syntactic sugar.
+
+I won't go into what the continuation monad is (or why one would want to use
+it), but I will talk about the general principle of monads. Here is the
+definition of a monad in haskell:
+
+#+begin_src haskell :exports 
+class Monad f where
+  return :: x -> f x
+  bind :: f x -> (x -> f y) -> f y
+#+end_src
+
+Monads are useful to model effects. Such an effect can be nondeterminism (the
+src_haskell{List} monad), partiality (the src_haskell{Maybe} monad),
+statefulness (the src_haskell{State} monad), or even delayed computation (the
+src_haskell{Cont} monad). In the above definition, the src_haskell{return}
+function would wrap a pure value without effects whereas the src_haskell{bind}
+function would thread effectful computations.
+
+* ~async~ and ~await~ in Javascript
+
+One very popular monad (it is very much used outside the functional programming
+community) is the concept of promise. A promise is a value that you do not yet
+have, but that you want to manipulate. For instance, the javascript
+src_js{fetch} function returns promises which you manipulate through the
+src_js{.then} method:
+
+#+begin_src js
+const resp_promise = fetch("http://example.org/");
+resp_promise.then(resp => {
+    // Something ...
+    // ...
+})
+#+end_src
+
+As any web developper knows, using src_js{.then} for managing sequential
+promises make for very ugly code:
+
+#+begin_src js
+const resp_promise = fetch("http://example.org/");
+resp_promise.then(resp => {
+    // Something ...
+    // ...
+    something.then(value => {
+        // ...
+        something_else.then(x => {
+            //...
+        })
+    })
+})
+#+end_src
+
+Javascript's solution to this problem is ~async~ and ~await~. Using ~await~ on a
+promise will make the program look as if it is waiting for the result and ~async~
+marks a function in which you would like to use ~await~. It turns out that this
+piece of syntactic sugar is the same as the more general ~do~ notation in Haskell.
+Because the ~await~ keyword is familiar to many people, I will reuse it as a ~bind~
+operator in the rest of the article. Because the ~await~ keyword essentially puts
+the delimited continuation from a point to the end of the ~async~ function into
+the src_js{.then}, we can recreate the same behaviour by manually capturing this
+said delimited continuation.
+
+* The concept of continuation
+
+Before we dive into the technical details of implementing ~async~ / ~await~ syntax,
+let me first explain what continuations are. The concept of a continuation
+captures the idea of "the rest of the program" from a certain point. Let's say
+an interpreter is evaluating the following expression and has just finished
+calculating the src_js{b*b - 4 * a * c} sub expression.
+
+#+begin_src js
+(-b + sqrt(b*b - 4 * a * c))/(2*a)
+#+end_src
+
+The state of the interpreter holds the computed value (the results of evaluating
+src_js{b*b - 4 * a * c} ) and what to do with it after. That information is the
+continuation. Thinking about continuations is useful for writing compilers, but
+it is also useful in other contexts. For instance, there is a certain program
+transformation (called Continuation-Passing-Style conversion) where every
+src_js{return} keyword is eliminated and where every function call takes a new
+parameter, its continuation. For instance, let's CPS-convert the src_js{fib}
+function.
+
+#+begin_src js :results output :exports both
+function fib(n) {
+    if (n <= 1) {
+        return n
+    } else {
+        return fib(n - 1) + fib(n-2);
+    }
+}
+
+console.log(fib(5))
+#+end_src
+
+#+RESULTS:
+: 5
+
+It becomes the following:
+
+#+begin_src js :results output :exports both
+function fib_cps(n, ret) {
+    if (n <= 1) {
+        ret(n);
+    } else {
+        fib_cps(n - 1, r1 => {
+            fib_cps(n - 2, r2 => {
+                ret(r1 + r2);
+            })
+        })
+    }
+}
+
+fib_cps(5, res => {
+    console.log(res);
+})
+#+end_src
+
+#+RESULTS:
+: 5
+
+Notice that instead of using src_js{return}, we call a function that is
+explicitely passed as a parameter to src_js{fib_cps}. Moreover, each time we
+call a function, we must act as if it will never return (it will not) and pass a
+handler (a continuation) that contains the rest of the computation. Notice that
+in the above code, after having computed the results for \( n - 1 \) and \( n -
+2 \), the results is passed to the continuation of the main call which is
+src_js{ret}.
+
+While this presentation is quite annoying to write, it lets us add exceptions,
+generators and other useful fancy control operators into languages that only
+support passing functions around.
+
+* Examples
+
+** Implementing exceptions
+
+#+begin_src js :results output :exports both
+let exception_handler = null;
+
+// When implementing try/catch, we want to:
+//
+// 1. save the current exception handler function
+// 2. replace the exception handler function by the one given by the user.
+// 3. Execute the thunk with the appropriate continuation
+// 4. If throw_exception was called, resume the computation through the `ret` continuation.
+function with_exception_handler(thunk, handler, ret) {
+    // save the current exception handler
+    const old_exception_handler = exception_handler;
+    exception_handler = (exn) => {
+        // Reinstall the old exception handler
+        exception_handler = old_exception_handler;
+        handler(exn, ret);
+    };
+    thunk((thunk_retval) => {
+        // Reinstall the old exception handler
+        exception_handler = old_exception_handler;
+        // and continue the execution through the main continuation
+        ret(thunk_retval);
+    })
+}
+
+// Notice that contrary to every function in CPS, this one doesn't
+// have a "continuation" parameter.
+function throw_exception(value) {
+    // Inside, we just call the exception handler.
+    exception_handler(value);
+}
+
+
+function safe_div(num, denum, ret)  {
+    if (denum == 0) {
+        throw_exception("division by zero")
+    } else {
+        ret(num/denum)
+    }
+}
+
+
+with_exception_handler(
+    (ret) => {
+        safe_div(0.0, 2.0, (r1) => {
+            safe_div(1.0, r1, (r2) => {
+                ret(r2);
+            })
+        })
+    },
+    (exn, ret) => {
+        console.log("got an exception:", exn);
+        // We return null to signal it didn't work.
+        ret(null)
+    },
+    (result) => {
+        console.log("got result:", result);
+    }
+)
+#+end_src
+
+#+RESULTS:
+: got an exception: division by zero
+: got result: null
+
+** COMMENT Implementing generators
+
+This one is harder to do, because in addition to doing non local exit (like with
+src_js{throw_exception}), we need to resume the generator's continuation.
+
+
+#+begin_src js
+// The function call_generator takes a thunk, a continuation and
+// returns a generator object.
+function call_generator(thunk, cont) {
+    cont(
+        
+    )
+}
+#+end_src
+
+** Implementing call/cc
+
+#+begin_src js
+function callcc(handler, ret) {
+    handler(ret, ret)
+}
+#+end_src
+
+
+Implementing src_scheme{call/cc} in CPS is very easy, because CPS exposes every
+continuation in an explicit variable. Understanding this control operator,
+though, will be useful, because it is often the operator used by languages to
+reify continuations and expose them to the user *without forcing them to write
+everything in CPS!*
+
+* src_scheme{call/cc} in scheme
+
+The way src_scheme{call/cc} works is that it gives as an argument to the thunk
+the function capturing the continuation exiting the block. Let's see how it
+works in scheme.
+
+#+begin_src scheme :results output :exports both
+(define value
+  (call/cc (lambda (ret)
+             (display "one\n")
+             (display "two\n")
+             (ret 12345)
+             (display "tree\n")
+             (display "four\n"))))
+
+(format #t "value is ~a\n" value)
+#+end_src
+
+#+RESULTS:
+: one
+: two
+: value is 12345
+
+Using this primitive, it is possible to do pretty much everything that was
+doable in CPS, but without having to actually write CPS code (and endure a
+thousand levels of nesting).
+
+** Note
+
+It might be very confusing at first, (because up until now, our use of
+continuations have respected scope), but you can reinstall a continuation *after
+you have executed it*. This lets you (for instance) do backtracking and other
+things.
+
+#+begin_src scheme :results output :exports both
+(define kont
+  (call/cc (lambda (k) k)))
+
+(display "exited call/cc block\n")
+
+(if (procedure? kont)
+    (begin
+      (display "hello\n")
+      (kont 123))
+    (format #t "the value: ~a\n" kont))
+#+end_src
+
+#+RESULTS:
+: exited call/cc block
+: hello
+: exited call/cc block
+: the value: 123
+
+** Problems with src_scheme{call/cc}
+
+The src_scheme{call/cc} operator, however has flaws. Systems written using this
+operator don't compose very well and over the years, proposals have been made
+for continuations that don't capture the entirety of program flow. Those
+continuations are called delimited.
+
+
+* Delimited continuations
+
+Delimited continuations are continuations that end with a value, their
+reification in functions are more natural because *they are reified into
+functions that return something*. Because those continuations don't capture the
+entire execution of the program, they play well with each other and with other
+constructs. Let's see them in action through the src_scheme{call-with-prompt}
+and src_scheme{abort-to-prompt} scheme operators.
+
+* src_scheme{call-with-prompt} and src_scheme{abort-to-prompt}
+
+In [[https://www.gnu.org/software/guile/][Guile Scheme]], delimited continuations are created through two procedures.
+
+- src_scheme{call-with-prompt} :: You use it together with a special value (a
+  tag) to delimit the *end* of the continuation you want to take.
+- src_scheme{abort-to-prompt} :: You use it together with the tag to define the
+  location at which continuation will *start*.
+
+#+begin_src scheme
+(define tag (make-prompt-tag))
+
+(call-with-prompt tag
+  (lambda ()
+    (let ((x 12345))
+      ;; ...
+      (let ((y (+ x (abort-to-prompt tag))))
+        ;; ...
+        y)))
+  (lambda (kont)
+    ;; ...
+    ))
+#+end_src
+
+The first argument of src_scheme{call-with-prompt} (the tag) is necessary for
+the src_scheme{abort-to-prompt} call to be able to specify which continuation to
+open in situations in which multiple src_scheme{call-with-prompt} are nested.
+The second argument is a zero argument function (thunk) which will delimit the
+end of the captured continuation. When the captured delimited continuation is
+called, execution will flow from the src_scheme{abort-to-prompt} call to the end
+of this thunk. The third argument is the handler (kind of like ~try~ / ~catch~) that
+will be called with the created continuation when src_scheme{abort-to-prompt} is
+called. To better understand how it works, here is an example:
+
+#+name: k+5
+#+begin_src scheme :exports both :results output
+(define tag (make-prompt-tag))
+(define cont
+  (call-with-prompt tag
+    (lambda ()
+      (display "hello!\n")
+      (let ((x (abort-to-prompt tag "some-value")))
+        (+ 5 x)))
+    (lambda (k val)
+      (format #t "got value: ~s\n" val)
+      k)))
+
+(display (cont 1)) (newline)
+(display (cont 3)) (newline)
+#+end_src
+
+Here is the output of the code:
+
+#+results: k+5
+: hello!
+: got value: "some-value"
+: 6
+: 8
+
+At first glance, we can see that, contrary to continuations captured by
+src_scheme{call/cc}(which act kind of like value-carrying ~goto~ s), these
+delimited continuations return something. Another difference is that in
+src_scheme{call/cc}, the ~k~ parameter captures the continuation starting from the
+src_scheme{call/cc} call itself, whereas in src_scheme{call-with-prompt} it
+captures the continuation starting from the innermost
+src_scheme{abort-to-prompt} call inside the thunk.
+
+* ~async~ / ~await~ syntax for any monad
+
+Now that we understand better the concept of continuation, let's use it to
+analyze what the src_js{await} keyword does.
+
+One familiar with promises will know that writing this
+
+#+begin_src js :exports code
+async function do_something() {
+
+    // Some code before the await
+
+    const x = await returns_promise();
+
+    // Some code after the await
+
+    return y;
+}
+#+end_src
+
+is equivalent to writing that:
+
+#+begin_src js :exports code
+function do_something() {
+    // Some code before the await
+
+    returns_promise().then(x => {
+
+        // Some code after the await
+
+        return y;
+    })
+}
+#+end_src
+
+The part that is put in the src_js{.then} (the callback) is actually the
+continuation starting from the src_js{await} and ending when the src_js{async}
+function ends. If we have some kind of src_js{.then} operator (called ~>>=~ or
+~bind~ in Haskell), each time we src_js{await} an effectful value, we can capture
+the current delimited continuation (from the src_js{await} to the src_js{async})
+and use it as a handler for the value through our ~.then~ function.
+
+Let's use this technique to implement nondeterministic computation.
+
+* The src_haskell{List} monad
+
+One way of modeling nondeterministic computation is through lists. Each time we
+want to say "this value contains a superposition of many src_haskell{Int}s", we
+will say src_haskell{[Int]}. When we want to model a nondeterministic
+computation on src_haskell{Int}s (let's say, into strings), we use
+src_haskell{Int -> [String]}. we combine those two values through first applying
+the function to each possible value (getting a src_haskell{[[String]]}), then by
+flattening the lists together into a src_haskell{[String]}. When implemented in
+Scheme, it looks like this:
+
+#+caption: For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.
+#+begin_src scheme :session
+(define (.then l func)
+  (apply append (map func l)))
+
+(define (pure x)
+  (list x))
+#+end_src
+
+#+RESULTS:
+: #<unspecified>
+
+Actually implementing the syntax is slightly more tricky.
+
+#+begin_src scheme :results output :session
+(define prompt-tag (make-prompt-tag))
+
+;; Awaiting a value (choosing a value among nondeterministic choices)
+;; is simple, just abort to the nearest handler and give the list.
+(define (await mval)
+  (abort-to-prompt prompt-tag
+                   mval))
+
+;; When the continuation is to be threaded using nondeterministic
+;; value (a list of things), we use .then on the continuation while
+;; making sure we re-delimit the end of the continuation using another
+;; async block.
+(define (async thunk)
+  (call-with-prompt prompt-tag
+    thunk
+    (lambda (cont value)
+      (.then value (lambda (v)
+                   (async
+                    (lambda ()
+                      (cont v))))))))
+#+end_src
+
+#+RESULTS:
+
+Finally we can test our code on a toy example. Here, a sequential nondeterminist
+choice of number, letter and fruit should yield every combination of number,
+letter and fruit.
+
+#+begin_src scheme :session :results output code :exports both
+(use-modules (ice-9 pretty-print))
+
+(pretty-print
+ (async
+  (lambda ()
+    (let ((num (await '(1 2 3)))
+          (letter (await '(a b c)))
+          (fruit (await '("apple" "orange" "banana"))))
+      (pure (list num letter fruit))))))
+#+end_src
+
+#+RESULTS:
+#+begin_src scheme
+((1 a "apple")
+ (1 a "orange")
+ (1 a "banana")
+ (1 b "apple")
+ (1 b "orange")
+ (1 b "banana")
+ (1 c "apple")
+ (1 c "orange")
+ (1 c "banana")
+ (2 a "apple")
+ (2 a "orange")
+ (2 a "banana")
+ (2 b "apple")
+ (2 b "orange")
+ (2 b "banana")
+ (2 c "apple")
+ (2 c "orange")
+ (2 c "banana")
+ (3 a "apple")
+ (3 a "orange")
+ (3 a "banana")
+ (3 b "apple")
+ (3 b "orange")
+ (3 b "banana")
+ (3 c "apple")
+ (3 c "orange")
+ (3 c "banana"))
+#+end_src
+
+It works! Note that for the types to work, the output of every src_js{async}
+thunk must be wrapped into a monadic value. You do not have to do this when
+using Javascript promises simply because it is done automatically. Note that you
+can use the exact same code for every monad, just change the definition of
+src_scheme{.then} and src_scheme{pure}. You can use this code to ease the
+implementation of monadic parser combinators, promises (which is just, as we
+have seen, continuation passing style) and other effects.
+
+

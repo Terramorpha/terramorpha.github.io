@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<head>
+<!-- 2024-09-15 Sun 21:36 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Well scoped lambda terms</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
+<h1 class="title">Well scoped lambda terms</h1>
+<p>
+In <a href="#citeproc_bib_item_1">[1]</a>, I stumbled upon the following type declarations<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Var</span> a <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Z</span> <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">S</span> a
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Show</span>, <span style="color: #531ab6; font-weight: bold;">Functor</span>)
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Term</span> a <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">V</span> a         <span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">Variable references</span>
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Abs</span> (<span style="color: #531ab6; font-weight: bold;">Term</span> (<span style="color: #531ab6; font-weight: bold;">Var</span> a))    <span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">&#955; abstraction</span>
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">App</span> (<span style="color: #531ab6; font-weight: bold;">Term</span> a) (<span style="color: #531ab6; font-weight: bold;">Term</span> a) <span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">Function application</span>
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Show</span>, <span style="color: #531ab6; font-weight: bold;">Functor</span>)
+</pre>
+</div>
+
+<p>
+This made me finally understand the "Syntax is an endofunctor on the category of
+substitutions" point of view. In this post, I will try to condense as much as
+possible the parts I would have needed to understand it sooner.
+</p>
+
+<div id="outline-container-orgeba437c" class="outline-2">
+<h2 id="orgeba437c"><span class="section-number-2">1.</span> The anatomy of the term</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This datatype defines the syntax of well-scoped untyped &lambda;-calculus terms where
+the free variables live in an alphabet \( a \). What we mean by "alphabet" is
+that if you had the following data type:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">ABC</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">A</span> <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">B</span> <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">C</span>
+</pre>
+</div>
+
+<p>
+Then you would be able to access three different variables from a term.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">t</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Term</span> <span style="color: #531ab6; font-weight: bold;">ABC</span>
+<span style="color: #8f0075;">t</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">App</span> (<span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">A</span>) (<span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">B</span>)
+</pre>
+</div>
+
+<p>
+Notice, however, the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> type constructor. This type is necessary
+to be able to take an alphabet of free variables (like <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">ABC</span></code>) and add
+a new fresh value to it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">type</span> <span style="color: #531ab6; font-weight: bold;">ABCZ</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Var</span> <span style="color: #531ab6; font-weight: bold;">ABC</span>
+
+<span style="color: #8f0075;">fresh</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">ABCZ</span>
+<span style="color: #8f0075;">fresh</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Z</span> <span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">The new variable added by `Var`.</span>
+</pre>
+</div>
+
+<p>
+This fresh value is necessary for the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code> term to be able to "bind"
+a variable, removing it from the set of free variables.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1851059" class="outline-2">
+<h2 id="org1851059"><span class="section-number-2">2.</span> Renaming and substitution</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The \( \alpha \)-renaming operation in &lambda;-calculus is used to change the name of
+variables without changing the meaning of the term. It is necessary (in some
+encodings of &lambda;-calculus) to do renaming to ensure there are no variable name
+clashes after substitution. For instance, we can see that, except for the names
+of the variables, the following terms are identical.
+</p>
+
+\begin{equation*}
+\begin{aligned}
+\lambda f. \lambda x. f(x)(x) \\
+\lambda g. \lambda y. g(y)(y) \\
+\end{aligned}
+\end{equation*}
+
+<p>
+When two terms like these are equivalent after some renaming of the variables,
+we say they are \( \alpha \)-equivalent. One interesting thing about this
+presentation of &lambda;-terms is the fact that the "renaming" operation that one will
+often see when dealing with &lambda;-calculus is simply the functorial action of
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Term</span></code> on free variables:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">rename</span> <span style="color: #3548cf;">::</span> (a <span style="color: #3548cf;">-&gt;</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> b
+<span style="color: #8f0075;">rename</span> <span style="color: #3548cf;">=</span> fmap
+</pre>
+</div>
+
+<p>
+This was very surprising to me, because the correct treatment of bound(by a
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code> term) variables is always slightly annoying (because of
+shifting) to implement. The fact that this renaming is simply an instance of a
+larger and common pattern (functors) is conceptually beautiful.
+</p>
+
+<p>
+Normally, to implement renaming, we would need a function
+<code class="src src-haskell"><span style="color: #8f0075;">renameShift</span> <span style="color: #3548cf;">::</span> (a <span style="color: #3548cf;">-&gt;</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Var</span> a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Var</span> b</code> that injects the renaming
+function to a domain and codomain with one more variable. However, here, this is
+done by the functorial action of the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> type of the
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code> constructor.
+</p>
+
+<p>
+Another operation that is necessary when manipulating \( \lambda \)-terms is
+substitution. Here is its type signature.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">sub</span> <span style="color: #3548cf;">::</span> (v1 <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> v2) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> v1 <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> v2
+</pre>
+</div>
+
+<p>
+The substitution operation takes a term with free variables in \( v_1 \), and
+substitutes each of those free variables for terms with free variables in \( v_2
+\). Here, \( v_1 \) could be equal to \( v_2 \) (this is simply a renaming), \(
+v_2 \) could be an empty set (meaning the term is closed) and \( v_2 \) could
+even be a subset of \( v_1 \). This operation is very general as we will see
+later.
+</p>
+
+<p>
+The first two branches of this function are easy to write. We simply apply the
+substitution when we encounter a reference and recur on <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">App</span></code>s.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">V</span> ref) <span style="color: #3548cf;">=</span> s ref
+<span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">App</span> a b) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">App</span> (sub s a) (sub s b)
+</pre>
+</div>
+
+<p>
+This branch is harder to write, because needs to correctly treat bound variables
+in <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code>. We will use a helper function <code class="src src-haskell">shiftSub</code> to
+ignore variables that are bound by this <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code> term and shift (extend
+the free variable set) the terms that are substituted into its body.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">sub</span> s (<span style="color: #531ab6; font-weight: bold;">Abs</span> body) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Abs</span> (sub (shiftSub s) body)
+</pre>
+</div>
+
+<p>
+This one lets us "lift" our substitution to a context with one more free
+variable.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">shiftSub</span> <span style="color: #3548cf;">::</span> (a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Var</span> a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> (<span style="color: #531ab6; font-weight: bold;">Var</span> b)
+<span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">If this variable is bound by the `Abs`, we must not touch it</span>
+<span style="color: #8f0075;">shiftSub</span> f <span style="color: #531ab6; font-weight: bold;">Z</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">Z</span>
+<span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">If it is not, we must compute its replacement and shift it.</span>
+<span style="color: #8f0075;">shiftSub</span> f (<span style="color: #531ab6; font-weight: bold;">S</span> r) <span style="color: #3548cf;">=</span> rename <span style="color: #531ab6; font-weight: bold;">S</span> (f r)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfb9174f" class="outline-2">
+<h2 id="orgfb9174f"><span class="section-number-2">3.</span> An example of what a term would look like</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+A very useful way of encoding variable references is through <a href="https://en.wikipedia.org/wiki/De_Bruijn_index">De-Bruijn indices</a>.
+However, here, we use De-Bruijn indices only for bound variables, letting the
+user use (for instance) <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">String</span></code> as a free variable type or even
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Null</span></code> to signal the absence of free variables. Here is what it looks
+like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">Example</span>
+
+<span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Null</span>
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> <span style="color: #531ab6; font-weight: bold;">Show</span>
+
+<span style="color: #8f0075;">body</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Term</span> (<span style="color: #531ab6; font-weight: bold;">Var</span> <span style="color: #531ab6; font-weight: bold;">Null</span>)
+<span style="color: #8f0075;">body</span> <span style="color: #3548cf;">=</span> (<span style="color: #531ab6; font-weight: bold;">App</span> (<span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">Z</span>) (<span style="color: #531ab6; font-weight: bold;">V</span> <span style="color: #531ab6; font-weight: bold;">Z</span>))
+
+<span style="color: #8f0075;">func</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Term</span> <span style="color: #531ab6; font-weight: bold;">Null</span>
+<span style="color: #8f0075;">func</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Abs</span> body
+
+<span style="color: #8f0075;">x</span> <span style="color: #3548cf;">=</span> sub (const func) body
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org92762e2" class="outline-2">
+<h2 id="org92762e2"><span class="section-number-2">4.</span> \( \lambda \)-terms are monads</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+If we look back at the signature of our <code class="src src-haskell">sub</code> function. We notice it
+has (apart from the order of the arguments) the same shape as the
+<code class="src src-haskell"><span style="color: #3548cf;">&gt;&gt;=</span></code> operator. Indeed, if we implement <code class="src src-haskell">return</code>, we have
+a monad.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">termRet</span> <span style="color: #3548cf;">::</span> a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> a
+<span style="color: #8f0075;">termRet</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">V</span>
+</pre>
+</div>
+
+<p>
+The fact our \( \lambda \)-calculus term is actually a monad is a specific case of a
+larger phenomenon: Algebraic syntax trees with variables are monads. Notice that
+we could have defined a syntax tree (with free variables \( v \)) for some
+semiring:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Semiring</span> v <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Zero</span>
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">One</span>
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Add</span> (<span style="color: #531ab6; font-weight: bold;">Semiring</span> v) (<span style="color: #531ab6; font-weight: bold;">Semiring</span> v)
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Mul</span> (<span style="color: #531ab6; font-weight: bold;">Semiring</span> v) (<span style="color: #531ab6; font-weight: bold;">Semiring</span> v)
+  <span style="color: #3548cf;">|</span> <span style="color: #531ab6; font-weight: bold;">Sref</span> v
+  <span style="color: #005e8b; font-weight: bold;">deriving</span> (<span style="color: #531ab6; font-weight: bold;">Functor</span>)
+</pre>
+</div>
+
+<p>
+The substitution would have been<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #8f0075;">srSub</span> <span style="color: #3548cf;">::</span> (v1 <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Semiring</span> v2) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Semiring</span> v1 <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Semiring</span> v2
+<span style="color: #8f0075;">srSub</span> f <span style="color: #531ab6; font-weight: bold;">Zero</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Zero</span>
+<span style="color: #8f0075;">srSub</span> f <span style="color: #531ab6; font-weight: bold;">One</span> <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">One</span>
+<span style="color: #8f0075;">srSub</span> f (<span style="color: #531ab6; font-weight: bold;">Add</span> a b) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Add</span> (srSub f a) (srSub f b)
+<span style="color: #8f0075;">srSub</span> f (<span style="color: #531ab6; font-weight: bold;">Mul</span> a b) <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Mul</span> (srSub f a) (srSub f b)
+<span style="color: #8f0075;">srSub</span> f (<span style="color: #531ab6; font-weight: bold;">Sref</span> v) <span style="color: #3548cf;">=</span> f v
+</pre>
+</div>
+
+<p>
+When you have such a monad (with type constructor \( T \)), when the
+substitution operations respect certain coherence conditions and when you also
+have some alphabet <code class="src src-haskell">a</code> such that <code class="src src-haskell"><span style="color: #8f0075;">f</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">T</span> a <span style="color: #3548cf;">-&gt;</span> a</code> (think of
+the alphabet not as an alphabet of variables, but as elements of a concrete
+set), you get what category theorists call a <a href="https://ncatlab.org/nlab/show/algebra+over+a+monad">\( t \)-algebra</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org88cc1d9" class="outline-2">
+<h2 id="org88cc1d9"><span class="section-number-2">5.</span> &lambda;-calculi as monads with extra structure</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+This way of characterising untyped &lambda;-calculi is explored in the paper
+<a href="#citeproc_bib_item_2">[2]</a>. In that paper, a (notice there can be many) &lambda;-calculus is a
+functor with:
+</p>
+
+<ol class="org-ol">
+<li>A substitution operation that makes it a monad.</li>
+<li>Natural transformations that embody &lambda; abstraction (<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code>)</li>
+<li>Certains identities (commutative diagrams) on these natural transformations.</li>
+</ol>
+
+<p>
+Let's call the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Term</span></code> monad \( t \). Then, we have polymorphic
+function (natural transformation) \( \eta_v : id(v) \to t(v) \) which is just
+<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> and we also have \( \mu_v : t(t(v)) \to t(v) \) which is just
+<code class="src src-haskell">(<span style="color: #3548cf;">&gt;&gt;=</span> id)</code>. Now that we are working with functors and their
+compositions, we can drop the arguments of \( t \). The monad laws are expressed
+by the following commuting diagrams:
+</p>
+
+
+<div id="org1b9c34d" class="figure">
+<p><img src="assets/monad-law-mu.svg" alt="monad-law-mu.svg" class="org-svg" />
+</p>
+<p><span class="figure-number">Figure 1: </span>The monad associativity law: &mu; is associative</p>
+</div>
+
+
+<div id="org8328f1e" class="figure">
+<p><img src="assets/monad-law-eta.svg" alt="monad-law-eta.svg" class="org-svg" />
+</p>
+<p><span class="figure-number">Figure 2: </span>The monad unitality law: the result of &eta; is the left and right identity on &mu;.</p>
+</div>
+</div>
+
+<div id="outline-container-org1aa4d1e" class="outline-3">
+<h3 id="org1aa4d1e"><span class="section-number-3">5.1.</span> An aside on horizontal composition</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+In the following section, you will see that I use the notation \( t \mu \) where
+\( t \) is a functor and \( \mu \) a natural transformation. What does it mean?
+</p>
+
+<p>
+Recall the commuting diagram which defines a natural transformation.
+</p>
+
+<p>
+Here, \( G, H : C \to D \) are functors, \( x, y : C \) are objects in the source
+category, \( f : X \to Y \) is a morphism and \( \phi_{i : C} : G(i) \to H(i) \) is a
+family of morphisms. This family is a natural transformation if for any \( x, y
+\) the following diagram commutes:
+</p>
+
+
+<div id="orgbd1cde6" class="figure">
+<p><img src="assets/natural-transformation.svg" alt="natural-transformation.svg" class="org-svg" />
+</p>
+<p><span class="figure-number">Figure 3: </span>The naturality square</p>
+</div>
+
+
+
+<p>
+Moreover, suppose we have four functors
+</p>
+
+\begin{equation*}
+\begin{aligned}
+F : A \to B \\
+G : A \to B \\
+U : B \to C \\
+V : B \to C \\
+\end{aligned}
+\end{equation*}
+
+<p>
+and two natural transformations
+</p>
+
+\begin{equation*}
+\begin{aligned}
+\phi : F \Rightarrow G \\
+\psi : U \Rightarrow V \\
+\end{aligned}
+\end{equation*}
+
+<p>
+We can create a new natural transformation \( UF \to VG \) in two ways:
+</p>
+
+\begin{equation*}
+\begin{aligned}
+\rho_{x} &= V(\phi_{x}) \circ \psi_{F(x)}  \\
+\theta_{x} &= \psi_{G(x)} \circ U(\phi_x) \\
+\end{aligned}
+\end{equation*}
+
+<p>
+If we write down those two candidates in a diagram,
+</p>
+
+
+<div id="org6195c19" class="figure">
+<p><img src="assets/whiskering.svg" alt="whiskering.svg" class="org-svg" />
+</p>
+<p><span class="figure-number">Figure 4: </span>The diagram is (up to a renaming of variables) identical to the naturality square.</p>
+</div>
+
+<p>
+We realise it has the shape of the naturality square and that those two ways of
+combining \( \phi : F \Rightarrow G \) and \( \psi : U \Rightarrow V \) into \( \sigma : UF \Rightarrow VG \) (called the
+<a href="https://ncatlab.org/nlab/show/Godement+product">Godement product</a>) are actually identical! The associativity of this product
+means that when doing the same thing for 3+ natural transformations, we don't
+need to specify the order of composition. The Godement product is sometimes
+called horizontal composition, because of the way it looks in a commuting
+diagram.
+</p>
+
+
+<div id="org53830a0" class="figure">
+<p><img src="assets/horizontal-composition.svg" alt="horizontal-composition.svg" class="org-svg" />
+</p>
+<p><span class="figure-number">Figure 5: </span>The arrows are composed parallelly instead of sequentially.</p>
+</div>
+
+<p>
+But what about the explanation for the weird \( t \mu \) syntax that was promised?
+When we "compose" a natural transformation with a functor this way, we usually
+use it as a shorthand for \( \text{id}_t \mu \) where we don't do anything to the
+outer functor layer, but apply \( \mu \) to the inner layer.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org91e76a9" class="outline-3">
+<h3 id="org91e76a9"><span class="section-number-3">5.2.</span> The extra structure</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+Now that we've established that our categorical construction must be a monad (it
+must enjoy substitution, after all) to be a lambda calculus, let's explore the
+other properties it must have.
+</p>
+</div>
+
+<div id="outline-container-orgbcfd12b" class="outline-4">
+<h4 id="orgbcfd12b"><span class="section-number-4">5.2.1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code></h4>
+<div class="outline-text-4" id="text-5-2-1">
+<p>
+If we isolate the type signature of the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span></code> constructor
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Abs</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Term</span> (<span style="color: #531ab6; font-weight: bold;">Var</span> x) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Term</span> x
+</pre>
+</div>
+
+<p>
+we see that this constructor is parametric (it doesn't look at the
+<code class="src src-haskell">x</code> inside). Another word for parametricity is naturality and we can
+express the existence of this constructor through a functor and a natural
+transformation.
+</p>
+
+\begin{equation*}
+\begin{aligned}
+(-)^* :  C \to C \\
+\lambda : t^* \to t \\
+\end{aligned}
+\end{equation*}
+</div>
+</div>
+
+<div id="outline-container-orgcc9cb7c" class="outline-4">
+<h4 id="orgcc9cb7c"><span class="section-number-4">5.2.2.</span> \( t \) algebras</h4>
+<div class="outline-text-4" id="text-5-2-2">
+<p>
+Here, \( (-)^* \) adds (like <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Var</span></code> a new free variable) and \( \lambda \)
+is the "abstraction" constructor. We read \( t^* \) as "a term with an extra
+free variable".
+</p>
+
+
+
+<div id="org726c27a" class="figure">
+<p><img src="assets/lambda-is-action.svg" alt="lambda-is-action.svg" class="org-svg" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgedab24b" class="outline-2">
+<h2 id="orgedab24b"><span class="section-number-2">6.</span> References</h2>
+<div class="outline-text-2" id="text-6">
+<style>.csl-left-margin{float: left; padding-right: 0em;}
+ .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
+  <div class="csl-entry"><a id="citeproc_bib_item_1"></a>
+    <div class="csl-left-margin">[1]</div><div class="csl-right-inline">P. Scott, S. Obua, and J. Fleuriot, “Compiling purely functional structured programs,” <i>Preprint</i>. Mar. 2017. Available: <a href="https://arxiv.org/abs/1703.05227v2">https://arxiv.org/abs/1703.05227v2</a></div>
+  </div>
+  <div class="csl-entry"><a id="citeproc_bib_item_2"></a>
+    <div class="csl-left-margin">[2]</div><div class="csl-right-inline">A. Hirschowitz and M. Maggesi, “Modules over monads and the structured of untyped lambda-calculi.” 2006. Available: <a href="https://arxiv.org/abs/cs/0608051v1">https://arxiv.org/abs/cs/0608051v1</a></div>
+  </div>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+I took the liberty of simplifying it for the purpose of this article. I
+also added a <code>deriving</code> annotation, because, as we will see later, those two type
+constructors are functors.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Notice however, that we don't have to think about bound variables here.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="date">Date: 2024-05-21 Tue 00:00</p>
+<p class="author">Author: Justin Veilleux</p>
+<p class="date">Created: 2024-09-15 Sun 21:36</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

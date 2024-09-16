@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Terra.Data.Negation.Instances</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--cubical-compatible</a> <a id="34" class="Symbol">#-}</a>
+<a id="38" class="Keyword">module</a> <a id="45" href="Terra.Data.Negation.Instances.html" class="Module">Terra.Data.Negation.Instances</a> <a id="75" class="Keyword">where</a>
+<a id="81" class="Keyword">open</a> <a id="86" class="Keyword">import</a> <a id="93" href="Terra.Classes.Contravariant.html" class="Module">Terra.Classes.Contravariant</a>
+<a id="121" class="Keyword">open</a> <a id="126" class="Keyword">import</a> <a id="133" href="Terra.Classes.Contractible.html" class="Module">Terra.Classes.Contractible</a>
+<a id="160" class="Keyword">open</a> <a id="165" class="Keyword">import</a> <a id="172" href="Terra.Data.Negation.html" class="Module">Terra.Data.Negation</a>
+<a id="192" class="Keyword">open</a> <a id="197" class="Keyword">import</a> <a id="204" href="Terra.Data.Level.html" class="Module">Terra.Data.Level</a>
+
+<a id="222" class="Keyword">private</a>
+  <a id="232" class="Keyword">variable</a>
+    <a id="245" href="Terra.Data.Negation.Instances.html#245" class="Generalizable">ℓ</a> <a id="247" class="Symbol">:</a> <a id="249" href="Agda.Primitive.html#742" class="Postulate">Level</a>
+
+<a id="256" class="Keyword">instance</a>
+  <a id="neg-contra"></a><a id="267" href="Terra.Data.Negation.Instances.html#267" class="Function">neg-contra</a> <a id="278" class="Symbol">:</a> <a id="280" href="Terra.Classes.Contravariant.html#117" class="Record">Contravariant</a> <a id="294" class="Symbol">{</a><a id="295" href="Terra.Data.Negation.Instances.html#245" class="Generalizable">ℓ</a><a id="296" class="Symbol">}</a> <a id="298" href="Terra.Data.Negation.html#165" class="Function Operator">¬_</a>
+  <a id="303" href="Terra.Data.Negation.Instances.html#267" class="Function">neg-contra</a> <a id="314" class="Symbol">=</a> <a id="316" class="Keyword">record</a> <a id="323" class="Symbol">{</a>
+    <a id="329" href="Terra.Classes.Contravariant.html#189" class="Field">contramap</a> <a id="339" class="Symbol">=</a> <a id="341" class="Symbol">λ</a> <a id="343" href="Terra.Data.Negation.Instances.html#343" class="Bound">t</a> <a id="345" href="Terra.Data.Negation.Instances.html#345" class="Bound">n</a> <a id="347" href="Terra.Data.Negation.Instances.html#347" class="Bound">f</a> <a id="349" class="Symbol">→</a> <a id="351" href="Terra.Data.Negation.Instances.html#345" class="Bound">n</a> <a id="353" class="Symbol">(</a><a id="354" href="Terra.Data.Negation.Instances.html#343" class="Bound">t</a> <a id="356" href="Terra.Data.Negation.Instances.html#347" class="Bound">f</a><a id="357" class="Symbol">)</a>
+    <a id="363" class="Symbol">}</a>
+
+
+  <a id="369" class="Comment">-- ¬-contractible : {A : Set ℓ} -&gt; Contractible A</a>
+  <a id="421" class="Comment">-- ¬-contractible = record {</a>
+  <a id="452" class="Comment">--   contract = λ a b → {!!}</a>
+  <a id="483" class="Comment">--   }</a>
+</pre></body></html>

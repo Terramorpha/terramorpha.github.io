@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Terra.Data.Nat</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--cubical-compatible</a> <a id="34" class="Symbol">#-}</a>
+
+<a id="39" class="Keyword">module</a> <a id="46" href="Terra.Data.Nat.html" class="Module">Terra.Data.Nat</a> <a id="61" class="Keyword">where</a>
+<a id="67" class="Keyword">open</a> <a id="72" class="Keyword">import</a> <a id="79" href="Agda.Builtin.Nat.html" class="Module">Agda.Builtin.Nat</a> <a id="96" class="Keyword">using</a> <a id="102" class="Symbol">(</a><a id="103" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="106" class="Symbol">;</a><a id="107" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a><a id="110" class="Symbol">;</a><a id="111" href="Agda.Builtin.Nat.html#221" class="InductiveConstructor">zero</a><a id="115" class="Symbol">)</a> <a id="117" class="Keyword">public</a>
+
+<a id="125" class="Comment">-- private</a>
+<a id="136" class="Comment">--   variable</a>
+<a id="150" class="Comment">--     ℓ : Level</a>
+
+<a id="168" class="Comment">-- data Nat : Set where</a>
+<a id="192" class="Comment">--   zero : Nat</a>
+<a id="208" class="Comment">--   suc : Nat -&gt; Nat</a>
+
+<a id="231" class="Comment">-- {-# BUILTIN NATURAL Nat #-}</a>
+
+<a id="263" class="Keyword">data</a> <a id="_≤_"></a><a id="268" href="Terra.Data.Nat.html#268" class="Datatype Operator">_≤_</a> <a id="272" class="Symbol">:</a> <a id="274" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="278" class="Symbol">-&gt;</a> <a id="281" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="285" class="Symbol">-&gt;</a> <a id="288" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="292" class="Keyword">where</a>
+  <a id="_≤_.orefl"></a><a id="300" href="Terra.Data.Nat.html#300" class="InductiveConstructor">orefl</a> <a id="306" class="Symbol">:</a> <a id="308" class="Symbol">{</a><a id="309" href="Terra.Data.Nat.html#309" class="Bound">n</a> <a id="311" class="Symbol">:</a> <a id="313" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="316" class="Symbol">}</a> <a id="318" class="Symbol">-&gt;</a> <a id="321" href="Terra.Data.Nat.html#309" class="Bound">n</a> <a id="323" href="Terra.Data.Nat.html#268" class="Datatype Operator">≤</a> <a id="325" href="Terra.Data.Nat.html#309" class="Bound">n</a>
+  <a id="_≤_.osuc"></a><a id="329" href="Terra.Data.Nat.html#329" class="InductiveConstructor">osuc</a> <a id="334" class="Symbol">:</a> <a id="336" class="Symbol">{</a><a id="337" href="Terra.Data.Nat.html#337" class="Bound">a</a> <a id="339" href="Terra.Data.Nat.html#339" class="Bound">b</a> <a id="341" class="Symbol">:</a> <a id="343" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="346" class="Symbol">}</a> <a id="348" class="Symbol">-&gt;</a> <a id="351" href="Terra.Data.Nat.html#337" class="Bound">a</a> <a id="353" href="Terra.Data.Nat.html#268" class="Datatype Operator">≤</a> <a id="355" href="Terra.Data.Nat.html#339" class="Bound">b</a> <a id="357" class="Symbol">-&gt;</a> <a id="360" href="Terra.Data.Nat.html#337" class="Bound">a</a> <a id="362" href="Terra.Data.Nat.html#268" class="Datatype Operator">≤</a> <a id="364" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="368" href="Terra.Data.Nat.html#339" class="Bound">b</a>
+
+<a id="_&lt;_"></a><a id="371" href="Terra.Data.Nat.html#371" class="Function Operator">_&lt;_</a> <a id="375" class="Symbol">:</a> <a id="377" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="381" class="Symbol">-&gt;</a> <a id="384" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="388" class="Symbol">-&gt;</a> <a id="391" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+<a id="395" href="Terra.Data.Nat.html#395" class="Bound">l</a> <a id="397" href="Terra.Data.Nat.html#371" class="Function Operator">&lt;</a> <a id="399" href="Terra.Data.Nat.html#399" class="Bound">r</a> <a id="401" class="Symbol">=</a> <a id="403" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="407" href="Terra.Data.Nat.html#395" class="Bound">l</a> <a id="409" href="Terra.Data.Nat.html#268" class="Datatype Operator">≤</a> <a id="411" href="Terra.Data.Nat.html#399" class="Bound">r</a>
+
+<a id="414" class="Keyword">module</a> <a id="421" href="Terra.Data.Nat.html#421" class="Module">_</a> <a id="423" class="Keyword">where</a> <a id="429" class="Keyword">private</a>
+  <a id="439" href="Terra.Data.Nat.html#439" class="Function">v</a> <a id="441" class="Symbol">:</a> <a id="443" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+  <a id="449" href="Terra.Data.Nat.html#439" class="Function">v</a> <a id="451" class="Symbol">=</a>  <a id="454" class="Number">12</a>
+</pre></body></html>

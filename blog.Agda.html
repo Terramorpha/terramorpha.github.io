@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr">
+<head>
+<!-- 2024-09-15 Sun 21:35 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>I got Agda code export to work for my blog</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<link rel="stylesheet" type="text/css" href="Agda.css" />
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href=""> UP </a>
+ |
+ <a accesskey="H" href="/"> HOME </a>
+</div><div id="content" class="content">
+<h1 class="title">I got Agda code export to work for my blog</h1>
+<p>
+Now, I will be able to present syntax highlighted, type checked, hyperlinked
+proofs.
+</p>
+
+<pre class="Agda">
+<a id="326" class="Keyword">module</a> <a id="333" href="blog.Agda.html" class="Module">blog.Agda</a> <a id="343" class="Keyword">where</a>
+<a id="349" class="Keyword">open</a> <a id="354" class="Keyword">import</a> <a id="361" href="Terra.Data.Nat.html" class="Module">Terra.Data.Nat</a>
+<a id="376" class="Keyword">open</a> <a id="381" class="Keyword">import</a> <a id="388" href="Terra.Data.Nat.Functions.html" class="Module">Terra.Data.Nat.Functions</a> <a id="413" class="Keyword">using</a> <a id="419" class="Symbol">(</a><a id="420" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">_+_</a><a id="423" class="Symbol">)</a>
+<a id="425" class="Keyword">open</a> <a id="430" class="Keyword">import</a> <a id="437" href="Terra.Data.Equality.html" class="Module">Terra.Data.Equality</a>
+
+<a id="id-right"></a><a id="458" href="blog.Agda.html#458" class="Function">id-right</a> <a id="467" class="Symbol">:</a> <a id="469" class="Symbol">(</a><a id="470" href="blog.Agda.html#470" class="Bound">x</a> <a id="472" class="Symbol">:</a> <a id="474" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="477" class="Symbol">)</a> <a id="479" class="Symbol">-&gt;</a> <a id="482" href="blog.Agda.html#470" class="Bound">x</a> <a id="484" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="486" class="Number">0</a> <a id="488" href="Terra.Data.Equality.html#143" class="Datatype Operator">≡</a> <a id="490" href="blog.Agda.html#470" class="Bound">x</a>
+<a id="492" href="blog.Agda.html#458" class="Function">id-right</a> <a id="501" href="Agda.Builtin.Nat.html#221" class="InductiveConstructor">zero</a> <a id="506" class="Symbol">=</a> <a id="508" href="Terra.Data.Equality.html#185" class="InductiveConstructor">refl</a>
+<a id="513" href="blog.Agda.html#458" class="Function">id-right</a> <a id="522" class="Symbol">(</a><a id="523" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="527" href="blog.Agda.html#527" class="Bound">x</a><a id="528" class="Symbol">)</a> <a id="530" class="Symbol">=</a> <a id="532" href="Terra.Data.Equality.html#442" class="Function">cong</a> <a id="537" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="541" class="Symbol">(</a><a id="542" href="blog.Agda.html#458" class="Function">id-right</a> <a id="551" href="blog.Agda.html#527" class="Bound">x</a><a id="552" class="Symbol">)</a>
+
+<a id="suc-bubble"></a><a id="555" href="blog.Agda.html#555" class="Function">suc-bubble</a> <a id="566" class="Symbol">:</a> <a id="568" class="Symbol">(</a><a id="569" href="blog.Agda.html#569" class="Bound">x</a> <a id="571" href="blog.Agda.html#571" class="Bound">y</a> <a id="573" class="Symbol">:</a> <a id="575" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="578" class="Symbol">)</a> <a id="580" class="Symbol">-&gt;</a> <a id="583" href="blog.Agda.html#569" class="Bound">x</a> <a id="585" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="587" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="591" href="blog.Agda.html#571" class="Bound">y</a> <a id="593" href="Terra.Data.Equality.html#143" class="Datatype Operator">≡</a> <a id="595" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="599" class="Symbol">(</a><a id="600" href="blog.Agda.html#569" class="Bound">x</a> <a id="602" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="604" href="blog.Agda.html#571" class="Bound">y</a><a id="605" class="Symbol">)</a>
+<a id="607" href="blog.Agda.html#555" class="Function">suc-bubble</a> <a id="618" href="Agda.Builtin.Nat.html#221" class="InductiveConstructor">zero</a> <a id="623" href="blog.Agda.html#623" class="Bound">y</a> <a id="625" class="Symbol">=</a> <a id="627" href="Terra.Data.Equality.html#185" class="InductiveConstructor">refl</a>
+<a id="632" href="blog.Agda.html#555" class="Function">suc-bubble</a> <a id="643" class="Symbol">(</a><a id="644" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="648" href="blog.Agda.html#648" class="Bound">x</a><a id="649" class="Symbol">)</a> <a id="651" href="blog.Agda.html#651" class="Bound">y</a> <a id="653" class="Symbol">=</a> <a id="655" href="Terra.Data.Equality.html#442" class="Function">cong</a> <a id="660" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="664" class="Symbol">(</a><a id="665" href="blog.Agda.html#555" class="Function">suc-bubble</a> <a id="676" href="blog.Agda.html#648" class="Bound">x</a> <a id="678" href="blog.Agda.html#651" class="Bound">y</a><a id="679" class="Symbol">)</a>
+
+<a id="+-comm"></a><a id="682" href="blog.Agda.html#682" class="Function">+-comm</a> <a id="689" class="Symbol">:</a> <a id="691" class="Symbol">(</a><a id="692" href="blog.Agda.html#692" class="Bound">x</a> <a id="694" href="blog.Agda.html#694" class="Bound">y</a> <a id="696" class="Symbol">:</a> <a id="698" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="701" class="Symbol">)</a> <a id="703" class="Symbol">-&gt;</a> <a id="706" href="blog.Agda.html#692" class="Bound">x</a> <a id="708" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="710" href="blog.Agda.html#694" class="Bound">y</a> <a id="712" href="Terra.Data.Equality.html#143" class="Datatype Operator">≡</a> <a id="714" href="blog.Agda.html#694" class="Bound">y</a> <a id="716" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="718" href="blog.Agda.html#692" class="Bound">x</a>
+<a id="720" href="blog.Agda.html#682" class="Function">+-comm</a> <a id="727" href="Agda.Builtin.Nat.html#221" class="InductiveConstructor">zero</a> <a id="732" href="blog.Agda.html#732" class="Bound">y</a> <a id="734" class="Symbol">=</a> <a id="736" href="Terra.Data.Equality.html#379" class="Function">sym</a> <a id="740" class="Symbol">(</a><a id="741" href="blog.Agda.html#458" class="Function">id-right</a> <a id="750" href="blog.Agda.html#732" class="Bound">y</a><a id="751" class="Symbol">)</a>
+<a id="753" href="blog.Agda.html#682" class="Function">+-comm</a> <a id="760" class="Symbol">(</a><a id="761" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="765" href="blog.Agda.html#765" class="Bound">x</a><a id="766" class="Symbol">)</a> <a id="768" href="blog.Agda.html#768" class="Bound">y</a> <a id="770" class="Symbol">=</a> <a id="772" href="Terra.Data.Equality.html#379" class="Function">sym</a> <a id="776" class="Symbol">(</a><a id="777" href="blog.Agda.html#555" class="Function">suc-bubble</a> <a id="788" href="blog.Agda.html#768" class="Bound">y</a> <a id="790" href="blog.Agda.html#765" class="Bound">x</a> <a id="792" href="Terra.Data.Equality.html#738" class="Function Operator">→←</a> <a id="795" href="Terra.Data.Equality.html#442" class="Function">cong</a> <a id="800" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="804" class="Symbol">(</a><a id="805" href="blog.Agda.html#682" class="Function">+-comm</a> <a id="812" href="blog.Agda.html#768" class="Bound">y</a> <a id="814" href="blog.Agda.html#765" class="Bound">x</a><a id="815" class="Symbol">))</a>
+</pre>
+</div>
+<div id="postamble" class="status">
+<p class="author">Auteur: Justin Veilleux</p>
+<p class="date">Created: 2024-09-15 Sun 21:35</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
