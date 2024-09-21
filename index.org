@@ -9,6 +9,8 @@ metaprogramming and mathematics. With this blog, I aim to write concise posts
 regarding concept, techniques and ideas that a(slightly) younger version of
 myself would have found in his [[https://en.wikipedia.org/wiki/Zone_of_proximal_development][zone of proximal development]].
 
+* [[id:a8bc74ff-eca5-4848-8ce9-f1c56170d4d4][Γ ⊢ formal logic and type systems]]
+
 * [[id:6c8af10c-6dad-4cd6-a028-353067b80266][Getting Agda code export to work for my blog]]
 
 * [[id:d652fd73-f650-4db8-b2b0-9d94ffe7058b][Guile scheme's syntax parameters]]

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-09-15 Sun 21:36 -->
+<!-- 2024-09-16 Mon 22:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dataset preprocessing with Guix scripts</title>
@@ -193,6 +193,7 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
+<link rel="stylesheet" type="text/css" href="Agda.css" />
 </head>
 <body>
 <div id="org-div-home-and-up">
@@ -400,7 +401,7 @@ solution to this problem is G-expressions
 </div>
 
 <pre class="example">
-#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.1 gnu/packages/base.scm:94 7f0ba92f7370&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f0bba3dc060&gt;
+#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.1 gnu/packages/base.scm:94 7f506d2fa370&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f507e3ca900&gt;
 </pre>
 
 
@@ -625,7 +626,7 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-17 Fri 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-15 Sun 21:36</p>
+<p class="date">Created: 2024-09-16 Mon 22:57</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

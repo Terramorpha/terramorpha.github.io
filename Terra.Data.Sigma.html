@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Terra.Data.Sigma</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--cubical-compatible</a> <a id="34" class="Symbol">#-}</a>
+
+<a id="39" class="Keyword">module</a> <a id="46" href="Terra.Data.Sigma.html" class="Module">Terra.Data.Sigma</a> <a id="63" class="Keyword">where</a>
+<a id="69" class="Keyword">open</a> <a id="74" class="Keyword">import</a> <a id="81" href="Terra.Data.Level.html" class="Module">Terra.Data.Level</a>
+<a id="98" class="Keyword">open</a> <a id="103" class="Keyword">import</a> <a id="110" href="Agda.Builtin.Sigma.html" class="Module">Agda.Builtin.Sigma</a> <a id="129" class="Keyword">public</a>
+
+<a id="137" class="Comment">-- private</a>
+<a id="148" class="Comment">--   variable</a>
+<a id="162" class="Comment">--     ℓ : Level</a>
+
+<a id="180" class="Comment">-- record Σ {ℓ} {ℓ′} (I : Set ℓ) (P : I -&gt; Set ℓ′) : Set (ℓ ⊔ ℓ′) where</a>
+<a id="252" class="Comment">--   constructor _,_</a>
+<a id="273" class="Comment">--   field</a>
+<a id="284" class="Comment">--     fst : I</a>
+<a id="299" class="Comment">--     snd : P fst</a>
+
+<a id="319" class="Comment">-- infixr 5 _,_</a>
+
+<a id="336" class="Comment">-- open Σ public</a>
+
+<a id="354" class="Comment">-- {-# BUILTIN SIGMA Σ #-}</a>
+
+<a id="382" class="Comment">-- syntax Σ I (λ i -&gt; P) = Σ[ i ∈ I ] P</a>
+</pre></body></html>
