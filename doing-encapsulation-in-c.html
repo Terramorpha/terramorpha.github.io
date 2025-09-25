@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Interfaces in C using ~container_of~</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,13 +194,10 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Interfaces in C using <code>container_of</code></h1>
 <p>
 I used to think that abstract types was something one would just not do in <code>C</code>.
@@ -210,16 +207,16 @@ changed my mind.
 
 <p>
 The pattern is the following: your interface is a struct containing function
-pointers &#x2013; "methods" &#x2013; acting on itself. It looks like this:
+pointers &ndash; "methods" &ndash; acting on itself. It looks like this:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
+<pre class="src src-C"><code><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span>  {
-    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #8f0075;">area</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">sh</span>);
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">... There could be other function pointers.</span>
+    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #3548cf;">area</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">sh</span>);
+    <span style="color: #595959; font-style: italic;">// ... There could be other function pointers.</span>
 } <span style="color: #531ab6; font-weight: bold;">shape_t</span>;
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -228,26 +225,26 @@ the interface struct into your concrete struct like this:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">for typeof</span>
+<pre class="src src-C"><code><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
+<span style="color: #595959; font-style: italic;">// for typeof</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stddef.h&gt;</span>
 
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #8f0075;">area</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">sh</span>);
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">... There could be other function pointers.</span>
+    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #3548cf;">area</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">sh</span>);
+    <span style="color: #595959; font-style: italic;">// ... There could be other function pointers.</span>
 } <span style="color: #531ab6; font-weight: bold;">shape_t</span>;
 
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">circle</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">radius</span>;
-    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">shape_iface</span>;
+    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #005e8b;">radius</span>;
+    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #005e8b;">shape_iface</span>;
 } <span style="color: #531ab6; font-weight: bold;">child_t</span>;
 
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">square</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">side_length</span>;
-    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">shape_iface</span>;
+    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #005e8b;">side_length</span>;
+    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #005e8b;">shape_iface</span>;
 } <span style="color: #531ab6; font-weight: bold;">child_t</span>;
 
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -258,13 +255,13 @@ where the <code class="src src-c">container_of</code> macro comes in.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C"><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The container_of macro</span>
+<pre class="src src-C"><code><span style="color: #595959; font-style: italic;">// The container_of macro</span>
 <span style="color: #005f5f;">#define</span> <span style="color: #8f0075;">container_of</span>(<span style="color: #3548cf;">expr</span>, <span style="color: #3548cf;">type</span>, <span style="color: #3548cf;">field</span>) ({ \
-            <span style="color: #595959; font-style: italic;">/* </span><span style="color: #595959; font-style: italic;">This first line is only useful to do type_checking</span><span style="color: #595959; font-style: italic;"> */</span>     \
-            <span style="color: #005e8b; font-weight: bold;">typeof</span>(((<span style="color: #531ab6; font-weight: bold;">type</span> *) 0) -&gt; field) * <span style="color: #3548cf;">__type_checking_ptr</span> = (expr); \
-            (<span style="color: #531ab6; font-weight: bold;">type</span>*)(((<span style="color: #531ab6; font-weight: bold;">void</span>*) __type_checking_ptr) - offsetof(type, field)); \
+            <span style="color: #595959; font-style: italic;">/* This first line is only useful to do type_checking */</span>     \
+            typeof(((<span style="color: #531ab6; font-weight: bold;">type</span> *) <span style="color: #000000;">0</span>) -&gt; field) * <span style="color: #3548cf;">__type_checking_ptr</span> = (expr); \
+            (<span style="color: #531ab6; font-weight: bold;">type</span>*)(((<span style="color: #531ab6; font-weight: bold;">void</span>*) __type_checking_ptr) - offsetof(<span style="color: #531ab6; font-weight: bold;">type</span>, field)); \
         })
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -288,99 +285,92 @@ Here is a working example of this pattern:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C" id="org5c965b4"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
+<pre class="src src-C" id="orgb3bfdb8"><code><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdint.h&gt;</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stddef.h&gt;</span>
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The container_of macro</span>
+<span style="color: #595959; font-style: italic;">// The container_of macro</span>
 <span style="color: #005f5f;">#define</span> <span style="color: #8f0075;">container_of</span>(<span style="color: #3548cf;">expr</span>, <span style="color: #3548cf;">type</span>, <span style="color: #3548cf;">field</span>) ({ \
-            <span style="color: #595959; font-style: italic;">/* </span><span style="color: #595959; font-style: italic;">This first line is only useful to do type_checking</span><span style="color: #595959; font-style: italic;"> */</span>     \
-            <span style="color: #005e8b; font-weight: bold;">typeof</span>(((<span style="color: #531ab6; font-weight: bold;">type</span> *) 0) -&gt; field) * <span style="color: #3548cf;">__type_checking_ptr</span> = (expr); \
-            (<span style="color: #531ab6; font-weight: bold;">type</span>*)(((<span style="color: #531ab6; font-weight: bold;">void</span>*) __type_checking_ptr) - offsetof(type, field)); \
+            <span style="color: #595959; font-style: italic;">/* This first line is only useful to do type_checking */</span>     \
+            typeof(((<span style="color: #531ab6; font-weight: bold;">type</span> *) <span style="color: #000000;">0</span>) -&gt; field) * <span style="color: #3548cf;">__type_checking_ptr</span> = (expr); \
+            (<span style="color: #531ab6; font-weight: bold;">type</span>*)(((<span style="color: #531ab6; font-weight: bold;">void</span>*) __type_checking_ptr) - offsetof(<span style="color: #531ab6; font-weight: bold;">type</span>, field)); \
         })
 
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #8f0075;">area</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape</span> * <span style="color: #3548cf;">sh</span>);
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">... There could be other function pointers.</span>
+    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #3548cf;">area</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">shape</span> * <span style="color: #3548cf;">sh</span>);
+    <span style="color: #595959; font-style: italic;">// ... There could be other function pointers.</span>
 } <span style="color: #531ab6; font-weight: bold;">shape_t</span>;
 
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">square</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">side_length</span>;
-    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">shape_iface</span>;
+    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #005e8b;">side_length</span>;
+    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #005e8b;">shape_iface</span>;
 } <span style="color: #531ab6; font-weight: bold;">square_t</span>;
 
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">circle</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">radius</span>;
-    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">shape_iface</span>;
+    <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #005e8b;">radius</span>;
+    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #005e8b;">shape_iface</span>;
 } <span style="color: #531ab6; font-weight: bold;">circle_t</span>;
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">First concrete implementation</span>
+<span style="color: #595959; font-style: italic;">// First concrete implementation</span>
 <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #8f0075;">square_get_area</span>(<span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">iface</span>) {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We use the container_of macro to get a function pointer to the</span>
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">object the person_t struct is embedded in.</span>
+    <span style="color: #595959; font-style: italic;">// We use the container_of macro to get a function pointer to the</span>
+    <span style="color: #595959; font-style: italic;">// object the person_t struct is embedded in.</span>
     <span style="color: #531ab6; font-weight: bold;">square_t</span> * <span style="color: #3548cf;">square</span> = container_of(iface, square_t, shape_iface);
     <span style="color: #005e8b; font-weight: bold;">return</span> square-&gt;side_length*square-&gt;side_length;
 }
 
 <span style="color: #531ab6; font-weight: bold;">void</span> <span style="color: #8f0075;">square_init</span>(<span style="color: #531ab6; font-weight: bold;">square_t</span> * <span style="color: #3548cf;">out</span>, <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">side_length</span>) {
-    out-&gt;side_length = side_length;
+    out-&gt;<span style="color: #005e8b;">side_length</span> = side_length;
 
     <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">iface</span> = {
         .area = square_get_area,
     };
 
-    out-&gt;shape_iface = iface;
+    out-&gt;<span style="color: #005e8b;">shape_iface</span> = iface;
 }
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Second concrete implementation</span>
+<span style="color: #595959; font-style: italic;">// Second concrete implementation</span>
 <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #8f0075;">circle_get_area</span>(<span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">iface</span>) {
     <span style="color: #531ab6; font-weight: bold;">circle_t</span> * <span style="color: #3548cf;">circle</span> = container_of(iface, circle_t, shape_iface);
     <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">r</span> = circle-&gt;radius;
-    <span style="color: #005e8b; font-weight: bold;">return</span> 3.1415 * r*r;
+    <span style="color: #005e8b; font-weight: bold;">return</span> <span style="color: #000000;">3.1415</span> * r*r;
 }
 
 <span style="color: #531ab6; font-weight: bold;">void</span> <span style="color: #8f0075;">circle_init</span>(<span style="color: #531ab6; font-weight: bold;">circle_t</span> * <span style="color: #3548cf;">out</span>, <span style="color: #531ab6; font-weight: bold;">float</span> <span style="color: #3548cf;">radius</span>) {
-    out-&gt;radius = radius;
+    out-&gt;<span style="color: #005e8b;">radius</span> = radius;
 
     <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">iface</span> = {
         .area = circle_get_area,
     };
 
-    out-&gt;shape_iface = iface;
+    out-&gt;<span style="color: #005e8b;">shape_iface</span> = iface;
 }
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">An example of a function using the interface.</span>
+<span style="color: #595959; font-style: italic;">// An example of a function using the interface.</span>
 <span style="color: #531ab6; font-weight: bold;">void</span> <span style="color: #8f0075;">print_area</span>(<span style="color: #531ab6; font-weight: bold;">shape_t</span> * <span style="color: #3548cf;">shape</span>) {
-    printf(<span style="color: #a0132f;">"the area is  %1.1f\n"</span>,shape-&gt;area(shape));
+    printf(<span style="color: #a0132f;">"the area is  %1.1f</span><span style="color: #0000b0; font-weight: bold;">\n</span><span style="color: #a0132f;">"</span>,shape-&gt;area(shape));
 }
 
 <span style="color: #531ab6; font-weight: bold;">int</span> <span style="color: #8f0075;">main</span>() {
     <span style="color: #531ab6; font-weight: bold;">circle_t</span> <span style="color: #3548cf;">circle</span>;
     <span style="color: #531ab6; font-weight: bold;">square_t</span> <span style="color: #3548cf;">square</span>;
 
-    square_init(&amp;square, 1.0);
-    circle_init(&amp;circle, 1.0);
+    square_init(&amp;square, <span style="color: #000000;">1.0</span>);
+    circle_init(&amp;circle, <span style="color: #000000;">1.0</span>);
 
     print_area(&amp;circle.shape_iface);
     print_area(&amp;square.shape_iface);
 
-    <span style="color: #005e8b; font-weight: bold;">return</span> 0;
+    <span style="color: #005e8b; font-weight: bold;">return</span> <span style="color: #000000;">0</span>;
 }
-</pre>
+</code></pre>
 </div>
 
 <p>
 This program outputs:
 </p>
-
-<pre class="example">
-the area is  3.1
-the area is  1.0
-</pre>
-
-
-<div id="outline-container-orgc7ba10f" class="outline-2">
-<h2 id="orgc7ba10f"><span class="section-number-2">1.</span> Subtyping</h2>
+<div id="outline-container-org12b62db" class="outline-2">
+<h2 id="org12b62db"><span class="section-number-2">1.</span> Subtyping</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 using this pattern, it is also possible to represent subtyping by adding an
@@ -388,16 +378,16 @@ interface type as a field to another interface type.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C"><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
+<pre class="src src-C"><code><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
 <span style="color: #005e8b; font-weight: bold;">typedef</span> <span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> {
-    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #8f0075;">angle1</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> *);
-    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #8f0075;">angle2</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> *);
-    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #8f0075;">angle3</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> *);
+    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #3548cf;">angle1</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> *);
+    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #3548cf;">angle2</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> *);
+    <span style="color: #531ab6; font-weight: bold;">float</span> (*<span style="color: #3548cf;">angle3</span>)(<span style="color: #005e8b; font-weight: bold;">struct</span> <span style="color: #531ab6; font-weight: bold;">triangle</span> *);
 
-    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #3548cf;">shape_iface</span>;
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">... There could be other function pointers.</span>
+    <span style="color: #531ab6; font-weight: bold;">shape_t</span> <span style="color: #005e8b;">shape_iface</span>;
+    <span style="color: #595959; font-style: italic;">// ... There could be other function pointers.</span>
 } <span style="color: #531ab6; font-weight: bold;">triangle_t</span>;
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
@@ -416,7 +406,7 @@ standard library.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

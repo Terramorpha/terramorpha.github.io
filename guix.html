@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Guix: elevate your computing</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,21 +194,17 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Guix: elevate your computing</h1>
-
-<div id="outline-container-orga2081b5" class="outline-2">
-<h2 id="orga2081b5"><span class="section-number-2">1.</span> Why Guix?</h2>
+<div id="outline-container-org7974ea2" class="outline-2">
+<h2 id="org7974ea2"><span class="section-number-2">1.</span> Why Guix?</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Guix, which is a package manager similar to <a href="https://nixos.org/">Nix</a>, takes a different approach to
-functional package management that reuses GNU's extension language, <a href="https://www.gnu.org/software/guile/">Guile
+functional package management that reuses GNU&rsquo;s extension language, <a href="https://www.gnu.org/software/guile/">Guile
 scheme</a>, instead of nix (the language) as a package definition domain specific
 language. By using scheme, an extendable and Turing complete language, it opens
 the door to a world of possibilities. It enables the use of macros, of complex
@@ -216,13 +212,12 @@ algorithms and of a rich set of types through which users can express packages.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org6860242" class="outline-2">
-<h2 id="org6860242"><span class="section-number-2">2.</span> A crash course on creating a package</h2>
+<div id="outline-container-org7517aaa" class="outline-2">
+<h2 id="org7517aaa"><span class="section-number-2">2.</span> A crash course on creating a package</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-Let's say you, a user of Guix, want to use a specific piece of software which is
-not currently in Guix. I'll use as an example transmission-remote-gtk because
+Let&rsquo;s say you, a user of Guix, want to use a specific piece of software which is
+not currently in Guix. I&rsquo;ll use as an example transmission-remote-gtk because
 it was one of the first packages I wrote.
 </p>
 
@@ -238,8 +233,8 @@ invoking <code>guix edit</code>.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">$ guix edit hello</span>
-
+<pre class="src src-scheme"><code><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">$ guix edit hello
+</span>
 (<span style="color: #005e8b; font-weight: bold;">define-public</span> <span style="color: #8f0075;">hello</span>
   (package
    (name <span style="color: #a0132f;">"hello"</span>)
@@ -254,17 +249,17 @@ invoking <code>guix edit</code>.
    (build-system gnu-build-system)
    (synopsis <span style="color: #a0132f;">"Hello, GNU world: An example GNU package"</span>)
    (description
-    <span style="color: #a0132f;">"GNU Hello prints the message \"Hello, world!\" and then exits.  It</span>
-<span style="color: #a0132f;">serves as an example of standard GNU coding practices.  As such, it supports</span>
-<span style="color: #a0132f;">command-line arguments, multiple languages, and so on."</span>)
+    <span style="color: #a0132f;">"GNU Hello prints the message \"Hello, world!\" and then exits.  It
+serves as an example of standard GNU coding practices.  As such, it supports
+command-line arguments, multiple languages, and so on."</span>)
    (home-page <span style="color: #a0132f;">"https://www.gnu.org/software/hello/"</span>)
    (license gpl3+)))
 
-</pre>
+</code></pre>
 </div>
 
 <p>
-Let's look over the basic anatomy of the <code>hello</code> package.
+Let&rsquo;s look over the basic anatomy of the <code>hello</code> package.
 </p>
 
 <p>
@@ -276,13 +271,13 @@ programming language. You can see where the package is defined by using the
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">guix show hello
-</pre>
+<pre class="src src-shell"><code>guix show hello
+</code></pre>
 </div>
 
-<pre class="example" id="org7896dde">
+<pre class="example" id="orgc7571fd">
 name: hello
-version: 2.12.1
+version: 2.12.2
 outputs:
 + out: everything
 systems: x86_64-linux i686-linux
@@ -290,7 +285,7 @@ dependencies:
 location: gnu/packages/base.scm:100:2
 homepage: https://www.gnu.org/software/hello/
 license: GPL 3+
-synopsis: Hello, GNU world: An example GNU package  
+synopsis: Example GNU package  
 description: GNU Hello prints the message "Hello, world!" and then exits.  It
 + serves as an example of standard GNU coding practices.  As such, it supports
 + command-line arguments, multiple languages, and so on.
@@ -303,7 +298,7 @@ attributes.
 </p>
 
 <ul class="org-ul">
-<li><code>name</code> is pretty self-explanatory. It's simply a string used to name the
+<li><code>name</code> is pretty self-explanatory. It&rsquo;s simply a string used to name the
 package. This is actually what will be used by Guix to present packages to the
 user (<code>guix install</code>, <code>guix search</code>, <code>guix show</code>, etc.)</li>
 
@@ -318,11 +313,11 @@ repetitive <code>./configure &amp;&amp; make &amp;&amp; make install</code> danc
 software.</li>
 
 <li><code>synopsis</code>, <code>description</code> and <code>home-page</code> contain, respectively, a short summary of
-the package's purpose, a longer description and the webpage which one can
+the package&rsquo;s purpose, a longer description and the webpage which one can
 visit to learn more about the project.</li>
 
 <li><code>license</code> contains a <code>&lt;license&gt;</code> record that will be used by guix to determine the
-package's license. The fact it isn't simply a string makes the idea of
+package&rsquo;s license. The fact it isn&rsquo;t simply a string makes the idea of
 programmatically combing through a list of packages with a certain license
 possible.</li>
 </ul>
@@ -335,26 +330,26 @@ how one is supposed to actually use that package we are writing.
 
 <p>
 To instruct guix to build a package, we use the command.
-If we give it a package name, as in <code>/gnu/store/8bjy9g0cssjrw9ljz2r8ww1sma95isfj-hello-2.12.1</code>, it will find
-hello in our <code>GUIX_PACKAGE_PATH</code> environment variable and if it doesn't find it,
+If we give it a package name, as in <code>/gnu/store/k0pin1y1r0vdkdbg3lwjqc52hpwjbdyb-hello-2.12.2</code>, it will find
+hello in our <code>GUIX_PACKAGE_PATH</code> environment variable and if it doesn&rsquo;t find it,
 in the <code>(guix packages ...)</code> modules.
 </p>
 
 <p>
 We could modify the <code>GUIX_PACKAGE_PATH</code> environment variable, but a simpler way
 is to simply pass the <code>-f</code> flag to <code>guix build</code>. When we actually have a package
-to build, that's what we are going to do.
+to build, that&rsquo;s what we are going to do.
 </p>
 
 <p>
-First, let's create an empty scheme file, then type in an ill-formed package
+First, let&rsquo;s create an empty scheme file, then type in an ill-formed package
 definition.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">package.scm</span>
-(package)
-</pre>
+<pre class="src src-scheme"><code><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">package.scm
+</span>(package)
+</code></pre>
 </div>
 
 <p>
@@ -362,29 +357,31 @@ If we type <code>guix build -f package.scm</code> into our terminal, we will rec
 helpful error message and a nice hint.
 </p>
 
-<pre class="example">
-/home/terramorpha/test/tmp.Sms/main.scm:1:1: error: package: unbound variable
+<div class="org-src-container">
+<pre class="src src-nil"><code>/home/terramorpha/test/tmp.Sms/main.scm:1:1: error: package: unbound variable
 hint: Did you forget `(use-modules (guix packages))'?
-</pre>
+</code></pre>
+</div>
 
 <p>
-Oh! we need to actually import the module containing the <code>(package)</code> form. Let's try again.
+Oh! we need to actually import the module containing the <code>(package)</code> form. Let&rsquo;s try again.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">package.scm</span>
-(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages))
+<pre class="src src-scheme"><code><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">package.scm
+</span>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages))
 (package)
-</pre>
+</code></pre>
 </div>
 
 <p>
 This time, we get a different kind of error, there are missing fields.
 </p>
 
-<pre class="example">
-/home/terramorpha/test/tmp.Sms/main.scm:3:0: error: (package): missing field initializers (name version source build-system synopsis description license home-page)
-</pre>
+<div class="org-src-container">
+<pre class="src src-nil"><code>/home/terramorpha/test/tmp.Sms/main.scm:3:0: error: (package): missing field initializers (name version source build-system synopsis description license home-page)
+</code></pre>
+</div>
 
 <p>
 The majority of those fields, we can already fill them. What we end up with is
@@ -392,19 +389,19 @@ the following incomplete definition:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages))
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages))
 
 (package
  (name <span style="color: #a0132f;">"transmission-remote-gtk"</span>)
  (version <span style="color: #a0132f;">"1.4.1"</span>)
- <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(source ???)</span>
- <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(build-system ???)</span>
- (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
- <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(license ???)</span>
- (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
-</pre>
+ <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(source ???)
+</span> <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(build-system ???)
+</span> (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(license ???)
+</span> (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
+</code></pre>
 </div>
 
 <p>
@@ -414,31 +411,31 @@ using <code>guix repl</code> and type the following form:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:))
-</pre>
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:))
+</code></pre>
 </div>
 
 <p>
 now, you can type <code>license:</code> and tab complete your way to the correct value. If
 we look at the github repository, we notice the project is licensed under the
-GPL 2. Let's update our code accordingly.
+GPL 2. Let&rsquo;s update our code accordingly.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
              ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:))
 
 (package
  (name <span style="color: #a0132f;">"transmission-remote-gtk"</span>)
  (version <span style="color: #a0132f;">"1.4.1"</span>)
- <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(source ???)</span>
- <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(build-system ???)</span>
- (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(source ???)
+</span> <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(build-system ???)
+</span> (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
  (license license:gpl2)
  (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -461,21 +458,21 @@ We import the necessary module and modify our definition:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
              ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:)
              (guix build-system gnu))
 
 (package
  (name <span style="color: #a0132f;">"transmission-remote-gtk"</span>)
  (version <span style="color: #a0132f;">"1.4.1"</span>)
- <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(source ???)</span>
- (build-system gnu-build-system)
+ <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">(source ???)
+</span> (build-system gnu-build-system)
  (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
  (license license:gpl2)
  (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -485,25 +482,25 @@ which requires a bit of an explanation.
 
 <p>
 Guix is what is called a functional package manager. One of the consequences of
-the "purely functional package manager" approach is that the dependencies of a
+the &ldquo;purely functional package manager&rdquo; approach is that the dependencies of a
 package are explicit. This means that every package, to be built, must come with
 an explicit list of all other packages which it will need to both run and
 compile. In the nix world, the smallest unit which possesses thes properties is
 the derivation. A derivation contains references to every build dependency:
 compilers, dynamic libraries, <i>et cetera</i>. Guix uses a similar but different
-approach. It has many types of objects which can be "compiled" down to a
+approach. It has many types of objects which can be &ldquo;compiled&rdquo; down to a
 derivation. A package is such an object. In the case of our package, the
 dependencies would be <code>gtk</code>, some other things and the compiler toolchain. The
-instructions on how to build it would be the <code>gnu-build-system</code> and it's output
+instructions on how to build it would be the <code>gnu-build-system</code> and it&rsquo;s output
 would be simply <code>out</code> (the default name of a package with only one output).
 </p>
 
 <p>
-Then, where does the source code of a package come from? It's certainly one
-of it's dependencies, but how can we define the source code in terms of
+Then, where does the source code of a package come from? It&rsquo;s certainly one
+of it&rsquo;s dependencies, but how can we define the source code in terms of
 derivations. To download data from the internet, we use something called fixed
 output derivations. While the build process of a normal derivation happens in an
-isolated sandbox to prevent reproducibility issues, fixed output derivations'
+isolated sandbox to prevent reproducibility issues, fixed output derivations&rsquo;
 output have a fixed hash, so we can let them communicate with the outside world
 at build time.
 </p>
@@ -519,7 +516,7 @@ field.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
              ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:)
              (guix build-system gnu)
              (guix download))
@@ -531,11 +528,11 @@ field.
                  (method url-fetch)))
  (build-system gnu-build-system)
  (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
  (license license:gpl2)
  (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -549,15 +546,14 @@ at some url is by using the <code>guix download</code> command:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">guix download <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk/archive/refs/tags/1.4.2.tar.gz"</span>
-</pre>
+<pre class="src src-shell"><code>guix download <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk/archive/refs/tags/1.4.2.tar.gz"</span>
+</code></pre>
 </div>
 
 <pre class="example">
 /gnu/store/26pkmmascf0pnzcwziy7216hzlqb5rqd-1.4.2.tar.gz
 02dfiqks1wcvbg9h9l16dlgidzyiz498ahl9jcpg876azgsyh676
 </pre>
-
 
 
 <p>
@@ -570,7 +566,7 @@ We end up with the following:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
              ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:)
              (guix build-system gnu)
              (guix download))
@@ -583,12 +579,12 @@ We end up with the following:
                  (sha256 (base32 <span style="color: #a0132f;">"02dfiqks1wcvbg9h9l16dlgidzyiz498ahl9jcpg876azgsyh676"</span>))))
  (build-system gnu-build-system)
  (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
  (license license:gpl2)
  (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
 
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -598,12 +594,12 @@ evaluation phase and get an error in the build phase. What an improvement!
 
 <p>
 If you read carefully the output of the builder, you will see an <code>aclocal:
-command not found</code> Weren't we supposed to <b>explicitly</b> declare all dependencies?
+command not found</code> Weren&rsquo;t we supposed to <b>explicitly</b> declare all dependencies?
 Yes. Let me now introduce you to the <code>inputs</code> field.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
              ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:)
              (guix build-system gnu)
              (gnu packages autotools)
@@ -624,22 +620,22 @@ Yes. Let me now introduce you to the <code>inputs</code> field.
 
  (build-system gnu-build-system)
  (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
  (license license:gpl2)
  (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
 Inputs are a way to allow a package to reference other packages at compile
-time. Since we know that aclocal comes with the <code>automake</code> package, let's add it
+time. Since we know that aclocal comes with the <code>automake</code> package, let&rsquo;s add it
 to the list of inputs.
 </p>
 
 <p>
 If we retry to build the package, this time, we get an error about gettext.
-Let's add it.
+Let&rsquo;s add it.
 </p>
 
 <p>
@@ -654,7 +650,7 @@ package. At the end, we get:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix packages)
              ((guix licenses) <span style="color: #721045; font-weight: bold;">#:prefix</span> license:)
              (guix build-system gnu)
              (gnu packages autotools)
@@ -687,12 +683,12 @@ package. At the end, we get:
    json-glib))
  (build-system gnu-build-system)
  (synopsis <span style="color: #a0132f;">"graphical frontend to the Transmission daemon"</span>)
- (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of</span>
-<span style="color: #a0132f;">the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
+ (description <span style="color: #a0132f;">"transmission-remote-gtk is a GTK client for remote management of
+the Transmission BitTorrent client, using its HTTP RPC protocol."</span>)
  (license license:gpl2)
  (home-page <span style="color: #a0132f;">"https://github.com/transmission-remote-gtk/transmission-remote-gtk"</span>))
 
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -702,9 +698,8 @@ package.scm</code>. You can also put the file in a directory pointed to by
 </p>
 </div>
 </div>
-
-<div id="outline-container-org2aaa3ef" class="outline-2">
-<h2 id="org2aaa3ef"><span class="section-number-2">3.</span> Home directory configuration with Guix home</h2>
+<div id="outline-container-org5e51457" class="outline-2">
+<h2 id="org5e51457"><span class="section-number-2">3.</span> Home directory configuration with Guix home</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Some time ago, I decided to ease the transition and the configuration of all my
@@ -731,18 +726,17 @@ Until <code>guix home</code> happened.
 
 <p>
 On the surface, <code>guix home</code> looks a bit like gnu stow, but with the idea of
-"services" which allow you to declaratively instruct your shell to load
+&ldquo;services&rdquo; which allow you to declaratively instruct your shell to load
 zsh-autosuggestions or direnv. However, combined with g-expressions and the
 power of the store, magic happens.
 </p>
 </div>
-
-<div id="outline-container-org46471dd" class="outline-3">
-<h3 id="org46471dd"><span class="section-number-3">3.1.</span> reproductible and hermetic xsession script</h3>
+<div id="outline-container-orgbcba947" class="outline-3">
+<h3 id="orgbcba947"><span class="section-number-3">3.1.</span> reproductible and hermetic xsession script</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 What if you wanted to take the exact visual appearance of your window manager,
-put it into a scheme file and "evaluate" it later? Read: reproducible rice.
+put it into a scheme file and &ldquo;evaluate&rdquo; it later? Read: reproducible rice.
 </p>
 
 <p>
@@ -750,7 +744,7 @@ As an experiment, I once created a custom package that, when installed into the
 system profile, added an entry in <code>/share/xsessions/</code>. An entry that, when run
 by the display manager, instructed it to execute a script <code>~/.startup</code>. I was
 able to get from a display manager to an arbitrary script file while never
-leaving Guix's tender embrace.
+leaving Guix&rsquo;s tender embrace.
 </p>
 
 <p>
@@ -759,14 +753,14 @@ be managed by guix too, right ?
 </p>
 
 <p>
-In <code>guix home</code>'s <code>home-environment</code>, you can add a <code>home-files-service-type</code>
-which lets you declare arbitrary "file-like objects" to be added into your home
+In <code>guix home</code>&rsquo;s <code>home-environment</code>, you can add a <code>home-files-service-type</code>
+which lets you declare arbitrary &ldquo;file-like objects&rdquo; to be added into your home
 directory. Could a g-expression turned into a script be such an object? Yes it
 could.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(home-environment
+<pre class="src src-scheme"><code>(home-environment
  ...
  (services
   (list
@@ -775,7 +769,7 @@ could.
                    home-files-service-type
                    `((<span style="color: #a0132f;">"startup"</span>
                       (program-file <span style="color: #a0132f;">"startup"</span> startup-gexp)))))))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -783,13 +777,13 @@ In my case, I did multiple things in this script.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">startup-gexp</span>
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">startup-gexp</span>
   #~(<span style="color: #005e8b; font-weight: bold;">begin</span>
       (system* #$nitrogen-bin <span style="color: #a0132f;">"--set-auto"</span> #wallpaper)
       (<span style="color: #005e8b; font-weight: bold;">when</span> (zero? (primitive-fork))
         (exit (system* #$sxhkd-bin <span style="color: #a0132f;">"-c"</span> #$sxhkd-config)))
       (system* #$i3-bin <span style="color: #a0132f;">"-c"</span> #$i3-config)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -799,13 +793,13 @@ I was even able to define my wallpaper as a fixed output derivation
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">wallpaper</span>
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">wallpaper</span>
   (origin
     (uri <span style="color: #a0132f;">"https://www.dalipaintings.com/images/paintings/metamorphosis-of-narcissus.jpg"</span>)
     (method url-fetch)
     (sha256 (base32 <span style="color: #a0132f;">"0pn6dmqzakl88f1jxz7b325d98flkjx0fl9p7w2dfkiq3wbv9sn2"</span>))
     (file-name <span style="color: #a0132f;">"metamorphosis-of-narcissus.jpg"</span>)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -813,22 +807,20 @@ Now, my whole setup is controlled by a single command.
 </p>
 </div>
 </div>
-
-
-<div id="outline-container-orgc823d94" class="outline-3">
-<h3 id="orgc823d94"><span class="section-number-3">3.2.</span> Code as data</h3>
+<div id="outline-container-orgf4bf68e" class="outline-3">
+<h3 id="orgf4bf68e"><span class="section-number-3">3.2.</span> Code as data</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-Let's say I have a small function that I use in tandem with direnv to facilitate
+Let&rsquo;s say I have a small function that I use in tandem with direnv to facilitate
 the creation and the loading of anonymous guix profiles.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">guix-load</span> {
+<pre class="src src-shell"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">guix-load</span> {
     <span style="color: #3548cf;">anon_prof</span>=~/.anonymous-profiles
-    <span style="color: #3548cf;">sorted_packages</span>=<span style="color: #721045; font-weight: bold;">`for i in $@;do</span>
-<span style="color: #721045; font-weight: bold;">                         echo $i</span>
-<span style="color: #721045; font-weight: bold;">                     done | sort | uniq`</span>
+    <span style="color: #3548cf;">sorted_packages</span>=<span style="color: #721045; font-weight: bold;">`for i in $@;do
+                         echo $i
+                     done | sort | uniq`</span>
 
     <span style="color: #3548cf;">pkg_hash</span>=<span style="color: #721045; font-weight: bold;">`echo $sorted_packages | md5sum | awk '{print $1}'`</span>
 
@@ -851,13 +843,13 @@ the creation and the loading of anonymous guix profiles.
     <span style="color: #3548cf;">GUIX_PROFILE</span>=$<span style="color: #3548cf;">prof</span> . $<span style="color: #3548cf;">prof</span>/etc/profile
 }
 
-</pre>
+</code></pre>
 </div>
 
 
 <p>
 This function, when given a list of packages, will first check if a profile
-containing this exact list exists (if it doesn't, create it) and loads this
+containing this exact list exists (if it doesn&rsquo;t, create it) and loads this
 profile. This is useful both as a shell command (an alternative to the slow
 <code>guix environment --ad-hoc ...</code>) and inside direnv (a haskell project might
 contain in its .envrc <code>guix-load ghc cabal-install stylish-haskell</code>) I can give
@@ -871,28 +863,28 @@ Every time I want to modify the function, I can just modify it and run <code>gui
 home reconfigure ~/guix/home.scm</code>. No need to remember to keep <code>guix-load.sh</code> in
 a specific place or to synchronize the definition between two
 places. Automatically copy pasting the contents of this file into other files
-works well, because <code>guix-load</code> doesn't actually require any external
+works well, because <code>guix-load</code> doesn&rsquo;t actually require any external
 program. What about complex scripts ? You can do something similar, but it is
 necessary to write a bit of code.
 </p>
 
 <p>
-Let's say you have a script:
+Let&rsquo;s say you have a script:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #595959; font-style: italic;">#</span><span style="color: #595959; font-style: italic;">!/usr/bin/</span><span style="color: #005e8b; font-weight: bold;">env</span><span style="color: #595959; font-style: italic;"> sh</span>
-<span style="color: #3548cf;">size</span>=15
+<pre class="src src-shell"><code><span style="color: #595959; font-style: italic;">#</span><span style="color: #595959; font-style: italic;">!/usr/bin/</span><span style="color: #005e8b; font-weight: bold;">env</span><span style="color: #595959; font-style: italic;"> sh
+</span><span style="color: #3548cf;">size</span>=15
 <span style="color: #005e8b; font-weight: bold;">if</span> [ -z <span style="color: #a0132f;">"$1"</span> ];<span style="color: #005e8b; font-weight: bold;">then</span>
     qrencode -s 15 -o - | feh -
 <span style="color: #005e8b; font-weight: bold;">else</span>
     <span style="color: #721045; font-weight: bold;">echo</span> <span style="color: #a0132f;">"$1"</span> | qrencode -s 15 -o - | feh -
 <span style="color: #005e8b; font-weight: bold;">fi</span>
-</pre>
+</code></pre>
 </div>
 
 <p>
-You can't just drop it into your path or concatenate it with your bashrc: It
+You can&rsquo;t just drop it into your path or concatenate it with your bashrc: It
 depends on external programs.
 </p>
 
@@ -925,7 +917,7 @@ We wrap it with <code>wrap-program</code> (IIRC)
 </p>
 
 <p>
-Cool, because it enables you to edit the script as if it wasn't processed by
+Cool, because it enables you to edit the script as if it wasn&rsquo;t processed by
 guix at all. However it is not possible to use this method for functions that
 you want included into a startup file.
 </p></li>
@@ -946,7 +938,7 @@ This is what I went with.
 
 <p>
 Unless I had written a shell script parser to know exactly which occurences of
-"ps" to modify, I couldn't make this work on the original script file.
+&ldquo;ps&rdquo; to modify, I couldn&rsquo;t make this work on the original script file.
 </p>
 
 <p>
@@ -954,7 +946,7 @@ I opted for a syntax similar to .in files, this is what I came up with:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">expand-template</span> file-like-object env)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">expand-template</span> file-like-object env)
   (with-imported-modules
    '((guix build utils))
    (<span style="color: #005e8b; font-weight: bold;">let</span> ((alist
@@ -967,8 +959,8 @@ I opted for a syntax similar to .in files, this is what I came up with:
           (copy-recursively #$file-like-object #$output)
           (<span style="color: #005e8b; font-weight: bold;">let</span> ((alist '#$alist))
             (<span style="color: #005e8b; font-weight: bold;">with-fluid*</span>
-                %default-port-encoding <span style="color: #a0132f;">"UTF-8"</span> <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">otherwise, &#955; gets turned into "??"</span>
-                (<span style="color: #005e8b; font-weight: bold;">lambda</span> () (substitute
+                %default-port-encoding <span style="color: #a0132f;">"UTF-8"</span> <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">otherwise, &#955; gets turned into "??"
+</span>                (<span style="color: #005e8b; font-weight: bold;">lambda</span> () (substitute
                        #$output
                        (<span style="color: #005e8b; font-weight: bold;">map</span>
                         (<span style="color: #005e8b; font-weight: bold;">lambda</span> (pair)
@@ -980,16 +972,16 @@ I opted for a syntax similar to .in files, this is what I came up with:
                                                   (cdr (vector-ref (car matches) 1))))))
                         alist))))
             #$output))))))
-</pre>
+</code></pre>
 </div>
 
 <p>
-This function takes a file-like object and a pseudo alist =((name package)&#x2026;)
-and returns the "expanded" file. This is what such a file looks like:
+This function takes a file-like object and a pseudo alist =((name package)&hellip;)
+and returns the &ldquo;expanded&rdquo; file. This is what such a file looks like:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">parse_git_branch</span>() {
+<pre class="src src-shell"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">parse_git_branch</span>() {
     <span style="color: #3548cf;">branch</span>=$(%%git%%/bin/git rev-parse --abbrev-ref HEAD 2&gt; /dev/null)
     <span style="color: #005e8b; font-weight: bold;">if</span> [ -n <span style="color: #a0132f;">"$branch"</span> ]; <span style="color: #005e8b; font-weight: bold;">then</span>
         <span style="color: #3548cf;">branch</span>=<span style="color: #a0132f;">"${RED}(${GREEN}$branch${RED})${RESET} "</span>
@@ -998,7 +990,7 @@ and returns the "expanded" file. This is what such a file looks like:
     <span style="color: #005e8b; font-weight: bold;">fi</span>
     printf <span style="color: #a0132f;">"%b"</span> <span style="color: #a0132f;">"$branch"</span>
 }
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -1007,12 +999,11 @@ It works reasonably well.
 </div>
 </div>
 </div>
-
-<div id="outline-container-org12b73a2" class="outline-2">
-<h2 id="org12b73a2"><span class="section-number-2">4.</span> G-expressions</h2>
+<div id="outline-container-org66fa8df" class="outline-2">
+<h2 id="org66fa8df"><span class="section-number-2">4.</span> G-expressions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-To hear it from the horse's mouth, read Ludovic Courtes' <a href="https://hal.inria.fr/hal-01580582/document">Code staging in GNU Guix</a>.
+To hear it from the horse&rsquo;s mouth, read Ludovic Courtes&rsquo; <a href="https://hal.inria.fr/hal-01580582/document">Code staging in GNU Guix</a>.
 </p>
 
 
@@ -1022,12 +1013,12 @@ function.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix derivations)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix derivations)
              (guix store))
 
 (derivation store <span style="color: #a0132f;">"name-of-derivation"</span> bash
             `(<span style="color: #a0132f;">"-e"</span> <span style="color: #a0132f;">"'echo salut &gt; $out'"</span>))
-</pre>
+</code></pre>
 </div>
 
 
@@ -1036,33 +1027,33 @@ However, they are quite cumbersome to use. Also, blablablablabla
 </p>
 
 <p>
-But we have G-expressions. Gexps are very similar to scheme's quasiquote, but
+But we have G-expressions. Gexps are very similar to scheme&rsquo;s quasiquote, but
 ungexp (the analog to unquote) has special behaviour with regards to file-like
 object.
 </p>
 
 <p>
-To create a G-expression, use the <code>gexp</code> form or it's abbreviation <code>#~</code>
+To create a G-expression, use the <code>gexp</code> form or it&rsquo;s abbreviation <code>#~</code>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
              (gnu packages base))
 
 (gexp
  (<span style="color: #005e8b; font-weight: bold;">begin</span>
    (ungexp coreutils)
    salut))
-</pre>
+</code></pre>
 </div>
 
 <p>
 However, G-expressions are useful only in combination with other g-expressions
-or when compiled down to a file-like object. Let's see how we can do that.
+or when compiled down to a file-like object. Let&rsquo;s see how we can do that.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
              (gnu packages base))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">exp</span>
@@ -1071,12 +1062,12 @@ or when compiled down to a file-like object. Let's see how we can do that.
 
 
 (program-file <span style="color: #a0132f;">"exp"</span> exp)
-</pre>
+</code></pre>
 </div>
 
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
              (gnu packages base))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">some-list-of-packages</span> (list coreutils coreutils))
@@ -1085,41 +1076,40 @@ or when compiled down to a file-like object. Let's see how we can do that.
  (<span style="color: #005e8b; font-weight: bold;">begin</span>
    (ungexp some-list-of-packages)
    salut))
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgdd836f8" class="outline-2">
-<h2 id="orgdd836f8"><span class="section-number-2">5.</span> Profiles, environments and direnv</h2>
+<div id="outline-container-orgf67c385" class="outline-2">
+<h2 id="orgf67c385"><span class="section-number-2">5.</span> Profiles, environments and direnv</h2>
 <div class="outline-text-2" id="text-5">
 <p>
-Guix's <code>guix shell</code> command makes it easy to very quickly spawn a shell in a
+Guix&rsquo;s <code>guix shell</code> command makes it easy to very quickly spawn a shell in a
 fresh profile with the given packages.
 </p>
 
 
 <div class="org-src-container">
-<pre class="src src-shell">guix shell guile guile-gi
-</pre>
+<pre class="src src-shell"><code>guix shell guile guile-gi
+</code></pre>
 </div>
 
 <p>
 However, for programs (or group of programs) that you use often or for setting
 up environment variables for direnv, this method is not fast enough. One method
 to accelerate the whole process is to bypass the evaluation of derivations
-entirely for profiles that were built in the past and "cache" these profiles. A
-very simple method is to keep a store of profiles which are "content-addressed"
+entirely for profiles that were built in the past and &ldquo;cache&rdquo; these profiles. A
+very simple method is to keep a store of profiles which are &ldquo;content-addressed&rdquo;
 by a hash of the packages that they contain.
 </p>
 
 
 <div class="org-src-container">
-<pre class="src src-shell"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">guix-load</span> {
+<pre class="src src-shell"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">guix-load</span> {
     <span style="color: #3548cf;">anon_prof</span>=~/.anonymous-profiles
-    <span style="color: #3548cf;">sorted_packages</span>=<span style="color: #721045; font-weight: bold;">`for i in $@;do</span>
-<span style="color: #721045; font-weight: bold;">                         echo $i</span>
-<span style="color: #721045; font-weight: bold;">                     done | sort | uniq`</span>
+    <span style="color: #3548cf;">sorted_packages</span>=<span style="color: #721045; font-weight: bold;">`for i in $@;do
+                         echo $i
+                     done | sort | uniq`</span>
 
     <span style="color: #3548cf;">pkg_hash</span>=<span style="color: #721045; font-weight: bold;">`echo $sorted_packages | md5sum | awk '{print $1}'`</span>
 
@@ -1141,13 +1131,13 @@ by a hash of the packages that they contain.
     printf <span style="color: #a0132f;">"sourcing $prof...\n"</span>
     <span style="color: #3548cf;">GUIX_PROFILE</span>=$<span style="color: #3548cf;">prof</span> . $<span style="color: #3548cf;">prof</span>/etc/profile
 }
-</pre>
+</code></pre>
 </div>
 
 <p>
 While it is true that using <code>guix-load</code> will pollute your installation with
-roots in <code>~/.anonymous-profiles</code>, it makes the "I want to run some program
-without installing it" use case much more realisable.
+roots in <code>~/.anonymous-profiles</code>, it makes the &ldquo;I want to run some program
+without installing it&rdquo; use case much more realisable.
 </p>
 
 <p>
@@ -1159,29 +1149,27 @@ initial buil is done) develop/compile/execute some project.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org376b80e" class="outline-2">
-<h2 id="org376b80e"><span class="section-number-2">6.</span> Sending a patch</h2>
+<div id="outline-container-orgb943aa3" class="outline-2">
+<h2 id="orgb943aa3"><span class="section-number-2">6.</span> Sending a patch</h2>
 <div class="outline-text-2" id="text-6">
 <p>
-You just found your favorite piece of software, but it's an obsolete version
+You just found your favorite piece of software, but it&rsquo;s an obsolete version
 missing that cool new feature you need in your workflow. You went and <code>git
-clone</code>'ed the repo at <a href="https://git.savannah.gnu.org/git/guix.git">savannah</a> and you modified the package definition. What
+clone</code>&rsquo;ed the repo at <a href="https://git.savannah.gnu.org/git/guix.git">savannah</a> and you modified the package definition. What
 now? You should submit a patch, of course.
 </p>
 </div>
-
-<div id="outline-container-org4e162b9" class="outline-3">
-<h3 id="org4e162b9"><span class="section-number-3">6.1.</span> Building Guix</h3>
+<div id="outline-container-org70d7fbe" class="outline-3">
+<h3 id="org70d7fbe"><span class="section-number-3">6.1.</span> Building Guix</h3>
 <div class="outline-text-3" id="text-6-1">
 <p>
 Before you can test wether your modified package works, you need to build
-guix. This can be done by invoking <code>guix shell</code> with guix's dependencies.
+guix. This can be done by invoking <code>guix shell</code> with guix&rsquo;s dependencies.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">guix shell -D guix
-</pre>
+<pre class="src src-shell"><code>guix shell -D guix
+</code></pre>
 </div>
 
 <p>
@@ -1189,8 +1177,8 @@ Then, you can run the bootstrap script.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">./bootstrap
-</pre>
+<pre class="src src-shell"><code>./bootstrap
+</code></pre>
 </div>
 
 <p>
@@ -1198,8 +1186,8 @@ And the configure script
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">./configure --localstatedir=/var
-</pre>
+<pre class="src src-shell"><code>./configure --localstatedir=/var
+</code></pre>
 </div>
 
 <p>
@@ -1207,8 +1195,8 @@ Finally, you can build Guix.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">make
-</pre>
+<pre class="src src-shell"><code>make
+</code></pre>
 </div>
 
 <p>
@@ -1222,18 +1210,18 @@ First, start by building your package.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">./pre-inst-env guix build tiramisu
-</pre>
+<pre class="src src-shell"><code>./pre-inst-env guix build tiramisu
+</code></pre>
 </div>
 
 <p>
 When you have a working build, verify the output is working correctly, then use
-the <code>guix lint</code> subcommand to verify you didn't make a silly mistake.
+the <code>guix lint</code> subcommand to verify you didn&rsquo;t make a silly mistake.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">./pre-inst-env guix lint tiramisu
-</pre>
+<pre class="src src-shell"><code>./pre-inst-env guix lint tiramisu
+</code></pre>
 </div>
 
 <p>
@@ -1242,20 +1230,19 @@ the files you modified, then make a commit.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org7fde185" class="outline-3">
-<h3 id="org7fde185"><span class="section-number-3">6.2.</span> Committing your changes</h3>
+<div id="outline-container-orgc5e4219" class="outline-3">
+<h3 id="orgc5e4219"><span class="section-number-3">6.2.</span> Committing your changes</h3>
 <div class="outline-text-3" id="text-6-2">
 <p>
-When you write your commit message, make sure you follow GNU's <a href="https://www.gnu.org/prep/standards/html_node/Change-Logs.html">standard</a> for
+When you write your commit message, make sure you follow GNU&rsquo;s <a href="https://www.gnu.org/prep/standards/html_node/Change-Logs.html">standard</a> for
 commit messages. In the case of tiramisu, that means writing something like:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-text">gnu: tiramisu: Update to 2.0.
+<pre class="src src-text"><code>gnu: tiramisu: Update to 2.0.
     
 * gnu/packages/gnome-xyz.scm (tiramisu): Update to 2.0.
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -1264,9 +1251,8 @@ If you are unsure about how a particular change should be expressed, simply run
 </p>
 </div>
 </div>
-
-<div id="outline-container-org195eee6" class="outline-3">
-<h3 id="org195eee6"><span class="section-number-3">6.3.</span> Creating a patch file</h3>
+<div id="outline-container-org7a551f1" class="outline-3">
+<h3 id="org7a551f1"><span class="section-number-3">6.3.</span> Creating a patch file</h3>
 <div class="outline-text-3" id="text-6-3">
 <p>
 When you have committed your changes, it is time to turn the commit into a patch
@@ -1274,8 +1260,8 @@ file. This can be done with the <code>git format-patch</code> command:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">git format-patch HEAD~1
-</pre>
+<pre class="src src-shell"><code>git format-patch HEAD~1
+</code></pre>
 </div>
 
 <p>
@@ -1285,17 +1271,16 @@ as an attachment to an email sent to <a href="mailto:guix-patches@gnu.org">guix-
 </div>
 </div>
 </div>
-
-<div id="outline-container-org1c7b803" class="outline-2">
-<h2 id="org1c7b803"><span class="section-number-2">7.</span> Other resources</h2>
+<div id="outline-container-orgfe44761" class="outline-2">
+<h2 id="orgfe44761"><span class="section-number-2">7.</span> Other resources</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li><p>
-<a href="https://www.youtube.com/channel/UCuj_loxODrOPxSsXDfJmpng">Andrew Tropin's channel</a>
+<a href="https://www.youtube.com/channel/UCuj_loxODrOPxSsXDfJmpng">Andrew Tropin&rsquo;s channel</a>
 </p>
 
 <p>
-He's <code>guix home</code>'s author, so obviously, he knows a lot about Guix.
+He&rsquo;s <code>guix home</code>&rsquo;s author, so obviously, he knows a lot about Guix.
 </p></li>
 
 <li><a href="https://guix.gnu.org/en/manual/devel/en/guix.html">The manual</a></li>
@@ -1304,17 +1289,15 @@ He's <code>guix home</code>'s author, so obviously, he knows a lot about Guix.
 </ul>
 </div>
 </div>
-
-
-<div id="outline-container-orgeb5015d" class="outline-2">
-<h2 id="orgeb5015d"><span class="section-number-2">8.</span> Snippets</h2>
+<div id="outline-container-org963fb49" class="outline-2">
+<h2 id="org963fb49"><span class="section-number-2">8.</span> Snippets</h2>
 <div class="outline-text-2" id="text-8">
 </div>
-<div id="outline-container-org3079a41" class="outline-3">
-<h3 id="org3079a41"><span class="section-number-3">8.1.</span> Build a derivation from scheme</h3>
+<div id="outline-container-org2dc5581" class="outline-3">
+<h3 id="org2dc5581"><span class="section-number-3">8.1.</span> Build a derivation from scheme</h3>
 <div class="outline-text-3" id="text-8-1">
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
              (guix derivations)
              (guix store))
 
@@ -1326,7 +1309,7 @@ He's <code>guix home</code>'s author, so obviously, he knows a lot about Guix.
   (<span style="color: #005e8b; font-weight: bold;">let</span> ((d (run-with-store s (gexp-&gt;script <span style="color: #a0132f;">"some-script"</span> script))))
     (build-derivations s (list d))
     (derivation-output-path (assoc-ref (derivation-outputs d) <span style="color: #a0132f;">"out"</span>))))
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
@@ -1334,7 +1317,7 @@ He's <code>guix home</code>'s author, so obviously, he knows a lot about Guix.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Towards monads</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,13 +194,10 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Towards monads
 <br />
 <span class="subtitle">(or yet another monad tutorial)</span>
@@ -227,9 +224,8 @@ bad. Monads are much easier the understand when viewed as the common abstraction
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">State</span> s</code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">IO</span></code>,
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span> o</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span> o</code>.
 </p>
-
-<div id="outline-container-org0dcc36a" class="outline-2">
-<h2 id="org0dcc36a"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
+<div id="outline-container-orgedbf16c" class="outline-2">
+<h2 id="orgedbf16c"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code> type is a good place to start. This is the type we use
@@ -242,7 +238,7 @@ Here is an exemple of how we might use it:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+<pre class="src src-haskell"><code><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
 
 <span style="color: #8f0075;">couldFailInt</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span>
 
@@ -253,7 +249,7 @@ Here is an exemple of how we might use it:
     <span style="color: #005e8b; font-weight: bold;">case</span> couldFailInt <span style="color: #005e8b; font-weight: bold;">of</span>
       <span style="color: #531ab6; font-weight: bold;">Nothing</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Nothing</span>
       <span style="color: #531ab6; font-weight: bold;">Just</span> int <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Just</span> (int, str)
-</pre>
+</code></pre>
 </div>
 
 
@@ -266,9 +262,9 @@ the two functions:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">bind</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> m <span style="color: #3548cf;">=&gt;</span> m a <span style="color: #3548cf;">-&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> m b) <span style="color: #3548cf;">-&gt;</span> m b
+<pre class="src src-haskell"><code><span style="color: #8f0075;">bind</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> m <span style="color: #3548cf;">=&gt;</span> m a <span style="color: #3548cf;">-&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> m b) <span style="color: #3548cf;">-&gt;</span> m b
 <span style="color: #8f0075;">return</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> m <span style="color: #3548cf;">=&gt;</span> a <span style="color: #3548cf;">-&gt;</span> m a
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -278,8 +274,8 @@ the two functions:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">bindMaybe</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> a <span style="color: #3548cf;">-&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b
-</pre>
+<pre class="src src-haskell"><code><span style="color: #8f0075;">bindMaybe</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> a <span style="color: #3548cf;">-&gt;</span> (a <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b) <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> b
+</code></pre>
 </div>
 
 <p>
@@ -289,7 +285,7 @@ part. Let's rewrite our program using these functions.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+<pre class="src src-haskell"><code><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
 
 <span style="color: #8f0075;">couldFailInt</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span>
 
@@ -298,7 +294,7 @@ part. Let's rewrite our program using these functions.
           (<span style="color: #3548cf;">\</span>str <span style="color: #3548cf;">-&gt;</span> <span style="color: #005e8b; font-weight: bold;">let</span> strlen <span style="color: #3548cf;">=</span> length str <span style="color: #005e8b; font-weight: bold;">in</span>
               bindMaybe couldFailInt
                 (<span style="color: #3548cf;">\</span>int <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Just</span> (int, str)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -312,7 +308,7 @@ notation. Let's change our code to use <code>do</code> notation:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
+<pre class="src src-haskell"><code><span style="color: #8f0075;">couldFailString</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">String</span>
 
 <span style="color: #8f0075;">couldFailInt</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> <span style="color: #531ab6; font-weight: bold;">Int</span>
 
@@ -322,7 +318,7 @@ notation. Let's change our code to use <code>do</code> notation:
   <span style="color: #005e8b; font-weight: bold;">let</span> strlen <span style="color: #3548cf;">=</span> length str
   int <span style="color: #3548cf;">&lt;-</span> couldFailInt
   <span style="color: #531ab6; font-weight: bold;">Just</span> (int, str)
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -331,10 +327,10 @@ terms of <code>.then</code>) in Javascript. In other words,
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+<pre class="src src-haskell"><code><span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
   x <span style="color: #3548cf;">&lt;-</span> doSomething
   <span style="color: #3548cf;">...</span>
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -342,14 +338,13 @@ becomes
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> bind doSomething (<span style="color: #3548cf;">\</span>x <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">...</span>)
-</pre>
+<pre class="src src-haskell"><code><span style="color: #8f0075;">program</span> <span style="color: #3548cf;">=</span> bind doSomething (<span style="color: #3548cf;">\</span>x <span style="color: #3548cf;">-&gt;</span> <span style="color: #3548cf;">...</span>)
+</code></pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgbd63fca" class="outline-2">
-<h2 id="orgbd63fca"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
+<div id="outline-container-orgd8ef158" class="outline-2">
+<h2 id="orgd8ef158"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Whereas <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span> a</code> means "potentially an <code class="src src-haskell">a</code>",
@@ -362,12 +357,12 @@ If you know the <code>go</code> programming language, using do notation on <code
 </p>
 
 <div class="org-src-container">
-<pre class="src src-go"><span style="color: #3548cf;">results</span>, <span style="color: #3548cf;">err</span> := <span style="color: #8f0075;">doSomething</span>()
+<pre class="src src-go"><code><span style="color: #3548cf;">results</span>, <span style="color: #3548cf;">err</span> := <span style="color: #8f0075;">doSomething</span>()
 <span style="color: #005e8b; font-weight: bold;">if</span> err != <span style="color: #531ab6;">nil</span> {
     <span style="color: #005e8b; font-weight: bold;">return</span> err
 }
 ...
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -375,9 +370,8 @@ The semantics is similar to <code class="src src-haskell"><span style="color: #5
 </p>
 </div>
 </div>
-
-<div id="outline-container-orgb5c99ff" class="outline-2">
-<h2 id="orgb5c99ff"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
+<div id="outline-container-org375d5f3" class="outline-2">
+<h2 id="org375d5f3"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
 <div class="outline-text-2" id="text-3">
 <p>
 One might wonder why it would be useful to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> as a monad.
@@ -385,7 +379,7 @@ The answer is modelling nondeterminism in a functional way.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">:</span>{
+<pre class="src src-haskell"><code><span style="color: #531ab6; font-weight: bold;">:</span>{
 <span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">::</span> [(<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">String</span>)]
 <span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span> 
   int <span style="color: #3548cf;">&lt;-</span> [1, 2, 3, 4, 5]
@@ -396,13 +390,12 @@ The answer is modelling nondeterminism in a functional way.
 <span style="color: #531ab6; font-weight: bold;">:</span>}
 
 prog
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 [(1,"one"),(1,"two"),(1,"three"),(3,"one"),(3,"two"),(3,"three"),(5,"one"),(5,"two"),(5,"three")]
 </pre>
-
 
 <p>
 Here, the <code>&lt;-</code> operation splits the universe into parallel branches. The end
@@ -411,7 +404,7 @@ how you might find Pythagorean triples:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">:</span>{
+<pre class="src src-haskell"><code><span style="color: #531ab6; font-weight: bold;">:</span>{
 <span style="color: #8f0075;">n</span> <span style="color: #3548cf;">=</span> 40
 
 <span style="color: #8f0075;">prog</span> <span style="color: #3548cf;">::</span> [(<span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">Int</span>, <span style="color: #531ab6; font-weight: bold;">Int</span>)]
@@ -425,7 +418,7 @@ how you might find Pythagorean triples:
   <span style="color: #531ab6; font-weight: bold;">:</span>}
 
 prog
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -433,9 +426,8 @@ prog
 </pre>
 </div>
 </div>
-
-<div id="outline-container-orgf299bac" class="outline-2">
-<h2 id="orgf299bac"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
+<div id="outline-container-orgc020250" class="outline-2">
+<h2 id="orgc020250"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Let's say you want to do logging. In an imperative language, you would use
@@ -445,7 +437,7 @@ you do.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> o t <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (t, [o])
+<pre class="src src-haskell"><code><span style="color: #005e8b; font-weight: bold;">data</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> o t <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (t, [o])
 
 <span style="color: #8f0075;">wReturn</span> x <span style="color: #3548cf;">=</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (x, <span style="color: #531ab6; font-weight: bold;">[]</span>)
 <span style="color: #531ab6; font-weight: bold;">Writer</span> (val, log) <span style="color: #3548cf;">&gt;&gt;=</span> f <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #531ab6; font-weight: bold;">Writer</span> (v2, log2) <span style="color: #3548cf;">=</span> f val
@@ -453,13 +445,12 @@ you do.
 
 
 <span style="color: #531ab6; font-weight: bold;">Writer</span> (<span style="color: #a0132f;">"allo"</span>, <span style="color: #a0132f;">"truc"</span>) <span style="color: #3548cf;">&gt;&gt;=</span> <span style="color: #3548cf;">\</span>x <span style="color: #3548cf;">-&gt;</span> wReturn <span style="color: #3548cf;">$</span> x <span style="color: #3548cf;">++</span> <span style="color: #a0132f;">"truuuc"</span>
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org06b4d2b" class="outline-2">
-<h2 id="org06b4d2b"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
+<div id="outline-container-orgbce913d" class="outline-2">
+<h2 id="orgbce913d"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
 <div class="outline-text-2" id="text-5">
 <p>
 This time, you want to propagate "global variables" though your whole program,
@@ -486,7 +477,7 @@ to the nesting problem, you won't be surprised by what comes next.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

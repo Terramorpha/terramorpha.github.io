@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Implementing ~async~-~await~ syntax using delimited continuations</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,45 +194,10 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
-<script>
-  window.MathJax = {
-    tex: {
-      ams: {
-        multlineWidth: '85%'
-      },
-      tags: 'ams',
-      tagSide: 'right',
-      tagIndent: '.8em'
-    },
-    chtml: {
-      scale: 1.0,
-      displayAlign: 'center',
-      displayIndent: '0em'
-    },
-    svg: {
-      scale: 1.0,
-      displayAlign: 'center',
-      displayIndent: '0em'
-    },
-    output: {
-      font: 'mathjax-modern',
-      displayOverflow: 'overflow'
-    }
-  };
-</script>
-
-<script
-  id="MathJax-script"
-  async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Implementing <code>async</code>-<code>await</code> syntax using delimited continuations</h1>
 <p>
 When we are writing Haskell code and we need access to weird control operators
@@ -249,10 +214,10 @@ definition of a monad in haskell:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><span style="color: #005e8b; font-weight: bold;">class</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> f <span style="color: #005e8b; font-weight: bold;">where</span>
+<pre class="src src-haskell"><code><span style="color: #005e8b; font-weight: bold;">class</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> f <span style="color: #005e8b; font-weight: bold;">where</span>
   return <span style="color: #3548cf;">::</span> x <span style="color: #3548cf;">-&gt;</span> f x
   bind <span style="color: #3548cf;">::</span> f x <span style="color: #3548cf;">-&gt;</span> (x <span style="color: #3548cf;">-&gt;</span> f y) <span style="color: #3548cf;">-&gt;</span> f y
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -263,9 +228,8 @@ statefulness (the <code class="src src-haskell"><span style="color: #531ab6; fon
 function would wrap a pure value without effects whereas the <code class="src src-haskell">bind</code>
 function would thread effectful computations.
 </p>
-
-<div id="outline-container-orge7ca432" class="outline-2">
-<h2 id="orge7ca432"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
+<div id="outline-container-org081a34c" class="outline-2">
+<h2 id="org081a34c"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 One very popular monad (it is very much used outside the functional programming
@@ -276,12 +240,12 @@ have, but that you want to manipulate. For instance, the javascript
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">resp_promise</span> = fetch(<span style="color: #a0132f;">"http://example.org/"</span>);
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">resp_promise</span> = fetch(<span style="color: #a0132f;">"http://example.org/"</span>);
 resp_promise.then(resp =&gt; {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Something ...</span>
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...</span>
-})
-</pre>
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Something ...
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...
+</span>})
+</code></pre>
 </div>
 
 <p>
@@ -290,18 +254,18 @@ promises make for very ugly code:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">resp_promise</span> = fetch(<span style="color: #a0132f;">"http://example.org/"</span>);
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">resp_promise</span> = fetch(<span style="color: #a0132f;">"http://example.org/"</span>);
 resp_promise.then(resp =&gt; {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Something ...</span>
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...</span>
-    something.then(value =&gt; {
-        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...</span>
-        something_else.then(x =&gt; {
-            <span style="color: #595959; font-style: italic;">//</span><span style="color: #595959; font-style: italic;">...</span>
-        })
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Something ...
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...
+</span>    something.then(value =&gt; {
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...
+</span>        something_else.then(x =&gt; {
+            <span style="color: #595959; font-style: italic;">//</span><span style="color: #595959; font-style: italic;">...
+</span>        })
     })
 })
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -317,9 +281,8 @@ said delimited continuation.
 </p>
 </div>
 </div>
-
-<div id="outline-container-orgd436a64" class="outline-2">
-<h2 id="orgd436a64"><span class="section-number-2">2.</span> The concept of continuation</h2>
+<div id="outline-container-org6b4189b" class="outline-2">
+<h2 id="org6b4189b"><span class="section-number-2">2.</span> The concept of continuation</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Before we dive into the technical details of implementing <code>async</code> / <code>await</code> syntax,
@@ -330,8 +293,8 @@ calculating the <code class="src src-js">b*b - 4 * a * c</code> sub expression.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js">(-b + sqrt(b*b - 4 * a * c))/(2*a)
-</pre>
+<pre class="src src-js"><code>(-b + sqrt(b*b - 4 * a * c))/(2*a)
+</code></pre>
 </div>
 
 <p>
@@ -346,7 +309,7 @@ function.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib</span>(<span style="color: #3548cf;">n</span>) {
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib</span>(<span style="color: #3548cf;">n</span>) {
     <span style="color: #005e8b; font-weight: bold;">if</span> (n &lt;= 1) {
         <span style="color: #005e8b; font-weight: bold;">return</span> n
     } <span style="color: #005e8b; font-weight: bold;">else</span> {
@@ -355,20 +318,19 @@ function.
 }
 
 console.log(fib(5))
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 5
 </pre>
 
-
 <p>
 It becomes the following:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib_cps</span>(<span style="color: #3548cf;">n</span>, <span style="color: #3548cf;">ret</span>) {
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib_cps</span>(<span style="color: #3548cf;">n</span>, <span style="color: #3548cf;">ret</span>) {
     <span style="color: #005e8b; font-weight: bold;">if</span> (n &lt;= 1) {
         ret(n);
     } <span style="color: #005e8b; font-weight: bold;">else</span> {
@@ -383,21 +345,20 @@ It becomes the following:
 fib_cps(5, res =&gt; {
     console.log(res);
 })
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 5
 </pre>
 
-
 <p>
 Notice that instead of using <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">return</span></code>, we call a function that is
 explicitely passed as a parameter to <code class="src src-js">fib_cps</code>. Moreover, each time we
 call a function, we must act as if it will never return (it will not) and pass a
 handler (a continuation) that contains the rest of the computation. Notice that
-in the above code, after having computed the results for \( n - 1 \) and \( n -
-2 \), the results is passed to the continuation of the main call which is
+in the above code, after having computed the results for <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%2724.13774pt%27 height=%278.250585pt%27 viewBox=%27-.500002 -6.920368 24.13774 8.250585%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g2-49%27 d=%27m2.929016-6.37609c0-.239103 0-.259029-.229141-.259029c-.617684 .637609-1.494396 .637609-1.8132 .637609v.308842c.199253 0 .787049 0 1.305106-.259029v5.160648c0 .358655-.029888 .478207-.926526 .478207h-.318804v.308842c.348692-.029888 1.215442-.029888 1.613948-.029888s1.265255 0 1.613948 .029888v-.308842h-.318804c-.896638 0-.926526-.109589-.926526-.478207v-5.589041z%27/%3E%0A%3Cpath id=%27g0-0%27 d=%27m6.56538-2.291407c.169365 0 .348692 0 .348692-.199253s-.179328-.199253-.348692-.199253h-5.389788c-.169365 0-.348692 0-.348692 .199253s.179328 .199253 .348692 .199253h5.389788z%27/%3E%0A%3Cpath id=%27g1-110%27 d=%27m.876712-.587796c-.029888 .14944-.089664 .37858-.089664 .428394c0 .179328 .139477 .268991 .288917 .268991c.119552 0 .298879-.079701 .368618-.278954c.009963-.019925 .129514-.488169 .18929-.737235l.219178-.896638c.059776-.219178 .119552-.438356 .169365-.667497c.039851-.169365 .119552-.458281 .129514-.498132c.14944-.308842 .67746-1.215442 1.62391-1.215442c.448319 0 .537983 .368618 .537983 .697385c0 .617684-.488169 1.892902-.647572 2.321295c-.089664 .229141-.099626 .348692-.099626 .458281c0 .468244 .348692 .816936 .816936 .816936c.936488 0 1.305106-1.454545 1.305106-1.534247c0-.099626-.089664-.099626-.119552-.099626c-.099626 0-.099626 .029888-.14944 .179328c-.199253 .67746-.52802 1.235367-1.016189 1.235367c-.169365 0-.239103-.099626-.239103-.328767c0-.249066 .089664-.488169 .179328-.707347c.18929-.52802 .607721-1.62391 .607721-2.191781c0-.667497-.428394-1.066002-1.145704-1.066002c-.896638 0-1.384807 .637609-1.554172 .86675c-.049813-.557908-.458281-.86675-.916563-.86675s-.647572 .388543-.747198 .56787c-.159402 .33873-.298879 .926526-.298879 .966376c0 .099626 .099626 .099626 .119552 .099626c.099626 0 .109589-.009963 .169365-.229141c.169365-.707347 .368618-1.185554 .727273-1.185554c.199253 0 .308842 .129514 .308842 .458281c0 .209215-.029888 .318804-.159402 .836862l-.577833 2.30137z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page1%27%3E%0A%3Cg fill=%27currentColor%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g1-110%27/%3E%0A%3Cuse x=%278.193791%27 y=%270%27 xlink:href=%27%23g0-0%27/%3E%0A%3Cuse x=%2718.156405%27 y=%270%27 xlink:href=%27%23g2-49%27/%3E%0A%3C/g%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( n - 1 \)" style="height: 0.8116em; vertical-align: -0.1309em; display: inline-block" class="org-latex org-latex-inline" /> and <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%2724.13774pt%27 height=%278.250585pt%27 viewBox=%27-.500002 -6.920368 24.13774 8.250585%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g2-50%27 d=%27m1.265255-.767123l1.05604-1.026152c1.554172-1.374844 2.15193-1.912827 2.15193-2.909091c0-1.135741-.896638-1.932752-2.11208-1.932752c-1.125778 0-1.863014 .916563-1.863014 1.803238c0 .557908 .498132 .557908 .52802 .557908c.169365 0 .518057-.119552 .518057-.52802c0-.259029-.179328-.518057-.52802-.518057c-.079701 0-.099626 0-.129514 .009963c.229141-.647572 .767123-1.016189 1.344956-1.016189c.9066 0 1.334994 .806974 1.334994 1.62391c0 .797011-.498132 1.58406-1.046077 2.201743l-1.912827 2.132005c-.109589 .109589-.109589 .129514-.109589 .368618h3.696139l.278954-1.733499h-.249066c-.049813 .298879-.119552 .737235-.219178 .886675c-.069738 .079701-.727273 .079701-.946451 .079701h-1.793275z%27/%3E%0A%3Cpath id=%27g0-0%27 d=%27m6.56538-2.291407c.169365 0 .348692 0 .348692-.199253s-.179328-.199253-.348692-.199253h-5.389788c-.169365 0-.348692 0-.348692 .199253s.179328 .199253 .348692 .199253h5.389788z%27/%3E%0A%3Cpath id=%27g1-110%27 d=%27m.876712-.587796c-.029888 .14944-.089664 .37858-.089664 .428394c0 .179328 .139477 .268991 .288917 .268991c.119552 0 .298879-.079701 .368618-.278954c.009963-.019925 .129514-.488169 .18929-.737235l.219178-.896638c.059776-.219178 .119552-.438356 .169365-.667497c.039851-.169365 .119552-.458281 .129514-.498132c.14944-.308842 .67746-1.215442 1.62391-1.215442c.448319 0 .537983 .368618 .537983 .697385c0 .617684-.488169 1.892902-.647572 2.321295c-.089664 .229141-.099626 .348692-.099626 .458281c0 .468244 .348692 .816936 .816936 .816936c.936488 0 1.305106-1.454545 1.305106-1.534247c0-.099626-.089664-.099626-.119552-.099626c-.099626 0-.099626 .029888-.14944 .179328c-.199253 .67746-.52802 1.235367-1.016189 1.235367c-.169365 0-.239103-.099626-.239103-.328767c0-.249066 .089664-.488169 .179328-.707347c.18929-.52802 .607721-1.62391 .607721-2.191781c0-.667497-.428394-1.066002-1.145704-1.066002c-.896638 0-1.384807 .637609-1.554172 .86675c-.049813-.557908-.458281-.86675-.916563-.86675s-.647572 .388543-.747198 .56787c-.159402 .33873-.298879 .926526-.298879 .966376c0 .099626 .099626 .099626 .119552 .099626c.099626 0 .109589-.009963 .169365-.229141c.169365-.707347 .368618-1.185554 .727273-1.185554c.199253 0 .308842 .129514 .308842 .458281c0 .209215-.029888 .318804-.159402 .836862l-.577833 2.30137z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page2%27%3E%0A%3Cg fill=%27currentColor%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g1-110%27/%3E%0A%3Cuse x=%278.193791%27 y=%270%27 xlink:href=%27%23g0-0%27/%3E%0A%3Cuse x=%2718.156405%27 y=%270%27 xlink:href=%27%23g2-50%27/%3E%0A%3C/g%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( n -
+2 \)" style="height: 0.8116em; vertical-align: -0.1309em; display: inline-block" class="org-latex org-latex-inline" />, the results is passed to the continuation of the main call which is
 <code class="src src-js">ret</code>.
 </p>
 
@@ -408,44 +369,43 @@ support passing functions around.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org93f555d" class="outline-2">
-<h2 id="org93f555d"><span class="section-number-2">3.</span> Examples</h2>
+<div id="outline-container-org39fadf4" class="outline-2">
+<h2 id="org39fadf4"><span class="section-number-2">3.</span> Examples</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgd0d8c68" class="outline-3">
-<h3 id="orgd0d8c68"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
+<div id="outline-container-orgebcc599" class="outline-3">
+<h3 id="orgebcc599"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
 <div class="outline-text-3" id="text-3-1">
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">exception_handler</span> = <span style="color: #531ab6;">null</span>;
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">exception_handler</span> = <span style="color: #531ab6;">null</span>;
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">When implementing try/catch, we want to:</span>
-<span style="color: #595959; font-style: italic;">//</span>
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">1. save the current exception handler function</span>
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">2. replace the exception handler function by the one given by the user.</span>
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">3. Execute the thunk with the appropriate continuation</span>
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">4. If throw_exception was called, resume the computation through the `ret` continuation.</span>
-<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">with_exception_handler</span>(<span style="color: #3548cf;">thunk</span>, <span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">save the current exception handler</span>
-    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">old_exception_handler</span> = exception_handler;
+<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">When implementing try/catch, we want to:
+</span><span style="color: #595959; font-style: italic;">//</span><span style="color: #595959; font-style: italic;">
+</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">1. save the current exception handler function
+</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">2. replace the exception handler function by the one given by the user.
+</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">3. Execute the thunk with the appropriate continuation
+</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">4. If throw_exception was called, resume the computation through the `ret` continuation.
+</span><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">with_exception_handler</span>(<span style="color: #3548cf;">thunk</span>, <span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">save the current exception handler
+</span>    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">old_exception_handler</span> = exception_handler;
     exception_handler = (exn) =&gt; {
-        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Reinstall the old exception handler</span>
-        exception_handler = old_exception_handler;
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Reinstall the old exception handler
+</span>        exception_handler = old_exception_handler;
         handler(exn, ret);
     };
     thunk((thunk_retval) =&gt; {
-        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Reinstall the old exception handler</span>
-        exception_handler = old_exception_handler;
-        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">and continue the execution through the main continuation</span>
-        ret(thunk_retval);
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Reinstall the old exception handler
+</span>        exception_handler = old_exception_handler;
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">and continue the execution through the main continuation
+</span>        ret(thunk_retval);
     })
 }
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Notice that contrary to every function in CPS, this one doesn't</span>
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">have a "continuation" parameter.</span>
-<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">throw_exception</span>(<span style="color: #3548cf;">value</span>) {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Inside, we just call the exception handler.</span>
-    exception_handler(value);
+<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Notice that contrary to every function in CPS, this one doesn't
+</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">have a "continuation" parameter.
+</span><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">throw_exception</span>(<span style="color: #3548cf;">value</span>) {
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Inside, we just call the exception handler.
+</span>    exception_handler(value);
 }
 
 
@@ -468,14 +428,14 @@ with_exception_handler(
     },
     (exn, ret) =&gt; {
         console.log(<span style="color: #a0132f;">"got an exception:"</span>, exn);
-        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We return null to signal it didn't work.</span>
-        ret(<span style="color: #531ab6;">null</span>)
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We return null to signal it didn't work.
+</span>        ret(<span style="color: #531ab6;">null</span>)
     },
     (result) =&gt; {
         console.log(<span style="color: #a0132f;">"got result:"</span>, result);
     }
 )
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -484,15 +444,14 @@ got result: null
 </pre>
 </div>
 </div>
-
-<div id="outline-container-org05cdccc" class="outline-3">
-<h3 id="org05cdccc"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
+<div id="outline-container-org9915dcb" class="outline-3">
+<h3 id="org9915dcb"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
 <div class="outline-text-3" id="text-3-2">
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">callcc</span>(<span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">callcc</span>(<span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
     handler(ret, ret)
 }
-</pre>
+</code></pre>
 </div>
 
 
@@ -506,9 +465,8 @@ everything in CPS!</b>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgbfa0bb7" class="outline-2">
-<h2 id="orgbfa0bb7"><span class="section-number-2">4.</span> <code class="src src-scheme">call/cc</code> in scheme</h2>
+<div id="outline-container-org142aba9" class="outline-2">
+<h2 id="org142aba9"><span class="section-number-2">4.</span> <code class="src src-scheme">call/cc</code> in scheme</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 The way <code class="src src-scheme">call/cc</code> works is that it gives as an argument to the thunk
@@ -517,7 +475,7 @@ works in scheme.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span>
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span>
   (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (ret)
              (display <span style="color: #a0132f;">"one\n"</span>)
              (display <span style="color: #a0132f;">"two\n"</span>)
@@ -526,7 +484,7 @@ works in scheme.
              (display <span style="color: #a0132f;">"four\n"</span>))))
 
 (format #t <span style="color: #a0132f;">"value is ~a\n"</span> value)
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -535,16 +493,14 @@ two
 value is 12345
 </pre>
 
-
 <p>
 Using this primitive, it is possible to do pretty much everything that was
 doable in CPS, but without having to actually write CPS code (and endure a
 thousand levels of nesting).
 </p>
 </div>
-
-<div id="outline-container-org870cd5f" class="outline-3">
-<h3 id="org870cd5f"><span class="section-number-3">4.1.</span> Note</h3>
+<div id="outline-container-org293e21b" class="outline-3">
+<h3 id="org293e21b"><span class="section-number-3">4.1.</span> Note</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 It might be very confusing at first, (because up until now, our use of
@@ -554,7 +510,7 @@ things.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">kont</span>
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">kont</span>
   (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (k) k)))
 
 (display <span style="color: #a0132f;">"exited call/cc block\n"</span>)
@@ -564,7 +520,7 @@ things.
       (display <span style="color: #a0132f;">"hello\n"</span>)
       (kont 123))
     (format #t <span style="color: #a0132f;">"the value: ~a\n"</span> kont))
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -575,9 +531,8 @@ the value: 123
 </pre>
 </div>
 </div>
-
-<div id="outline-container-org7404f43" class="outline-3">
-<h3 id="org7404f43"><span class="section-number-3">4.2.</span> Problems with <code class="src src-scheme">call/cc</code></h3>
+<div id="outline-container-orgb90fb3e" class="outline-3">
+<h3 id="orgb90fb3e"><span class="section-number-3">4.2.</span> Problems with <code class="src src-scheme">call/cc</code></h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 The <code class="src src-scheme">call/cc</code> operator, however has flaws. Systems written using this
@@ -588,10 +543,8 @@ continuations are called delimited.
 </div>
 </div>
 </div>
-
-
-<div id="outline-container-org71b563d" class="outline-2">
-<h2 id="org71b563d"><span class="section-number-2">5.</span> Delimited continuations</h2>
+<div id="outline-container-org6de5f59" class="outline-2">
+<h2 id="org6de5f59"><span class="section-number-2">5.</span> Delimited continuations</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Delimited continuations are continuations that end with a value, their
@@ -603,9 +556,8 @@ and <code class="src src-scheme">abort-to-prompt</code> scheme operators.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org41ddb65" class="outline-2">
-<h2 id="org41ddb65"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
+<div id="outline-container-org67cb98a" class="outline-2">
+<h2 id="org67cb98a"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
 <div class="outline-text-2" id="text-6">
 <p>
 In <a href="https://www.gnu.org/software/guile/">Guile Scheme</a>, delimited continuations are created through two procedures.
@@ -619,19 +571,19 @@ location at which continuation will <b>start</b>.</dd>
 </dl>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
 
 (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
   (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
     (<span style="color: #005e8b; font-weight: bold;">let</span> ((x 12345))
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...</span>
-      (<span style="color: #005e8b; font-weight: bold;">let</span> ((y (+ x (abort-to-prompt tag))))
-        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...</span>
-        y)))
+      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...
+</span>      (<span style="color: #005e8b; font-weight: bold;">let</span> ((y (+ x (abort-to-prompt tag))))
+        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...
+</span>        y)))
   (<span style="color: #005e8b; font-weight: bold;">lambda</span> (kont)
-    <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...</span>
-    ))
-</pre>
+    <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...
+</span>    ))
+</code></pre>
 </div>
 
 <p>
@@ -647,7 +599,7 @@ called. To better understand how it works, here is an example:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme" id="org4b986b8">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
+<pre class="src src-scheme" id="org4a1ed5a"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">cont</span>
   (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
     (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
@@ -660,7 +612,7 @@ called. To better understand how it works, here is an example:
 
 (display (cont 1)) (newline)
 (display (cont 3)) (newline)
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -674,7 +626,6 @@ got value: "some-value"
 8
 </pre>
 
-
 <p>
 At first glance, we can see that, contrary to continuations captured by
 <code class="src src-scheme">call/cc</code>(which act kind of like value-carrying <code>goto</code> s), these
@@ -686,9 +637,8 @@ captures the continuation starting from the innermost
 </p>
 </div>
 </div>
-
-<div id="outline-container-org2a1cc39" class="outline-2">
-<h2 id="org2a1cc39"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
+<div id="outline-container-orgf9cf118" class="outline-2">
+<h2 id="orgf9cf118"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 Now that we understand better the concept of continuation, let's use it to
@@ -700,17 +650,17 @@ One familiar with promises will know that writing this
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">async</span> <span style="color: #005e8b; font-weight: bold;">function</span> do_something() {
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">async</span> <span style="color: #005e8b; font-weight: bold;">function</span> do_something() {
 
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code before the await</span>
-
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code before the await
+</span>
     <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">x</span> = <span style="color: #005e8b; font-weight: bold;">await</span> returns_promise();
 
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code after the await</span>
-
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code after the await
+</span>
     <span style="color: #005e8b; font-weight: bold;">return</span> y;
 }
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -718,17 +668,17 @@ is equivalent to writing that:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">do_something</span>() {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code before the await</span>
-
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">do_something</span>() {
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code before the await
+</span>
     returns_promise().then(x =&gt; {
 
-        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code after the await</span>
-
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Some code after the await
+</span>
         <span style="color: #005e8b; font-weight: bold;">return</span> y;
     })
 }
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -745,9 +695,8 @@ Let's use this technique to implement nondeterministic computation.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org3e6766a" class="outline-2">
-<h2 id="org3e6766a"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
+<div id="outline-container-org285e105" class="outline-2">
+<h2 id="org285e105"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
 <div class="outline-text-2" id="text-8">
 <p>
 One way of modeling nondeterministic computation is through lists. Each time we
@@ -761,12 +710,12 @@ Scheme, it looks like this:
 </p>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 1: </span>For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.</label><pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">.then</span> l func)
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">.then</span> l func)
   (apply append (<span style="color: #005e8b; font-weight: bold;">map</span> func l)))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">pure</span> x)
   (list x))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -774,19 +723,19 @@ Actually implementing the syntax is slightly more tricky.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">prompt-tag</span> (make-prompt-tag))
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">prompt-tag</span> (make-prompt-tag))
 
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Awaiting a value (choosing a value among nondeterministic choices)</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">is simple, just abort to the nearest handler and give the list.</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">await</span> mval)
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Awaiting a value (choosing a value among nondeterministic choices)
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">is simple, just abort to the nearest handler and give the list.
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">await</span> mval)
   (abort-to-prompt prompt-tag
                    mval))
 
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">When the continuation is to be threaded using nondeterministic</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">value (a list of things), we use .then on the continuation while</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">making sure we re-delimit the end of the continuation using another</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">async block.</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">async</span> thunk)
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">When the continuation is to be threaded using nondeterministic
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">value (a list of things), we use .then on the continuation while
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">making sure we re-delimit the end of the continuation using another
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">async block.
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">async</span> thunk)
   (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> prompt-tag
     thunk
     (<span style="color: #005e8b; font-weight: bold;">lambda</span> (cont value)
@@ -794,7 +743,7 @@ Actually implementing the syntax is slightly more tricky.
                    (async
                     (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
                       (cont v))))))))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -804,7 +753,7 @@ letter and fruit.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 pretty-print))
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 pretty-print))
 
 (pretty-print
  (async
@@ -813,11 +762,11 @@ letter and fruit.
           (letter (await '(a b c)))
           (fruit (await '(<span style="color: #a0132f;">"apple"</span> <span style="color: #a0132f;">"orange"</span> <span style="color: #a0132f;">"banana"</span>))))
       (pure (list num letter fruit))))))
-</pre>
+</code></pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-scheme">((1 a <span style="color: #a0132f;">"apple"</span>)
+<pre class="src src-scheme"><code>((1 a <span style="color: #a0132f;">"apple"</span>)
  (1 a <span style="color: #a0132f;">"orange"</span>)
  (1 a <span style="color: #a0132f;">"banana"</span>)
  (1 b <span style="color: #a0132f;">"apple"</span>)
@@ -844,7 +793,7 @@ letter and fruit.
  (3 c <span style="color: #a0132f;">"apple"</span>)
  (3 c <span style="color: #a0132f;">"orange"</span>)
  (3 c <span style="color: #a0132f;">"banana"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -862,7 +811,7 @@ have seen, continuation passing style) and other effects.
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-26 Sun 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

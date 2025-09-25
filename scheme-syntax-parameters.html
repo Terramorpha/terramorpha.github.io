@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Guile scheme's syntax parameters</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,22 +194,18 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Guile scheme's syntax parameters</h1>
 <p>
 One of the distinguishing features of the scheme programming language, when it
 was created in 1975, was its use of lexical scoping, which departed from the
 tradition of dynamic scoping of other lisps at the time.
 </p>
-
-<div id="outline-container-org718b0cb" class="outline-2">
-<h2 id="org718b0cb"><span class="section-number-2">1.</span> Dynamic vs lexical scope</h2>
+<div id="outline-container-orge323f18" class="outline-2">
+<h2 id="orge323f18"><span class="section-number-2">1.</span> Dynamic vs lexical scope</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Since the release of scheme 50 years ago, lexical scoping has become the way (as
@@ -225,9 +221,9 @@ it is not bound in the parameter list.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #005e8b; font-weight: bold;">setq</span> c <span style="color: #a0132f;">"something"</span>)
+<pre class="src src-emacs-lisp"><code>(<span style="color: #005e8b; font-weight: bold;">setq</span> c <span style="color: #a0132f;">"something"</span>)
 (<span style="color: #005e8b; font-weight: bold;">setq</span> func (<span style="color: #005e8b; font-weight: bold;">lambda</span> (a b) c))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -242,13 +238,13 @@ For instance, if the following code is executed in dynamic binding:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="org12af123">(<span style="color: #005e8b; font-weight: bold;">setq</span> x <span style="color: #a0132f;">"initial-value"</span>)
+<pre class="src src-emacs-lisp" id="orgefded8f"><code>(<span style="color: #005e8b; font-weight: bold;">setq</span> x <span style="color: #a0132f;">"initial-value"</span>)
 
 (<span style="color: #005e8b; font-weight: bold;">let</span> ((some-function
        (<span style="color: #005e8b; font-weight: bold;">let</span> ((x <span style="color: #a0132f;">"modified-value"</span>))
          (<span style="color: #005e8b; font-weight: bold;">lambda</span> () x))))
   (message <span style="color: #a0132f;">"the value is %s"</span> (funcall some-function)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -259,7 +255,6 @@ We get
 the value is initial-value
 </pre>
 
-
 <p>
 But if it is executed in lexical binding, we get
 </p>
@@ -269,9 +264,8 @@ the value is modified-value
 </pre>
 </div>
 </div>
-
-<div id="outline-container-org756b5fa" class="outline-2">
-<h2 id="org756b5fa"><span class="section-number-2">2.</span> Scheme dynamic parameters</h2>
+<div id="outline-container-org46e5ebc" class="outline-2">
+<h2 id="org46e5ebc"><span class="section-number-2">2.</span> Scheme dynamic parameters</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Even if history has decided lexical scope is a generally better paradigm, there
@@ -282,11 +276,11 @@ activated for some specific part of the program.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #3548cf;">old_verbose</span> = VERBOSE
+<pre class="src src-python"><code><span style="color: #3548cf;">old_verbose</span> = VERBOSE
 <span style="color: #3548cf;">VERBOSE</span> = <span style="color: #531ab6;">True</span>
 do_something()
 <span style="color: #3548cf;">VERBOSE</span> = old_verbose
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -296,13 +290,13 @@ would want is actually:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #3548cf;">old_verbose</span> = VERBOSE
+<pre class="src src-python"><code><span style="color: #3548cf;">old_verbose</span> = VERBOSE
 <span style="color: #3548cf;">VERBOSE</span> = <span style="color: #531ab6;">True</span>
 <span style="color: #005e8b; font-weight: bold;">try</span>:
     do_something()
 <span style="color: #005e8b; font-weight: bold;">finally</span>:
     <span style="color: #3548cf;">VERBOSE</span> = old_verbose
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -310,7 +304,7 @@ Scheme's parameters (constructed with <code class="src src-scheme">make-paramete
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">verbose</span> (make-parameter #f))
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">verbose</span> (make-parameter #f))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">do-something</span>)
   (<span style="color: #005e8b; font-weight: bold;">when</span> (verbose)
@@ -323,7 +317,7 @@ Scheme's parameters (constructed with <code class="src src-scheme">make-paramete
 
 (format #t <span style="color: #a0132f;">"b:\n"</span>)
 (do-something)
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -331,7 +325,6 @@ a:
 verbose mode on
 b:
 </pre>
-
 
 <p>
 Parameters let us control explicitly where we want dynamic scope. They use
@@ -341,9 +334,8 @@ things such as the default text encoding or the default output port.
 </p>
 </div>
 </div>
-
-<div id="outline-container-orgdb811a4" class="outline-2">
-<h2 id="orgdb811a4"><span class="section-number-2">3.</span> lexical scope as hygiene</h2>
+<div id="outline-container-org3b3fbd4" class="outline-2">
+<h2 id="org3b3fbd4"><span class="section-number-2">3.</span> lexical scope as hygiene</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 One way to conceptualise lexical scope is to think of it as hygiene for
@@ -353,7 +345,7 @@ object system using only these closures:
 </p>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 1: </span>When implementing an object system using closures, the object is its own method dispatch and its state is its closure</label><pre class="src src-scheme" id="org38aebb0">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 match))
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>When implementing an object system using closures, the object is its own method dispatch and its state is its closure</label><pre class="src src-scheme" id="orgd69841b"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 match))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">make-person</span> name age)
   (<span style="color: #005e8b; font-weight: bold;">lambda</span> msg
@@ -374,7 +366,7 @@ object system using only these closures:
 (me 'say-hello)
 (me 'set-name <span style="color: #a0132f;">"John"</span>)
 (me 'say-hello)
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -387,9 +379,8 @@ my name is John and I am 12 years old
 </pre>
 </div>
 </div>
-
-<div id="outline-container-org5a89a91" class="outline-2">
-<h2 id="org5a89a91"><span class="section-number-2">4.</span> Scheme hygienic macros</h2>
+<div id="outline-container-org11747af" class="outline-2">
+<h2 id="org11747af"><span class="section-number-2">4.</span> Scheme hygienic macros</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Another thing scheme pioneered was the use of hygienic macros for
@@ -398,7 +389,7 @@ by binding created during macro expansion.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">
+<pre class="src src-scheme"><code>
 (<span style="color: #005e8b; font-weight: bold;">define-syntax-rule</span> (<span style="color: #8f0075;">bind-x</span> body)
   (<span style="color: #005e8b; font-weight: bold;">let</span> ((x 42))
     body))
@@ -406,37 +397,35 @@ by binding created during macro expansion.
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">x</span> 0)
 
 (bind-x (+ x 1))
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 1
 </pre>
 
-
 <p>
 Here, if there were no hygiene, this is what the last part would expand to:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">x</span> 0)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">x</span> 0)
 
 (bind-x (+ x 1))
-</pre>
+</code></pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">x</span> 0)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">x</span> 0)
 
 (<span style="color: #005e8b; font-weight: bold;">let</span> ((x 42))
   (+ x 1))
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org46a6e4e" class="outline-2">
-<h2 id="org46a6e4e"><span class="section-number-2">5.</span> Syntax parameters</h2>
+<div id="outline-container-org564c9d8" class="outline-2">
+<h2 id="org564c9d8"><span class="section-number-2">5.</span> Syntax parameters</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Syntactic parameters act a bit like normal parameters, but exist during macro
@@ -447,25 +436,25 @@ definition of a pre-existing macro for a limited time.
 
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define-syntax-parameter</span> return
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define-syntax-parameter</span> return
   (<span style="color: #005e8b; font-weight: bold;">lambda</span> (s)
     (syntax-violation 'return <span style="color: #a0132f;">"return used outside `with-return`"</span> s)))
 
 (return 123)
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 ice-9/boot-9.scm:1685:16: In procedure raise-exception:
 Syntax error:
-unknown file:14:0: return: return used outside `with-return` in form (return 123)
+unknown file:12:0: return: return used outside `with-return` in form (return 123)
 
 Entering a new prompt.  Type `,bt' for a backtrace or `,q' to continue.
+scheme@(guile-user) [1]&gt; 
 </pre>
 
-
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define-syntax-parameter</span> return
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define-syntax-parameter</span> return
   (<span style="color: #005e8b; font-weight: bold;">lambda</span> (s)
     (syntax-violation 'return <span style="color: #a0132f;">"return used outside `with-return`"</span> s)))
 
@@ -484,13 +473,12 @@ Entering a new prompt.  Type `,bt' for a backtrace or `,q' to continue.
    789))
 
 (format #t <span style="color: #a0132f;">"val: ~a\n"</span> val)
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 val: 456
 </pre>
-
 
 <p>
 Guile scheme's syntax parameters let you create macros that modify the behaviour
@@ -505,7 +493,7 @@ runtime.
 <div id="postamble" class="status">
 <p class="date">Date: 2024-07-21 Sun 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

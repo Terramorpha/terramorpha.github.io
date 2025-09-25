@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:12 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Type level programming in julia</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,19 +194,16 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Type level programming in julia</h1>
 <p>
 For a machine learning project, I needed a way to easily turn a big row from a
 <code class="src src-julia">DataFrame</code> into a <code class="src src-julia">Float64</code> vector. The columns of the
 dataset contained everything from categorical data to ordinal data (with lots of
-<code class="src src-julia"><span style="color: #531ab6;">missing</span></code>'s). Writing an encoder manually would have been long and
+<code class="src src-julia"><span style="color: #531ab6;">missing</span></code>&rsquo;s). Writing an encoder manually would have been long and
 tedious. Here is what I wanted to do instead:
 </p>
 
@@ -216,9 +213,8 @@ floats</li>
 <li>Given a type, generate a decoding function from a vector of floats to that
 type.</li>
 </ol>
-
-<div id="outline-container-orgcfd2ecc" class="outline-2">
-<h2 id="orgcfd2ecc"><span class="section-number-2">1.</span> Interface</h2>
+<div id="outline-container-org782915e" class="outline-2">
+<h2 id="org782915e"><span class="section-number-2">1.</span> Interface</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Doing programming at the type level is easy, since types are first class values
@@ -226,40 +222,39 @@ in julia. Here is what the api of what we want to build looks like:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">abstract type</span> <span style="color: #531ab6; font-weight: bold;">Encodable</span> <span style="color: #005e8b; font-weight: bold;">end</span>
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">abstract type</span> <span style="color: #531ab6; font-weight: bold;">Encodable</span> <span style="color: #005e8b; font-weight: bold;">end</span>
 <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(t::<span style="color: #531ab6; font-weight: bold;">Type</span>{A}) <span style="color: #005e8b; font-weight: bold;">where</span> {A &lt;: <span style="color: #531ab6; font-weight: bold;">Encodable</span>}
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">...</span>
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">...</span>
-    encodefunc, decodefunc, sizeofencoding
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">...
+</span>    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">...
+</span>    encodefunc, decodefunc, sizeofencoding
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 
 <p>
 The <code class="src src-julia">encodefunc</code> turns a value of our type into a <b>constant size</b> vector
 of floats. The <code class="src src-julia">decodefunc</code> reverses that transformation. The
 <code class="src src-julia">sizeofencoding</code> output is useful for methods that work on parametric
-types as we will see later. Now, Let's write implementations for concrete types.
+types as we will see later. Now, Let&rsquo;s write implementations for concrete types.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org58659cd" class="outline-2">
-<h2 id="org58659cd"><span class="section-number-2">2.</span> Concrete types</h2>
+<div id="outline-container-org37d64bd" class="outline-2">
+<h2 id="org37d64bd"><span class="section-number-2">2.</span> Concrete types</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The encoding functions for primitive types are easy to write, as they do not
-require much more knowledge about Julia's type system than simple
+require much more knowledge about Julia&rsquo;s type system than simple
 <code class="src src-julia">::<span style="color: #531ab6; font-weight: bold;">Type</span>{Thing}</code> dispatching.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Float64})
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Float64})
     <span style="color: #8f0075;">encode</span>(f) = [f]
     <span style="color: #8f0075;">decode</span>(v) = v[1]
     encode, decode, 1
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 
 
@@ -268,23 +263,22 @@ Here, <code class="src src-julia">Type{Float64}</code> is the type of <code clas
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #721045; font-weight: bold;">@show</span> Float64 isa Type{Float64}
-</pre>
+<pre class="src src-julia"><code><span style="color: #721045; font-weight: bold;">@show</span> Float64 isa Type{Float64}
+</code></pre>
 </div>
 
 <pre class="example">
 Float64 isa Type{Float64} = true
 </pre>
 
-
 <p>
-Let's see if it works
+Let&rsquo;s see if it works
 </p>
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #721045; font-weight: bold;">@show</span> en, de, s = encdecsize(Float64)
+<pre class="src src-julia"><code><span style="color: #721045; font-weight: bold;">@show</span> en, de, s = encdecsize(Float64)
 <span style="color: #721045; font-weight: bold;">@show</span> encoded = en(1.0)
 <span style="color: #721045; font-weight: bold;">@show</span> decoded = de(encoded)
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -293,19 +287,18 @@ encoded = en(1.0) = [1.0]
 decoded = de(encoded) = 1.0
 </pre>
 
-
 <p>
 Here, the size of the encoding of a <code class="src src-julia">Missing</code> is zero, since a value of
 such a type contains zero information. It is always <code class="src src-julia"><span style="color: #531ab6;">missing</span></code>!
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Missing})
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Missing})
     <span style="color: #8f0075;">encode</span>(v) = Float64[]
     <span style="color: #8f0075;">decode</span>(v) = <span style="color: #531ab6;">missing</span>
     encode, decode, 0
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -315,27 +308,25 @@ want to give the closest result, so we compare with 0.5.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Bool})
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{Bool})
     <span style="color: #8f0075;">encode</span>(v) = [1.0*v]
     <span style="color: #8f0075;">decode</span>(v) = v[1] &gt; 0.5
     encode, decode, 1
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org1904007" class="outline-2">
-<h2 id="org1904007"><span class="section-number-2">3.</span> Composite types</h2>
+<div id="outline-container-org9bfeb3c" class="outline-2">
+<h2 id="org9bfeb3c"><span class="section-number-2">3.</span> Composite types</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Most types we use daily are not simple primitive types: they are composite.
 Think tuples and unions. We need a way to encode values of these types too.
 </p>
 </div>
-
-<div id="outline-container-org67a0033" class="outline-3">
-<h3 id="org67a0033"><span class="section-number-3">3.1.</span> Tuples</h3>
+<div id="outline-container-orgc3b7452" class="outline-3">
+<h3 id="orgc3b7452"><span class="section-number-3">3.1.</span> Tuples</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Since a tuple contains multiple types of values, we need to know how to encode
@@ -347,14 +338,14 @@ each encoded component.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{T}) <span style="color: #005e8b; font-weight: bold;">where</span> {T &lt;: <span style="color: #531ab6; font-weight: bold;">Tuple</span>}
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(::<span style="color: #531ab6; font-weight: bold;">Type</span>{T}) <span style="color: #005e8b; font-weight: bold;">where</span> {T &lt;: <span style="color: #531ab6; font-weight: bold;">Tuple</span>}
     encs = []
     decs = []
     sizes = Int[]
     
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We collect encoding functions, decoding functions and encoding</span>
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">sizes for each component type.</span>
-    <span style="color: #005e8b; font-weight: bold;">for</span> t <span style="color: #005e8b; font-weight: bold;">in</span> T.types
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We collect encoding functions, decoding functions and encoding
+</span>    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">sizes for each component type.
+</span>    <span style="color: #005e8b; font-weight: bold;">for</span> t <span style="color: #005e8b; font-weight: bold;">in</span> T.types
         enc, dec, s = encdecsize(t)
         push!(encs, enc)
         push!(decs, dec)
@@ -363,8 +354,8 @@ each encoded component.
 
     <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encode</span>(tuple::<span style="color: #531ab6; font-weight: bold;">T</span>)
         out = Float64[]
-        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We concatenate the encoded components.</span>
-        <span style="color: #005e8b; font-weight: bold;">for</span> (i, elem) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(tuple)
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We concatenate the encoded components.
+</span>        <span style="color: #005e8b; font-weight: bold;">for</span> (i, elem) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(tuple)
             out = vcat(out, encs[i](elem))
         <span style="color: #005e8b; font-weight: bold;">end</span>
         out
@@ -373,40 +364,38 @@ each encoded component.
         start = 1
         out = []
         <span style="color: #005e8b; font-weight: bold;">for</span> (i, s) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(sizes)
-            <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">each time we decode a component, we must "consume" the</span>
-            <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">associated part of the vector</span>
-            push!(out, decs[i](v[start:start+s-1]))
+            <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">each time we decode a component, we must "consume" the
+</span>            <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">associated part of the vector
+</span>            push!(out, decs[i](v[start:start+s-1]))
             start += s
         <span style="color: #005e8b; font-weight: bold;">end</span>
-        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">we turn back the Vector of Any into a tuple</span>
-        (out...,)
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">we turn back the Vector of Any into a tuple
+</span>        (out...,)
     <span style="color: #005e8b; font-weight: bold;">end</span>
     encode, decode, sum(sizes)
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-
-<div id="outline-container-org20e68d1" class="outline-3">
-<h3 id="org20e68d1"><span class="section-number-3">3.2.</span> Union</h3>
+<div id="outline-container-org642ff13" class="outline-3">
+<h3 id="org642ff13"><span class="section-number-3">3.2.</span> Union</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-This part was the most time-consuming, as I had to wrestle with Julia's method
-dispatch system to get it to recognise "union of exactly two types, none of
-which is the empty union". I discovered that the type of a "Union type"
+This part was the most time-consuming, as I had to wrestle with Julia&rsquo;s method
+dispatch system to get it to recognise &ldquo;union of exactly two types, none of
+which is the empty union&rdquo;. I discovered that the type of a &ldquo;Union type&rdquo;
 is <code class="src src-julia">Union</code> itself. Nice!
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #721045; font-weight: bold;">@show</span> Union{Float32, Bool} isa Union
-</pre>
+<pre class="src src-julia"><code><span style="color: #721045; font-weight: bold;">@show</span> Union{Float32, Bool} isa Union
+</code></pre>
 </div>
 
 <pre class="example">
 true
 </pre>
-
 
 <p>
 The most complicated part of this function is the correct treatment of the <b>tag</b>
@@ -420,10 +409,10 @@ function is of equal length.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">pad</span>(v, len)
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">pad</span>(v, len)
     vcat(v, zeros(max(0, len - length(v))))
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -431,7 +420,7 @@ Then, we need a way to encode(and decode) the type of the value itself.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">binenc</span>(n, len)
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">binenc</span>(n, len)
     [1.0 * (n&gt;&gt;i &amp; 1)
 
      <span style="color: #005e8b; font-weight: bold;">for</span> i <span style="color: #005e8b; font-weight: bold;">in</span> 0:len-1]
@@ -440,7 +429,7 @@ Then, we need a way to encode(and decode) the type of the value itself.
     sum(v[i+1] * 2^i
         <span style="color: #005e8b; font-weight: bold;">for</span> i <span style="color: #005e8b; font-weight: bold;">in</span> 0:length(v)-1)
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -448,9 +437,9 @@ Finally, we need a way to collect every leaf in a tree of <code class="src src-j
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #8f0075;">gettypes</span>(u::<span style="color: #531ab6; font-weight: bold;">Type</span>) = [u]
+<pre class="src src-julia"><code><span style="color: #8f0075;">gettypes</span>(u::<span style="color: #531ab6; font-weight: bold;">Type</span>) = [u]
 <span style="color: #8f0075;">gettypes</span>(u::<span style="color: #531ab6; font-weight: bold;">Union</span>) = [u.a;gettypes(u.b)]
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -458,14 +447,14 @@ Here is the code:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(un::<span style="color: #531ab6; font-weight: bold;">Union</span>)
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encdecsize</span>(un::<span style="color: #531ab6; font-weight: bold;">Union</span>)
     encs = []
     decs = []
     sizes = Int[]
     types = gettypes(un)
 
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">As before, we collect enc, dec and size of each subtype.</span>
-    <span style="color: #005e8b; font-weight: bold;">for</span> t <span style="color: #005e8b; font-weight: bold;">in</span> types
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">As before, we collect enc, dec and size of each subtype.
+</span>    <span style="color: #005e8b; font-weight: bold;">for</span> t <span style="color: #005e8b; font-weight: bold;">in</span> types
         enc, dec, s = encdecsize(t)
         push!(encs, enc)
         push!(decs, dec)
@@ -474,18 +463,18 @@ Here is the code:
 
     n = length(types)
 
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">The tag must contain enough "bits" to encode every variant.</span>
-    tagsize = Int(ceil(log(2, n)))
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">The tag must contain enough "bits" to encode every variant.
+</span>    tagsize = Int(ceil(log(2, n)))
 
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">Apart from the tag, we must be able to encode the biggest</span>
-    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">variant.</span>
-    innersize = maximum(sizes)
+    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">Apart from the tag, we must be able to encode the biggest
+</span>    <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">variant.
+</span>    innersize = maximum(sizes)
 
     <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">encode</span>(v)
         <span style="color: #005e8b; font-weight: bold;">for</span> (i, t) <span style="color: #005e8b; font-weight: bold;">in</span> enumerate(types)
             <span style="color: #005e8b; font-weight: bold;">if</span> v isa t
-                <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We write the tag, then the padded encoded value.</span>
-                <span style="color: #005e8b; font-weight: bold;">return</span> vcat(
+                <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We write the tag, then the padded encoded value.
+</span>                <span style="color: #005e8b; font-weight: bold;">return</span> vcat(
                     binenc(i-1, tagsize),
                     pad(encs[i](v), innersize),
                 )
@@ -495,28 +484,27 @@ Here is the code:
 
     <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">decode</span>(v)
         tag = v[1:tagsize]
-        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We calculate the tag, then retrieve the correct decoding</span>
-        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">function.</span>
-        dectag = bindec(tag) |&gt; round |&gt; Int
+        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">We calculate the tag, then retrieve the correct decoding
+</span>        <span style="color: #595959; font-style: italic;"># </span><span style="color: #595959; font-style: italic;">function.
+</span>        dectag = bindec(tag) |&gt; round |&gt; Int
         d = decs[dectag+1](v[tagsize+1:tagsize+sizes[dectag+1]])
     <span style="color: #005e8b; font-weight: bold;">end</span>
     encode, decode, tagsize+innersize
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgd8e627a" class="outline-2">
-<h2 id="orgd8e627a"><span class="section-number-2">4.</span> Wrapping up</h2>
+<div id="outline-container-orgb425433" class="outline-2">
+<h2 id="orgb425433"><span class="section-number-2">4.</span> Wrapping up</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-Here, let's test our code on semi-complex tuples:
+Here, let&rsquo;s test our code on semi-complex tuples:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-julia"><span style="color: #005e8b; font-weight: bold;">let</span>
+<pre class="src src-julia"><code><span style="color: #005e8b; font-weight: bold;">let</span>
     vec = Tuple{Float64, Bool, Union{Missing, Float64}}[
         (1.0, <span style="color: #531ab6;">false</span>, <span style="color: #531ab6;">missing</span>),
         (2.0, <span style="color: #531ab6;">true</span>, 15.0),
@@ -529,7 +517,7 @@ Here, let's test our code on semi-complex tuples:
         <span style="color: #721045; font-weight: bold;">@show</span> decoded = de(encoded)
     <span style="color: #005e8b; font-weight: bold;">end</span>
 <span style="color: #005e8b; font-weight: bold;">end</span>
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
@@ -545,7 +533,7 @@ decoded = de(encoded) = (2.0, true, 13.0)
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:12</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

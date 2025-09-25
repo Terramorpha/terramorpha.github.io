@@ -1,7 +1,0 @@
-:PROPERTIES:
-:ID:       599dc2f4-3a61-4dc0-9c5d-3428e7da6883
-:CREATED:  2024-05-17T16:50:56
-:END:
-#+title: Blog test page
-#+KEYWORDS: test thing truc
-#+html_link_home: /

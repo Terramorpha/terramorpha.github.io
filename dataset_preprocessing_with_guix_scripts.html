@@ -3,13 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2024-09-16 Mon 22:57 -->
+<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dataset preprocessing with Guix scripts</title>
 <meta name="author" content="Justin Veilleux" />
 <meta name="generator" content="Org Mode" />
-<style>
+<style type="text/css">
   #content { max-width: 60em; margin: auto; }
   .title  { text-align: center;
              margin-bottom: .2em; }
@@ -58,7 +58,7 @@
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
   pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
+  pre.src-C\+\+:before { content: 'C++'; }
   pre.src-clojure:before { content: 'Clojure'; }
   pre.src-css:before { content: 'CSS'; }
   pre.src-D:before { content: 'D'; }
@@ -71,7 +71,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -194,13 +194,10 @@
   .org-svg { }
 </style>
 <link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
-<div id="org-div-home-and-up">
- <a accesskey="h" href=""> UP </a>
- |
- <a accesskey="H" href="/"> HOME </a>
-</div><div id="content" class="content">
+<div id="content" class="content">
 <h1 class="title">Dataset preprocessing with Guix scripts</h1>
 <p>
 <a href="https://guix.gnu.org/">Guix</a> and <a href="https://nixos.org/">Nix</a> are both package managers that live within the purely functional
@@ -208,9 +205,8 @@ package management paradigm that Eelco Dolstra pioneered. While they share the
 same idea and function in a very similar way, some differences make their
 day-to-day use quite different.
 </p>
-
-<div id="outline-container-orgcab4ed7" class="outline-2">
-<h2 id="orgcab4ed7"><span class="section-number-2">1.</span> Licensing and reproducibility standpoint</h2>
+<div id="outline-container-org4b62dfd" class="outline-2">
+<h2 id="org4b62dfd"><span class="section-number-2">1.</span> Licensing and reproducibility standpoint</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Guix is a GNU project and respect the <a href="https://www.gnu.org/distros/free-system-distribution-guidelines.html">Free System Distribution Guidelines
@@ -225,9 +221,8 @@ prebuilt binaries when the compilation process is too complicated.
 </p>
 </div>
 </div>
-
-<div id="outline-container-orgc73a706" class="outline-2">
-<h2 id="orgc73a706"><span class="section-number-2">2.</span> Package declaration language</h2>
+<div id="outline-container-orgf573d83" class="outline-2">
+<h2 id="orgf573d83"><span class="section-number-2">2.</span> Package declaration language</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Packages definitions in Nix are written in a special Domain specific language.
@@ -237,7 +232,7 @@ command line utilities) are written in <a href="https://www.gnu.org/software/gui
 </p>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 1: </span>The gnu hello package in Guix</label><pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define-public</span> <span style="color: #8f0075;">hello</span>
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>The gnu hello package in Guix</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define-public</span> <span style="color: #8f0075;">hello</span>
   (package
     (name <span style="color: #a0132f;">"hello"</span>)
     (version <span style="color: #a0132f;">"2.12.1"</span>)
@@ -251,16 +246,16 @@ command line utilities) are written in <a href="https://www.gnu.org/software/gui
     (build-system gnu-build-system)
     (synopsis <span style="color: #a0132f;">"Hello, GNU world: An example GNU package"</span>)
     (description
-     <span style="color: #a0132f;">"GNU Hello prints the message \"Hello, world!\" and then exits.  It</span>
-<span style="color: #a0132f;">serves as an example of standard GNU coding practices.  As such, it supports</span>
-<span style="color: #a0132f;">command-line arguments, multiple languages, and so on."</span>)
+     <span style="color: #a0132f;">"GNU Hello prints the message \"Hello, world!\" and then exits.  It
+serves as an example of standard GNU coding practices.  As such, it supports
+command-line arguments, multiple languages, and so on."</span>)
     (home-page <span style="color: #a0132f;">"https://www.gnu.org/software/hello/"</span>)
     (license gpl3+)))
-</pre>
+</code></pre>
 </div>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 2: </span>The same package, but in nixpkgs</label><pre class="src src-nix">stdenv.mkDerivation (finalAttrs: {
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>The same package, but in nixpkgs</label><pre class="src src-nix"><code>stdenv.mkDerivation (finalAttrs: {
   <span style="color: #3548cf;">pname</span> = <span style="color: #a0132f;">"hello"</span>;
   <span style="color: #3548cf;">version</span> = <span style="color: #a0132f;">"2.12.1"</span>;
 
@@ -285,10 +280,10 @@ command line utilities) are written in <a href="https://www.gnu.org/software/gui
 
   <span style="color: #3548cf;">meta</span> = <span style="color: #005e8b; font-weight: bold;">with</span> lib; {
     <span style="color: #3548cf;">description</span> = <span style="color: #a0132f;">"A program that produces a familiar, friendly greeting"</span>;
-    <span style="color: #3548cf;">longDescription</span> = <span style="color: #a0132f;">''</span>
-<span style="color: #a0132f;">      GNU Hello is a program that prints "Hello, world!" when you run it.</span>
-<span style="color: #a0132f;">      It is fully customizable.</span>
-<span style="color: #a0132f;">    ''</span>;
+    <span style="color: #3548cf;">longDescription</span> = <span style="color: #a0132f;">''
+      GNU Hello is a program that prints "Hello, world!" when you run it.
+      It is fully customizable.
+    ''</span>;
     <span style="color: #3548cf;">homepage</span> = <span style="color: #a0132f;">"https://www.gnu.org/software/hello/manual/"</span>;
     <span style="color: #3548cf;">changelog</span> = <span style="color: #a0132f;">"https://git.savannah.gnu.org/cgit/hello.git/plain/NEWS?h=v</span><span style="color: #005f5f;">${</span>finalAttrs.version<span style="color: #005f5f;">}</span>";
     <span style="color: #3548cf;">license</span> = licenses.gpl3Plus;
@@ -297,7 +292,7 @@ command line utilities) are written in <a href="https://www.gnu.org/software/gui
     <span style="color: #3548cf;">platforms</span> = platforms.all;
   };
 })
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -309,9 +304,8 @@ very exotic ways! As tool for distributed data processing, for instance.
 </p>
 </div>
 </div>
-
-<div id="outline-container-orgfc006fc" class="outline-2">
-<h2 id="orgfc006fc"><span class="section-number-2">3.</span> The problem</h2>
+<div id="outline-container-org42d417c" class="outline-2">
+<h2 id="org42d417c"><span class="section-number-2">3.</span> The problem</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 I want to develop a policy that will optimize HVAC system's energy consumption.
@@ -339,9 +333,8 @@ easier.
 </p>
 </div>
 </div>
-
-<div id="outline-container-orga6556a5" class="outline-2">
-<h2 id="orga6556a5"><span class="section-number-2">4.</span> G expressions</h2>
+<div id="outline-container-org7341e11" class="outline-2">
+<h2 id="org7341e11"><span class="section-number-2">4.</span> G expressions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Most of the languages in the LISP family are homoiconic. This means that the
@@ -352,7 +345,7 @@ semantic) redundancies. One way of doing metaprogramming is <code>quasiquote</co
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">filename</span> <span style="color: #a0132f;">"/gnu/store..."</span>)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">filename</span> <span style="color: #a0132f;">"/gnu/store..."</span>)
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">version</span> <span style="color: #a0132f;">"12.3.4"</span>)
 
 (write
@@ -360,13 +353,12 @@ semantic) redundancies. One way of doing metaprogramming is <code>quasiquote</co
   (<span style="color: #005e8b; font-weight: bold;">begin</span>
     (copy-file (unquote filename) <span style="color: #a0132f;">"./"</span>)
     (display (unquote version)) (newline))))
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
 (begin (copy-file "/gnu/store..." "./") (display "12.3.4") (newline))
 </pre>
-
 
 <p>
 <code>(quasiquote ...)</code> (or its abbreviation <code>`(...)</code>) lets the user have a human
@@ -382,7 +374,7 @@ solution to this problem is G-expressions
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
+<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
              (gnu packages base))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">some-constant</span> <span style="color: #a0132f;">"12345..."</span>)
@@ -397,13 +389,12 @@ solution to this problem is G-expressions
          (display (ungexp some-constant)) (newline))))))
 
 (write exp)
-</pre>
+</code></pre>
 </div>
 
 <pre class="example">
-#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.1 gnu/packages/base.scm:94 7f506d2fa370&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f507e3ca900&gt;
+#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.2 gnu/packages/base.scm:100 7f12c46f0630&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f12c3ef0120&gt;
 </pre>
-
 
 <p>
 G-expressions (see <a href="#citeproc_bib_item_1">[1]</a>) are a way to construct pieces of syntax
@@ -417,9 +408,8 @@ order) of the dependencies.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org90d612e" class="outline-2">
-<h2 id="org90d612e"><span class="section-number-2">5.</span> File-like objects</h2>
+<div id="outline-container-orgbb8d412" class="outline-2">
+<h2 id="orgbb8d412"><span class="section-number-2">5.</span> File-like objects</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 How do we generate build side code (from the client side) acting on files that
@@ -434,27 +424,26 @@ object containing the upgraded version of every idf file in our dataset.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org169500e" class="outline-2">
-<h2 id="org169500e"><span class="section-number-2">6.</span> Guix script</h2>
+<div id="outline-container-org03ea5bf" class="outline-2">
+<h2 id="org03ea5bf"><span class="section-number-2">6.</span> Guix script</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Here is what the code to do the multiple version updates look like.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme">#!/usr/bin/env -S guix build -f
+<pre class="src src-scheme"><code>#!/usr/bin/env -S guix build -f
 !#
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The shebang lets us execute it after having `chmod +x`-ed it.</span>
-
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The shebang lets us execute it after having `chmod +x`-ed it.
+</span>
 (<span style="color: #005e8b; font-weight: bold;">use-modules</span>
- (srfi srfi-1)                          <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">List utilities</span>
- (guix gexp)                            <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">For `gexp`, `local-file` and more.</span>
- (guix build utils)                     <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">find-files</span>
- (terramorpha packages energyplus))     <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">For the energyplus package itself</span>
-
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The whole chain of updates we need to go through</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">versions</span>
+ (srfi srfi-1)                          <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">List utilities
+</span> (guix gexp)                            <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">For `gexp`, `local-file` and more.
+</span> (guix build utils)                     <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">find-files
+</span> (terramorpha packages energyplus))     <span style="color: #595959; font-style: italic;">; </span><span style="color: #595959; font-style: italic;">For the energyplus package itself
+</span>
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The whole chain of updates we need to go through
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">versions</span>
   '(<span style="color: #a0132f;">"9.5.0"</span>
     <span style="color: #a0132f;">"9.6.0"</span>
     <span style="color: #a0132f;">"22.1.0"</span>
@@ -462,7 +451,7 @@ Here is what the code to do the multiple version updates look like.
     <span style="color: #a0132f;">"23.1.0"</span>
     <span style="color: #a0132f;">"23.2.0"</span>
     <span style="color: #a0132f;">"24.1.0"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -472,44 +461,44 @@ builds the file for the target version.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">A single update step. </span>
-(<span style="color: #005e8b; font-weight: bold;">define*</span> (<span style="color: #8f0075;">update-version</span> file <span style="color: #721045; font-weight: bold;">#:key</span> from to)
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Turns a version name in 1.2.3 format into its 1-2-3 format.</span>
-  (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">turn-version</span> v)
+<pre class="src src-scheme"><code><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">A single update step. 
+</span>(<span style="color: #005e8b; font-weight: bold;">define*</span> (<span style="color: #8f0075;">update-version</span> file <span style="color: #721045; font-weight: bold;">#:key</span> from to)
+  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Turns a version name in 1.2.3 format into its 1-2-3 format.
+</span>  (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">turn-version</span> v)
     (string-map (<span style="color: #005e8b; font-weight: bold;">lambda</span> (c) (<span style="color: #005e8b; font-weight: bold;">if</span> (eq? c #\.)
                            #\-
                            c))
                 v))
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The idd file that describes the source version format</span>
-  (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">fromidd</span> (string-append <span style="color: #a0132f;">"V"</span> (turn-version from) <span style="color: #a0132f;">"-Energy+.idd"</span>))
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The idd file that describes the source version format</span>
-  (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">toidd</span> (string-append <span style="color: #a0132f;">"V"</span> (turn-version to) <span style="color: #a0132f;">"-Energy+.idd"</span>))
+  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The idd file that describes the source version format
+</span>  (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">fromidd</span> (string-append <span style="color: #a0132f;">"V"</span> (turn-version from) <span style="color: #a0132f;">"-Energy+.idd"</span>))
+  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The idd file that describes the source version format
+</span>  (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">toidd</span> (string-append <span style="color: #a0132f;">"V"</span> (turn-version to) <span style="color: #a0132f;">"-Energy+.idd"</span>))
   #~(<span style="color: #005e8b; font-weight: bold;">begin</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">On the build side, we first have to copy the format</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">specifiers for both versions in the working directory.</span>
-      (copy-file (string-append #$energyplus <span style="color: #a0132f;">"/PreProcess/IDFVersionUpdater/"</span> #$fromidd)
+      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">On the build side, we first have to copy the format
+</span>      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">specifiers for both versions in the working directory.
+</span>      (copy-file (string-append #$energyplus <span style="color: #a0132f;">"/PreProcess/IDFVersionUpdater/"</span> #$fromidd)
                  #$fromidd)
       (copy-file (string-append #$energyplus <span style="color: #a0132f;">"/PreProcess/IDFVersionUpdater/"</span> #$toidd)
                  #$toidd)
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We also have to copy the file to convert in the working</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">directory.</span>
-      (copy-file #$file <span style="color: #a0132f;">"./file.idf"</span>)
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Then, we run the appropriate binary (named like</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Transition-V1.2.3-to-V1.2.4) on the input file</span>
-      (system* (string-append
+      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We also have to copy the file to convert in the working
+</span>      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">directory.
+</span>      (copy-file #$file <span style="color: #a0132f;">"./file.idf"</span>)
+      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Then, we run the appropriate binary (named like
+</span>      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Transition-V1.2.3-to-V1.2.4) on the input file
+</span>      (system* (string-append
                 #$energyplus
                 <span style="color: #a0132f;">"/PreProcess/IDFVersionUpdater/Transition-V"</span>
                 #$(turn-version from)
                 <span style="color: #a0132f;">"-to-V"</span>
                 #$(turn-version to))
                <span style="color: #a0132f;">"./file.idf"</span>)
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Finally, we copy the output file to the output path. Here,</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">#$output is a special variable pointing to the output path of</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">the current build procedure. It is similar to the $@ variable</span>
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">in makefiles.</span>
-      (copy-file <span style="color: #a0132f;">"./file.idfnew"</span>
+      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">Finally, we copy the output file to the output path. Here,
+</span>      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">#$output is a special variable pointing to the output path of
+</span>      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">the current build procedure. It is similar to the $@ variable
+</span>      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">in makefiles.
+</span>      (copy-file <span style="color: #a0132f;">"./file.idfnew"</span>
                  #$output)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -521,59 +510,59 @@ that.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-scheme"><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">update-all-the-way takes a file name (from the client side) and</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">returns a file like object that, when built, will give the fully</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">updated idf file.</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">update-all-the-way</span> filename)
+<pre class="src src-scheme"><code><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">update-all-the-way takes a file name (from the client side) and
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">returns a file like object that, when built, will give the fully
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">updated idf file.
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">update-all-the-way</span> filename)
   (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">name</span> (basename filename))
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">if we had version 1, 2, and 3, transitions would contain</span>
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">transition procedures of the form (1 -&gt; 2, 2 -&gt; 3) where each</span>
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">arrow takes a file like object pointing to an idf file from a</span>
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">version and returns a file like object pointing to an idf file</span>
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">from the next version.</span>
-  (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">transitions</span> (<span style="color: #005e8b; font-weight: bold;">map</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (from to)
+  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">if we had version 1, 2, and 3, transitions would contain
+</span>  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">transition procedures of the form (1 -&gt; 2, 2 -&gt; 3) where each
+</span>  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">arrow takes a file like object pointing to an idf file from a
+</span>  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">version and returns a file like object pointing to an idf file
+</span>  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">from the next version.
+</span>  (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">transitions</span> (<span style="color: #005e8b; font-weight: bold;">map</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (from to)
                              (<span style="color: #005e8b; font-weight: bold;">lambda</span> (file)
                                (computed-file (string-append (car (string-split name #\.)) <span style="color: #a0132f;">"-"</span> to <span style="color: #a0132f;">".idf"</span>)
                                               (update-version file
                                                               <span style="color: #721045; font-weight: bold;">#:from</span> from
                                                               <span style="color: #721045; font-weight: bold;">#:to</span> to)
-                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">This argument is</span>
-                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">important to allow</span>
-                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">guix to execute it on</span>
-                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">remote machines.</span>
-                                              <span style="color: #721045; font-weight: bold;">#:local-build?</span> #f)))
+                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">This argument is
+</span>                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">important to allow
+</span>                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">guix to execute it on
+</span>                                              <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">remote machines.
+</span>                                              <span style="color: #721045; font-weight: bold;">#:local-build?</span> #f)))
 
                            (list-head versions (1- (length versions)))
                            (cdr versions)))
 
-  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We apply each transition procedure one after the other.</span>
-  (fold (<span style="color: #005e8b; font-weight: bold;">lambda</span> (updater file) (updater file))
-        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">local-file is important to take a file on the client</span>
-        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">file-system and turn it into a file-like object that will</span>
-        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">be accessible on the build side.</span>
-        (local-file filename) transitions))
+  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We apply each transition procedure one after the other.
+</span>  (fold (<span style="color: #005e8b; font-weight: bold;">lambda</span> (updater file) (updater file))
+        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">local-file is important to take a file on the client
+</span>        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">file-system and turn it into a file-like object that will
+</span>        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">be accessible on the build side.
+</span>        (local-file filename) transitions))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">prof</span>
   (getenv <span style="color: #a0132f;">"GUIX_LOAD_PROFILE"</span>))
 
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We list every idf file in our dataset.</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">all-idf-files</span>
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We list every idf file in our dataset.
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">all-idf-files</span>
   (find-files (string-append prof <span style="color: #a0132f;">"/share/energyplus/buildings/"</span>) <span style="color: #a0132f;">".*\\.idf"</span>))
 
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">For each of these files, we create a file-like object for their</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">upgraded version.</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">all-the-updated-files</span>
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">For each of these files, we create a file-like object for their
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">upgraded version.
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">all-the-updated-files</span>
   (<span style="color: #005e8b; font-weight: bold;">map</span> update-all-the-way all-idf-files))
 
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">In the last file-like object, we assemble every artifact into a</span>
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">common directory.</span>
-(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">new-dataset</span>
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">In the last file-like object, we assemble every artifact into a
+</span><span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">common directory.
+</span>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">new-dataset</span>
   (computed-file
    <span style="color: #a0132f;">"energyplus-dataset-family-1a-24.1.0"</span>
-   <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">with-imported-modules lets us add scheme libraries to be made</span>
-   <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">available on the build side. (guix build utils) provides the</span>
-   <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">`install-file` procedure.</span>
-   (with-imported-modules
+   <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">with-imported-modules lets us add scheme libraries to be made
+</span>   <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">available on the build side. (guix build utils) provides the
+</span>   <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">`install-file` procedure.
+</span>   (with-imported-modules
     '((guix build utils))
     #~(<span style="color: #005e8b; font-weight: bold;">begin</span>
         (<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix build utils))
@@ -583,9 +572,9 @@ that.
         '#$all-the-updated-files))
    <span style="color: #721045; font-weight: bold;">#:local-build?</span> #f))
 
-<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We end the program with an expression so that the file can be executed with `guix build -f`</span>
-new-dataset
-</pre>
+<span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">We end the program with an expression so that the file can be executed with `guix build -f`
+</span>new-dataset
+</code></pre>
 </div>
 
 <p>
@@ -594,9 +583,8 @@ encounter 3000 independent jobs containing about 6 steps each.
 </p>
 </div>
 </div>
-
-<div id="outline-container-org4a5e8af" class="outline-2">
-<h2 id="org4a5e8af"><span class="section-number-2">7.</span> Offloading</h2>
+<div id="outline-container-org3965652" class="outline-2">
+<h2 id="org3965652"><span class="section-number-2">7.</span> Offloading</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 If you have set up offloading, the guix daemon will automatically dispatch each
@@ -610,9 +598,8 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 </p>
 </div>
 </div>
-
-<div id="outline-container-org650226f" class="outline-2">
-<h2 id="org650226f"><span class="section-number-2">8.</span> References</h2>
+<div id="outline-container-orge0d1a11" class="outline-2">
+<h2 id="orge0d1a11"><span class="section-number-2">8.</span> References</h2>
 <div class="outline-text-2" id="text-8">
 <style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
@@ -626,7 +613,7 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-17 Fri 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2024-09-16 Mon 22:57</p>
+<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
