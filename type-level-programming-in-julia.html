@@ -3,7 +3,6 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-09-25 Thu 18:12 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Type level programming in julia</title>
@@ -193,7 +192,51 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
-<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+}
+</style><link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -213,8 +256,8 @@ floats</li>
 <li>Given a type, generate a decoding function from a vector of floats to that
 type.</li>
 </ol>
-<div id="outline-container-org782915e" class="outline-2">
-<h2 id="org782915e"><span class="section-number-2">1.</span> Interface</h2>
+<div id="outline-container-org7b7f2ad" class="outline-2">
+<h2 id="org7b7f2ad"><span class="section-number-2">1.</span> Interface</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Doing programming at the type level is easy, since types are first class values
@@ -239,8 +282,8 @@ types as we will see later. Now, Let&rsquo;s write implementations for concrete 
 </p>
 </div>
 </div>
-<div id="outline-container-org37d64bd" class="outline-2">
-<h2 id="org37d64bd"><span class="section-number-2">2.</span> Concrete types</h2>
+<div id="outline-container-org8e003cc" class="outline-2">
+<h2 id="org8e003cc"><span class="section-number-2">2.</span> Concrete types</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The encoding functions for primitive types are easy to write, as they do not
@@ -282,7 +325,7 @@ Let&rsquo;s see if it works
 </div>
 
 <pre class="example">
-(en, de, s) = encdecsize(Float64) = (var"#encode#30"(), var"#decode#31"(), 1)
+(en, de, s) = encdecsize(Float64) = (var"#encode#encdecsize##0"(), var"#decode#encdecsize##1"(), 1)
 encoded = en(1.0) = [1.0]
 decoded = de(encoded) = 1.0
 </pre>
@@ -317,16 +360,16 @@ want to give the closest result, so we compare with 0.5.
 </div>
 </div>
 </div>
-<div id="outline-container-org9bfeb3c" class="outline-2">
-<h2 id="org9bfeb3c"><span class="section-number-2">3.</span> Composite types</h2>
+<div id="outline-container-org9e605b4" class="outline-2">
+<h2 id="org9e605b4"><span class="section-number-2">3.</span> Composite types</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Most types we use daily are not simple primitive types: they are composite.
 Think tuples and unions. We need a way to encode values of these types too.
 </p>
 </div>
-<div id="outline-container-orgc3b7452" class="outline-3">
-<h3 id="orgc3b7452"><span class="section-number-3">3.1.</span> Tuples</h3>
+<div id="outline-container-orgeca547f" class="outline-3">
+<h3 id="orgeca547f"><span class="section-number-3">3.1.</span> Tuples</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Since a tuple contains multiple types of values, we need to know how to encode
@@ -378,8 +421,8 @@ each encoded component.
 </div>
 </div>
 </div>
-<div id="outline-container-org642ff13" class="outline-3">
-<h3 id="org642ff13"><span class="section-number-3">3.2.</span> Union</h3>
+<div id="outline-container-orgdff6221" class="outline-3">
+<h3 id="orgdff6221"><span class="section-number-3">3.2.</span> Union</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 This part was the most time-consuming, as I had to wrestle with Julia&rsquo;s method
@@ -496,8 +539,8 @@ Here is the code:
 </div>
 </div>
 </div>
-<div id="outline-container-orgb425433" class="outline-2">
-<h2 id="orgb425433"><span class="section-number-2">4.</span> Wrapping up</h2>
+<div id="outline-container-orgab112b1" class="outline-2">
+<h2 id="orgab112b1"><span class="section-number-2">4.</span> Wrapping up</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Here, let&rsquo;s test our code on semi-complex tuples:
@@ -533,7 +576,6 @@ decoded = de(encoded) = (2.0, true, 13.0)
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:12</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

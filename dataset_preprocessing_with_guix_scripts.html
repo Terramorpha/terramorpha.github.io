@@ -3,7 +3,6 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dataset preprocessing with Guix scripts</title>
@@ -193,7 +192,51 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
-<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+}
+</style><link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -205,8 +248,8 @@ package management paradigm that Eelco Dolstra pioneered. While they share the
 same idea and function in a very similar way, some differences make their
 day-to-day use quite different.
 </p>
-<div id="outline-container-org4b62dfd" class="outline-2">
-<h2 id="org4b62dfd"><span class="section-number-2">1.</span> Licensing and reproducibility standpoint</h2>
+<div id="outline-container-org8125f8b" class="outline-2">
+<h2 id="org8125f8b"><span class="section-number-2">1.</span> Licensing and reproducibility standpoint</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Guix is a GNU project and respect the <a href="https://www.gnu.org/distros/free-system-distribution-guidelines.html">Free System Distribution Guidelines
@@ -221,8 +264,8 @@ prebuilt binaries when the compilation process is too complicated.
 </p>
 </div>
 </div>
-<div id="outline-container-orgf573d83" class="outline-2">
-<h2 id="orgf573d83"><span class="section-number-2">2.</span> Package declaration language</h2>
+<div id="outline-container-orge652968" class="outline-2">
+<h2 id="orge652968"><span class="section-number-2">2.</span> Package declaration language</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Packages definitions in Nix are written in a special Domain specific language.
@@ -304,8 +347,8 @@ very exotic ways! As tool for distributed data processing, for instance.
 </p>
 </div>
 </div>
-<div id="outline-container-org42d417c" class="outline-2">
-<h2 id="org42d417c"><span class="section-number-2">3.</span> The problem</h2>
+<div id="outline-container-org273a2c2" class="outline-2">
+<h2 id="org273a2c2"><span class="section-number-2">3.</span> The problem</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 I want to develop a policy that will optimize HVAC system's energy consumption.
@@ -333,8 +376,8 @@ easier.
 </p>
 </div>
 </div>
-<div id="outline-container-org7341e11" class="outline-2">
-<h2 id="org7341e11"><span class="section-number-2">4.</span> G expressions</h2>
+<div id="outline-container-orgb86824a" class="outline-2">
+<h2 id="orgb86824a"><span class="section-number-2">4.</span> G expressions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Most of the languages in the LISP family are homoiconic. This means that the
@@ -393,7 +436,7 @@ solution to this problem is G-expressions
 </div>
 
 <pre class="example">
-#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.2 gnu/packages/base.scm:100 7f12c46f0630&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f12c3ef0120&gt;
+#&lt;gexp (begin (system* (string-append #&lt;gexp-input #&lt;package hello@2.12.2 gnu/packages/base.scm:100 7f1df39b8a50&gt;:out&gt; "/bin/hello")) (with-output-to-file #&lt;gexp-output out&gt; (lambda () (display "contents") (newline) (display #&lt;gexp-input "12345...":out&gt;) (newline)))) 7f1df2116780&gt;
 </pre>
 
 <p>
@@ -408,8 +451,8 @@ order) of the dependencies.
 </p>
 </div>
 </div>
-<div id="outline-container-orgbb8d412" class="outline-2">
-<h2 id="orgbb8d412"><span class="section-number-2">5.</span> File-like objects</h2>
+<div id="outline-container-orgbff0d80" class="outline-2">
+<h2 id="orgbff0d80"><span class="section-number-2">5.</span> File-like objects</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 How do we generate build side code (from the client side) acting on files that
@@ -424,8 +467,8 @@ object containing the upgraded version of every idf file in our dataset.
 </p>
 </div>
 </div>
-<div id="outline-container-org03ea5bf" class="outline-2">
-<h2 id="org03ea5bf"><span class="section-number-2">6.</span> Guix script</h2>
+<div id="outline-container-org9cd11e4" class="outline-2">
+<h2 id="org9cd11e4"><span class="section-number-2">6.</span> Guix script</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Here is what the code to do the multiple version updates look like.
@@ -581,10 +624,16 @@ that.
 When the Guix build daemon tries to build the <code>new-dataset</code> object, it will
 encounter 3000 independent jobs containing about 6 steps each.
 </p>
+
+
+<div id="org3493d9a" class="figure">
+<p><img src="./assets/guix-gexp-parallel.png" alt="guix-gexp-parallel.png" />
+</p>
 </div>
 </div>
-<div id="outline-container-org3965652" class="outline-2">
-<h2 id="org3965652"><span class="section-number-2">7.</span> Offloading</h2>
+</div>
+<div id="outline-container-org6d8de1f" class="outline-2">
+<h2 id="org6d8de1f"><span class="section-number-2">7.</span> Offloading</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 If you have set up offloading, the guix daemon will automatically dispatch each
@@ -598,8 +647,8 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 </p>
 </div>
 </div>
-<div id="outline-container-orge0d1a11" class="outline-2">
-<h2 id="orge0d1a11"><span class="section-number-2">8.</span> References</h2>
+<div id="outline-container-org59d3667" class="outline-2">
+<h2 id="org59d3667"><span class="section-number-2">8.</span> References</h2>
 <div class="outline-text-2" id="text-8">
 <style>.csl-left-margin{float: left; padding-right: 0em;}
  .csl-right-inline{margin: 0 0 0 1em;}</style><div class="csl-bib-body">
@@ -613,7 +662,6 @@ scientific computing world which gave birth to the <a href="https://guixwl.org/"
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-17 Fri 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

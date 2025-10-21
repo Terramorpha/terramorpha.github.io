@@ -3,7 +3,6 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Guile scheme's syntax parameters</title>
@@ -193,7 +192,51 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
-<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+}
+</style><link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -204,8 +247,8 @@ One of the distinguishing features of the scheme programming language, when it
 was created in 1975, was its use of lexical scoping, which departed from the
 tradition of dynamic scoping of other lisps at the time.
 </p>
-<div id="outline-container-orge323f18" class="outline-2">
-<h2 id="orge323f18"><span class="section-number-2">1.</span> Dynamic vs lexical scope</h2>
+<div id="outline-container-orgeb338c0" class="outline-2">
+<h2 id="orgeb338c0"><span class="section-number-2">1.</span> Dynamic vs lexical scope</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Since the release of scheme 50 years ago, lexical scoping has become the way (as
@@ -238,7 +281,7 @@ For instance, if the following code is executed in dynamic binding:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="orgefded8f"><code>(<span style="color: #005e8b; font-weight: bold;">setq</span> x <span style="color: #a0132f;">"initial-value"</span>)
+<pre class="src src-emacs-lisp" id="org035c2fb"><code>(<span style="color: #005e8b; font-weight: bold;">setq</span> x <span style="color: #a0132f;">"initial-value"</span>)
 
 (<span style="color: #005e8b; font-weight: bold;">let</span> ((some-function
        (<span style="color: #005e8b; font-weight: bold;">let</span> ((x <span style="color: #a0132f;">"modified-value"</span>))
@@ -264,8 +307,8 @@ the value is modified-value
 </pre>
 </div>
 </div>
-<div id="outline-container-org46e5ebc" class="outline-2">
-<h2 id="org46e5ebc"><span class="section-number-2">2.</span> Scheme dynamic parameters</h2>
+<div id="outline-container-orgb9bafc1" class="outline-2">
+<h2 id="orgb9bafc1"><span class="section-number-2">2.</span> Scheme dynamic parameters</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Even if history has decided lexical scope is a generally better paradigm, there
@@ -334,8 +377,8 @@ things such as the default text encoding or the default output port.
 </p>
 </div>
 </div>
-<div id="outline-container-org3b3fbd4" class="outline-2">
-<h2 id="org3b3fbd4"><span class="section-number-2">3.</span> lexical scope as hygiene</h2>
+<div id="outline-container-orga610774" class="outline-2">
+<h2 id="orga610774"><span class="section-number-2">3.</span> lexical scope as hygiene</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 One way to conceptualise lexical scope is to think of it as hygiene for
@@ -345,7 +388,7 @@ object system using only these closures:
 </p>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 1: </span>When implementing an object system using closures, the object is its own method dispatch and its state is its closure</label><pre class="src src-scheme" id="orgd69841b"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 match))
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>When implementing an object system using closures, the object is its own method dispatch and its state is its closure</label><pre class="src src-scheme" id="org389db71"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (ice-9 match))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">make-person</span> name age)
   (<span style="color: #005e8b; font-weight: bold;">lambda</span> msg
@@ -379,8 +422,8 @@ my name is John and I am 12 years old
 </pre>
 </div>
 </div>
-<div id="outline-container-org11747af" class="outline-2">
-<h2 id="org11747af"><span class="section-number-2">4.</span> Scheme hygienic macros</h2>
+<div id="outline-container-org8d3cd94" class="outline-2">
+<h2 id="org8d3cd94"><span class="section-number-2">4.</span> Scheme hygienic macros</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Another thing scheme pioneered was the use of hygienic macros for
@@ -424,8 +467,8 @@ Here, if there were no hygiene, this is what the last part would expand to:
 </div>
 </div>
 </div>
-<div id="outline-container-org564c9d8" class="outline-2">
-<h2 id="org564c9d8"><span class="section-number-2">5.</span> Syntax parameters</h2>
+<div id="outline-container-org6493334" class="outline-2">
+<h2 id="org6493334"><span class="section-number-2">5.</span> Syntax parameters</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Syntactic parameters act a bit like normal parameters, but exist during macro
@@ -493,7 +536,6 @@ runtime.
 <div id="postamble" class="status">
 <p class="date">Date: 2024-07-21 Sun 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

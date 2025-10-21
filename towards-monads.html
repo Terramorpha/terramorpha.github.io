@@ -3,7 +3,6 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Towards monads</title>
@@ -193,7 +192,51 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
-<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+}
+</style><link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -209,7 +252,11 @@ write: <a href="https://wiki.haskell.org/All_About_Monads">https://wiki.haskell.
 
 <p>
 Monads are a very useful concept/design pattern in functional programming that
-has unfortunately attained <i>meme status</i> partly because of the following phrase<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>:
+has unfortunately attained <i>meme status</i> partly because of the following phrase<span class="sidenote-ref"
+    onclick="this.nextElementSibling.classList.toggle('active')">1</span><span
+    class="sidenote"><sup>1</sup>
+<a href="http://james-iry.blogspot.com/2009/05/brief-incomplete-and-mostly-wrong.html">http://james-iry.blogspot.com/2009/05/brief-incomplete-and-mostly-wrong.html</a>
+</span>:
 </p>
 
 <blockquote>
@@ -224,8 +271,8 @@ bad. Monads are much easier the understand when viewed as the common abstraction
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">State</span> s</code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">IO</span></code>,
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span> o</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span> o</code>.
 </p>
-<div id="outline-container-orgedbf16c" class="outline-2">
-<h2 id="orgedbf16c"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
+<div id="outline-container-orgceb6c9f" class="outline-2">
+<h2 id="orgceb6c9f"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code> type is a good place to start. This is the type we use
@@ -299,7 +346,13 @@ part. Let's rewrite our program using these functions.
 
 <p>
 This is more pleasing to the eye, but still slightly confusing. You could
-imagine what happens to the nesting when we do many operations.<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
+imagine what happens to the nesting when we do many operations.<span class="sidenote-ref"
+    onclick="this.nextElementSibling.classList.toggle('active')">2</span><span
+    class="sidenote"><sup>2</sup>
+For those who use javascript Promises, <code class="src src-haskell">bind</code> is essentially
+the same thing as <code class="src src-js">.then(x =&gt; ...)</code> for promises. If you know the solution
+to the nesting problem, you won't be surprised by what comes next.
+</span>
 </p>
 
 <p>
@@ -343,8 +396,8 @@ becomes
 </div>
 </div>
 </div>
-<div id="outline-container-orgd8ef158" class="outline-2">
-<h2 id="orgd8ef158"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
+<div id="outline-container-org6a0612e" class="outline-2">
+<h2 id="org6a0612e"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Whereas <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span> a</code> means "potentially an <code class="src src-haskell">a</code>",
@@ -370,8 +423,8 @@ The semantics is similar to <code class="src src-haskell"><span style="color: #5
 </p>
 </div>
 </div>
-<div id="outline-container-org375d5f3" class="outline-2">
-<h2 id="org375d5f3"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
+<div id="outline-container-org91c5f79" class="outline-2">
+<h2 id="org91c5f79"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
 <div class="outline-text-2" id="text-3">
 <p>
 One might wonder why it would be useful to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> as a monad.
@@ -426,8 +479,8 @@ prog
 </pre>
 </div>
 </div>
-<div id="outline-container-orgc020250" class="outline-2">
-<h2 id="orgc020250"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
+<div id="outline-container-org163fb8e" class="outline-2">
+<h2 id="org163fb8e"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Let's say you want to do logging. In an imperative language, you would use
@@ -449,8 +502,8 @@ you do.
 </div>
 </div>
 </div>
-<div id="outline-container-orgbce913d" class="outline-2">
-<h2 id="orgbce913d"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
+<div id="outline-container-org3546c3a" class="outline-2">
+<h2 id="org3546c3a"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
 <div class="outline-text-2" id="text-5">
 <p>
 This time, you want to propagate "global variables" though your whole program,
@@ -477,7 +530,6 @@ to the nesting problem, you won't be surprised by what comes next.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

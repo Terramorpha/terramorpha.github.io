@@ -3,7 +3,6 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
 <head>
-<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>I got Agda code export to work for my blog</title>
@@ -193,7 +192,51 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
-<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+}
+</style><link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -225,7 +268,6 @@ proofs.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

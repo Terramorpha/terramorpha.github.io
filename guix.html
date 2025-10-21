@@ -3,7 +3,6 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Guix: elevate your computing</title>
@@ -193,14 +192,58 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   .org-svg { }
 </style>
-<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style>
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+}
+</style><link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
 <div id="content" class="content">
 <h1 class="title">Guix: elevate your computing</h1>
-<div id="outline-container-org7974ea2" class="outline-2">
-<h2 id="org7974ea2"><span class="section-number-2">1.</span> Why Guix?</h2>
+<div id="outline-container-org01eae40" class="outline-2">
+<h2 id="org01eae40"><span class="section-number-2">1.</span> Why Guix?</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Guix, which is a package manager similar to <a href="https://nixos.org/">Nix</a>, takes a different approach to
@@ -212,8 +255,8 @@ algorithms and of a rich set of types through which users can express packages.
 </p>
 </div>
 </div>
-<div id="outline-container-org7517aaa" class="outline-2">
-<h2 id="org7517aaa"><span class="section-number-2">2.</span> A crash course on creating a package</h2>
+<div id="outline-container-org66e2d9c" class="outline-2">
+<h2 id="org66e2d9c"><span class="section-number-2">2.</span> A crash course on creating a package</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Let&rsquo;s say you, a user of Guix, want to use a specific piece of software which is
@@ -275,7 +318,7 @@ programming language. You can see where the package is defined by using the
 </code></pre>
 </div>
 
-<pre class="example" id="orgc7571fd">
+<pre class="example" id="org4b94f4f">
 name: hello
 version: 2.12.2
 outputs:
@@ -330,7 +373,7 @@ how one is supposed to actually use that package we are writing.
 
 <p>
 To instruct guix to build a package, we use the command.
-If we give it a package name, as in <code>/gnu/store/k0pin1y1r0vdkdbg3lwjqc52hpwjbdyb-hello-2.12.2</code>, it will find
+If we give it a package name, as in <code>/gnu/store/cs56i9digj9qg1bd383cmxc6xrfpdn9n-hello-2.12.2</code>, it will find
 hello in our <code>GUIX_PACKAGE_PATH</code> environment variable and if it doesn&rsquo;t find it,
 in the <code>(guix packages ...)</code> modules.
 </p>
@@ -698,8 +741,8 @@ package.scm</code>. You can also put the file in a directory pointed to by
 </p>
 </div>
 </div>
-<div id="outline-container-org5e51457" class="outline-2">
-<h2 id="org5e51457"><span class="section-number-2">3.</span> Home directory configuration with Guix home</h2>
+<div id="outline-container-orgfb25dd0" class="outline-2">
+<h2 id="orgfb25dd0"><span class="section-number-2">3.</span> Home directory configuration with Guix home</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Some time ago, I decided to ease the transition and the configuration of all my
@@ -731,8 +774,8 @@ zsh-autosuggestions or direnv. However, combined with g-expressions and the
 power of the store, magic happens.
 </p>
 </div>
-<div id="outline-container-orgbcba947" class="outline-3">
-<h3 id="orgbcba947"><span class="section-number-3">3.1.</span> reproductible and hermetic xsession script</h3>
+<div id="outline-container-orgd0ab075" class="outline-3">
+<h3 id="orgd0ab075"><span class="section-number-3">3.1.</span> reproductible and hermetic xsession script</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 What if you wanted to take the exact visual appearance of your window manager,
@@ -807,8 +850,8 @@ Now, my whole setup is controlled by a single command.
 </p>
 </div>
 </div>
-<div id="outline-container-orgf4bf68e" class="outline-3">
-<h3 id="orgf4bf68e"><span class="section-number-3">3.2.</span> Code as data</h3>
+<div id="outline-container-org512e530" class="outline-3">
+<h3 id="org512e530"><span class="section-number-3">3.2.</span> Code as data</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 Let&rsquo;s say I have a small function that I use in tandem with direnv to facilitate
@@ -999,8 +1042,8 @@ It works reasonably well.
 </div>
 </div>
 </div>
-<div id="outline-container-org66fa8df" class="outline-2">
-<h2 id="org66fa8df"><span class="section-number-2">4.</span> G-expressions</h2>
+<div id="outline-container-orge175b67" class="outline-2">
+<h2 id="orge175b67"><span class="section-number-2">4.</span> G-expressions</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 To hear it from the horse&rsquo;s mouth, read Ludovic Courtes&rsquo; <a href="https://hal.inria.fr/hal-01580582/document">Code staging in GNU Guix</a>.
@@ -1080,8 +1123,8 @@ or when compiled down to a file-like object. Let&rsquo;s see how we can do that.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf67c385" class="outline-2">
-<h2 id="orgf67c385"><span class="section-number-2">5.</span> Profiles, environments and direnv</h2>
+<div id="outline-container-org4ec0de4" class="outline-2">
+<h2 id="org4ec0de4"><span class="section-number-2">5.</span> Profiles, environments and direnv</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Guix&rsquo;s <code>guix shell</code> command makes it easy to very quickly spawn a shell in a
@@ -1149,8 +1192,8 @@ initial buil is done) develop/compile/execute some project.
 </p>
 </div>
 </div>
-<div id="outline-container-orgb943aa3" class="outline-2">
-<h2 id="orgb943aa3"><span class="section-number-2">6.</span> Sending a patch</h2>
+<div id="outline-container-org611ca75" class="outline-2">
+<h2 id="org611ca75"><span class="section-number-2">6.</span> Sending a patch</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 You just found your favorite piece of software, but it&rsquo;s an obsolete version
@@ -1159,8 +1202,8 @@ clone</code>&rsquo;ed the repo at <a href="https://git.savannah.gnu.org/git/guix
 now? You should submit a patch, of course.
 </p>
 </div>
-<div id="outline-container-org70d7fbe" class="outline-3">
-<h3 id="org70d7fbe"><span class="section-number-3">6.1.</span> Building Guix</h3>
+<div id="outline-container-org0ea0d72" class="outline-3">
+<h3 id="org0ea0d72"><span class="section-number-3">6.1.</span> Building Guix</h3>
 <div class="outline-text-3" id="text-6-1">
 <p>
 Before you can test wether your modified package works, you need to build
@@ -1230,8 +1273,8 @@ the files you modified, then make a commit.
 </p>
 </div>
 </div>
-<div id="outline-container-orgc5e4219" class="outline-3">
-<h3 id="orgc5e4219"><span class="section-number-3">6.2.</span> Committing your changes</h3>
+<div id="outline-container-orgac4eb70" class="outline-3">
+<h3 id="orgac4eb70"><span class="section-number-3">6.2.</span> Committing your changes</h3>
 <div class="outline-text-3" id="text-6-2">
 <p>
 When you write your commit message, make sure you follow GNU&rsquo;s <a href="https://www.gnu.org/prep/standards/html_node/Change-Logs.html">standard</a> for
@@ -1251,8 +1294,8 @@ If you are unsure about how a particular change should be expressed, simply run
 </p>
 </div>
 </div>
-<div id="outline-container-org7a551f1" class="outline-3">
-<h3 id="org7a551f1"><span class="section-number-3">6.3.</span> Creating a patch file</h3>
+<div id="outline-container-org2fe506b" class="outline-3">
+<h3 id="org2fe506b"><span class="section-number-3">6.3.</span> Creating a patch file</h3>
 <div class="outline-text-3" id="text-6-3">
 <p>
 When you have committed your changes, it is time to turn the commit into a patch
@@ -1271,8 +1314,8 @@ as an attachment to an email sent to <a href="mailto:guix-patches@gnu.org">guix-
 </div>
 </div>
 </div>
-<div id="outline-container-orgfe44761" class="outline-2">
-<h2 id="orgfe44761"><span class="section-number-2">7.</span> Other resources</h2>
+<div id="outline-container-orge1a170b" class="outline-2">
+<h2 id="orge1a170b"><span class="section-number-2">7.</span> Other resources</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li><p>
@@ -1289,12 +1332,12 @@ He&rsquo;s <code>guix home</code>&rsquo;s author, so obviously, he knows a lot a
 </ul>
 </div>
 </div>
-<div id="outline-container-org963fb49" class="outline-2">
-<h2 id="org963fb49"><span class="section-number-2">8.</span> Snippets</h2>
+<div id="outline-container-orgff57c42" class="outline-2">
+<h2 id="orgff57c42"><span class="section-number-2">8.</span> Snippets</h2>
 <div class="outline-text-2" id="text-8">
 </div>
-<div id="outline-container-org2dc5581" class="outline-3">
-<h3 id="org2dc5581"><span class="section-number-3">8.1.</span> Build a derivation from scheme</h3>
+<div id="outline-container-org08b14ec" class="outline-3">
+<h3 id="org08b14ec"><span class="section-number-3">8.1.</span> Build a derivation from scheme</h3>
 <div class="outline-text-3" id="text-8-1">
 <div class="org-src-container">
 <pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">use-modules</span> (guix gexp)
@@ -1317,7 +1360,6 @@ He&rsquo;s <code>guix home</code>&rsquo;s author, so obviously, he knows a lot a
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
