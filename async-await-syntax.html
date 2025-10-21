@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="english" xml:lang="english">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-09-25 Thu 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Implementing ~async~-~await~ syntax using delimited continuations</title>
@@ -200,41 +199,79 @@
 <div id="content" class="content">
 <h1 class="title">Implementing <code>async</code>-<code>await</code> syntax using delimited continuations</h1>
 <p>
-When we are writing Haskell code and we need access to weird control operators
-(such as <code>call/cc</code>), we usually use the <a href="https://www.haskellforall.com/2012/12/the-continuation-monad.html">continuation monad</a>. Because of Haskell's
-<code>do</code> notation, having to write monadic code to get control operators is not so
-bad. However, it turns out that if you already have access to some of those
-weird control operators, you can get back the syntactic sugar.
+The idea of a monad abstracts over a bunch of different effects:
 </p>
 
-<p>
-I won't go into what the continuation monad is (or why one would want to use
-it), but I will talk about the general principle of monads. Here is the
-definition of a monad in haskell:
-</p>
+<ol class="org-ol">
+<li>Within the list monad, you have something like <code class="src src-haskell"><span style="color: #8f0075;">choose</span> <span style="color: #3548cf;">::</span> [a] <span style="color: #3548cf;">-&gt;</span> a</code>, a nondeterministic choice operator.</li>
+<li>Within the maybe monad, you have something like <code class="src src-haskell"><span style="color: #8f0075;">unwrap</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">Maybe</span> a <span style="color: #3548cf;">-&gt;</span> a</code> that asserts that there is a value and gives it to you.</li>
+<li>Within the state monad, you have something like <code class="src src-haskell"><span style="color: #8f0075;">act</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">State</span> s x <span style="color: #3548cf;">-&gt;</span> x</code>, an operator that lets you mutate global state.</li>
+<li>Within the continuation monad, you have access to weird control operators
+that let you emulate java-style exceptions.</li>
+</ol>
 
 <div class="org-src-container">
-<pre class="src src-haskell"><code><span style="color: #005e8b; font-weight: bold;">class</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> f <span style="color: #005e8b; font-weight: bold;">where</span>
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>The definition of the monad typeclass.</label><pre class="src src-haskell"><code><span style="color: #595959; font-style: italic;">-- </span><span style="color: #595959; font-style: italic;">The definition of the monad typeclass
+</span><span style="color: #005e8b; font-weight: bold;">class</span> <span style="color: #531ab6; font-weight: bold;">Monad</span> f <span style="color: #005e8b; font-weight: bold;">where</span>
   return <span style="color: #3548cf;">::</span> x <span style="color: #3548cf;">-&gt;</span> f x
   bind <span style="color: #3548cf;">::</span> f x <span style="color: #3548cf;">-&gt;</span> (x <span style="color: #3548cf;">-&gt;</span> f y) <span style="color: #3548cf;">-&gt;</span> f y
 </code></pre>
 </div>
 
 <p>
-Monads are useful to model effects. Such an effect can be nondeterminism (the
-<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad), partiality (the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code> monad),
-statefulness (the <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">State</span></code> monad), or even delayed computation (the
-<code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Cont</span></code> monad). In the above definition, the <code class="src src-haskell">return</code>
-function would wrap a pure value without effects whereas the <code class="src src-haskell">bind</code>
-function would thread effectful computations.
+In every language that supports higher order functions, one could theoretically
+achieve the same amount of purity and side effect-lessness by writing code in
+callback passing style everywhere, but only in Haskell do you <b>have</b> to. For that
+reason, Haskell has do notation which lets programmers write equivalent code,
+but in a more direct style.
 </p>
-<div id="outline-container-org081a34c" class="outline-2">
-<h2 id="org081a34c"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>The ever increasing nesting that is characteristic of callback use is completely eliminated when using do-notation.</label><pre class="src src-haskell"><code><span style="color: #8f0075;">jsonRequest</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">String</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Promise</span> <span style="color: #531ab6; font-weight: bold;">Json</span>
+<span style="color: #8f0075;">jsonRequest</span> url <span style="color: #3548cf;">=</span>
+  fetch url <span style="color: #3548cf;">&gt;&gt;=</span> <span style="color: #3548cf;">\</span>response <span style="color: #3548cf;">-&gt;</span>
+    parseJson response <span style="color: #3548cf;">&gt;&gt;=</span> <span style="color: #3548cf;">\</span>json <span style="color: #3548cf;">-&gt;</span>
+      pure json
+                               
+
+<span style="color: #8f0075;">jsonRequest'</span> <span style="color: #3548cf;">::</span> <span style="color: #531ab6; font-weight: bold;">String</span> <span style="color: #3548cf;">-&gt;</span> <span style="color: #531ab6; font-weight: bold;">Promise</span> <span style="color: #531ab6; font-weight: bold;">Json</span>
+<span style="color: #8f0075;">jsonRequest'</span> url <span style="color: #3548cf;">=</span> <span style="color: #005e8b; font-weight: bold;">do</span>
+  response <span style="color: #3548cf;">&lt;-</span> fetch url
+  json <span style="color: #3548cf;">&lt;-</span> parseJson response
+  pure json
+</code></pre>
+</div>
+
+<p>
+It would be nice to have do notation in impure languages. It would make writing
+purely functional code less daunting and extend the reach of pure function&rsquo;s
+virtues even further.
+</p>
+
+<p>
+Actually, in some (rare tbh) circumstances, it is totally possible, but before
+we see why, let&rsquo;s look at one less well-known monad: the continuation monad.
+Without going in too deep, the continuation monad is monad within which one has
+access to &ldquo;control operations&rdquo; like throwing exceptions, returning early, doing
+(controlled) goto. In other words, operations that require non local &ndash; weird &ndash;
+control flow.
+</p>
+
+<p>
+While Haskell can &ldquo;emulate&rdquo; these weird control flow operations through the
+continuation monad(which are just callbacks) and do notation, it is actually
+possible to implement do notation using one of those weird control flow
+primitives: delimited continuation. Before, however, I go about explaining the
+(quite unintuitive) concept of a delimited continuation, we need to make a brief
+detour in the more pragmatic land of Javascript promises.
+</p>
+<div id="outline-container-orged68943" class="outline-2">
+<h2 id="orged68943"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 One very popular monad (it is very much used outside the functional programming
 community) is the concept of promise. A promise is a value that you do not yet
-have, but that you want to manipulate. For instance, the javascript
+have, but that you want to manipulate. For instance, the Javascript
 <code class="src src-js">fetch</code> function returns promises which you manipulate through the
 <code class="src src-js">.then</code> method:
 </p>
@@ -250,7 +287,8 @@ resp_promise.then(resp =&gt; {
 
 <p>
 As any web developper knows, using <code class="src src-js">.then</code> for managing sequential
-promises make for very ugly code:
+promises make for very ugly code. This is the same &ldquo;callback hell&rdquo; we had in the
+earlier haskell snippet.
 </p>
 
 <div class="org-src-container">
@@ -269,27 +307,26 @@ resp_promise.then(resp =&gt; {
 </div>
 
 <p>
-Javascript's solution to this problem is <code>async</code> and <code>await</code>. Using <code>await</code> on a
+Javascript&rsquo;s solution to this problem is <code>async</code> and <code>await</code>. Using <code>await</code> on a
 promise will make the program look as if it is waiting for the result and <code>async</code>
 marks a function in which you would like to use <code>await</code>. It turns out that this
 piece of syntactic sugar is the same as the more general <code>do</code> notation in Haskell.
-Because the <code>await</code> keyword is familiar to many people, I will reuse it as a <code>bind</code>
-operator in the rest of the article. Because the <code>await</code> keyword essentially puts
-the delimited continuation from a point to the end of the <code>async</code> function into
-the <code class="src src-js">.then</code>, we can recreate the same behaviour by manually capturing this
-said delimited continuation.
+just replace a <code>do</code> block by an <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">async</span></code> function and each <code class="src src-haskell"><span style="color: #3548cf;">&lt;-</span></code> by
+the <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">await</span></code> keyword! Operationnally, each of those constructs take the
+continuation of the <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">await</span></code> / <code class="src src-haskell"><span style="color: #3548cf;">&lt;-</span></code> point and pass it to the
+<code class="src src-js">.then</code> / <code class="src src-haskell"><span style="color: #3548cf;">&gt;&gt;=</span></code>!
 </p>
 </div>
 </div>
-<div id="outline-container-org6b4189b" class="outline-2">
-<h2 id="org6b4189b"><span class="section-number-2">2.</span> The concept of continuation</h2>
+<div id="outline-container-org1eff3a4" class="outline-2">
+<h2 id="org1eff3a4"><span class="section-number-2">2.</span> The concept of a continuation</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Before we dive into the technical details of implementing <code>async</code> / <code>await</code> syntax,
 let me first explain what continuations are. The concept of a continuation
-captures the idea of "the rest of the program" from a certain point. Let's say
-an interpreter is evaluating the following expression and has just finished
-calculating the <code class="src src-js">b*b - 4 * a * c</code> sub expression.
+captures the idea of &ldquo;the rest of the program&rdquo; from a certain point. Let&rsquo;s say
+an interpreter has just finished calculating the <code class="src src-js">b*b - 4 * a * c</code> sub
+expression of the quadratic formula:
 </p>
 
 <div class="org-src-container">
@@ -302,14 +339,49 @@ The state of the interpreter holds the computed value (the results of evaluating
 <code class="src src-js">b*b - 4 * a * c</code> ) and what to do with it after. That information is the
 continuation. Thinking about continuations is useful for writing compilers, but
 it is also useful in other contexts. For instance, there is a certain program
-transformation (called Continuation-Passing-Style conversion) where every
-<code class="src src-js"><span style="color: #005e8b; font-weight: bold;">return</span></code> keyword is eliminated and where every function call takes a new
-parameter, its continuation. For instance, let's CPS-convert the <code class="src src-js">fib</code>
-function.
+transformation called Continuation-Passing-Style conversion.
+</p>
+
+<p>
+Here is how we compute the transformation:
+</p>
+
+<ol class="org-ol">
+<li>For every function in the program, we add a parameter <code class="src src-js">cont</code>, the &ldquo;continuation&rdquo;. At
+runtime, this parameter will contain the callback the program must call with
+its result.</li>
+<li>Within every function, we replace <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">return</span> something</code> with
+<code class="src src-js">cont(something)</code>.</li>
+<li>At each function call, we must add the continuation callback which would
+contain everything coming after the function call.</li>
+</ol>
+
+<p>
+As the simplest example, let&rsquo;s cps convert the identity function:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib</span>(<span style="color: #3548cf;">n</span>) {
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">identity</span>(<span style="color: #3548cf;">x</span>) {
+    <span style="color: #005e8b; font-weight: bold;">return</span> x;
+}
+
+<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">identity_cps</span>(<span style="color: #3548cf;">x</span>, <span style="color: #3548cf;">cont</span>) {
+    cont(x);
+}
+</code></pre>
+</div>
+
+<p>
+When a function doesn&rsquo;t call other functions, cps conversion is just a matter of
+replacing every return statement by a call to the continuation.
+</p>
+
+<p>
+Let&rsquo;s move on to a harder example. Let&rsquo;s CPS-convert the <code class="src src-js">fib</code> function.
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 3: </span>A function computing the nth term of the fibonacci sequence, written in direct style.</label><pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib</span>(<span style="color: #3548cf;">n</span>) {
     <span style="color: #005e8b; font-weight: bold;">if</span> (n &lt;= 1) {
         <span style="color: #005e8b; font-weight: bold;">return</span> n
     } <span style="color: #005e8b; font-weight: bold;">else</span> {
@@ -328,15 +400,14 @@ console.log(fib(5))
 <p>
 It becomes the following:
 </p>
-
 <div class="org-src-container">
-<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib_cps</span>(<span style="color: #3548cf;">n</span>, <span style="color: #3548cf;">ret</span>) {
+<label class="org-src-name"><span class="listing-number">Listing 4: </span>The same function, in CPS style.</label><pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">fib_cps</span>(<span style="color: #3548cf;">n</span>, <span style="color: #3548cf;">cont</span>) {
     <span style="color: #005e8b; font-weight: bold;">if</span> (n &lt;= 1) {
-        ret(n);
+        cont(n);
     } <span style="color: #005e8b; font-weight: bold;">else</span> {
         fib_cps(n - 1, r1 =&gt; {
             fib_cps(n - 2, r2 =&gt; {
-                ret(r1 + r2);
+                cont(r1 + r2);
             })
         })
     }
@@ -353,63 +424,233 @@ fib_cps(5, res =&gt; {
 </pre>
 
 <p>
-Notice that instead of using <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">return</span></code>, we call a function that is
-explicitely passed as a parameter to <code class="src src-js">fib_cps</code>. Moreover, each time we
-call a function, we must act as if it will never return (it will not) and pass a
-handler (a continuation) that contains the rest of the computation. Notice that
-in the above code, after having computed the results for <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%2724.13774pt%27 height=%278.250585pt%27 viewBox=%27-.500002 -6.920368 24.13774 8.250585%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g2-49%27 d=%27m2.929016-6.37609c0-.239103 0-.259029-.229141-.259029c-.617684 .637609-1.494396 .637609-1.8132 .637609v.308842c.199253 0 .787049 0 1.305106-.259029v5.160648c0 .358655-.029888 .478207-.926526 .478207h-.318804v.308842c.348692-.029888 1.215442-.029888 1.613948-.029888s1.265255 0 1.613948 .029888v-.308842h-.318804c-.896638 0-.926526-.109589-.926526-.478207v-5.589041z%27/%3E%0A%3Cpath id=%27g0-0%27 d=%27m6.56538-2.291407c.169365 0 .348692 0 .348692-.199253s-.179328-.199253-.348692-.199253h-5.389788c-.169365 0-.348692 0-.348692 .199253s.179328 .199253 .348692 .199253h5.389788z%27/%3E%0A%3Cpath id=%27g1-110%27 d=%27m.876712-.587796c-.029888 .14944-.089664 .37858-.089664 .428394c0 .179328 .139477 .268991 .288917 .268991c.119552 0 .298879-.079701 .368618-.278954c.009963-.019925 .129514-.488169 .18929-.737235l.219178-.896638c.059776-.219178 .119552-.438356 .169365-.667497c.039851-.169365 .119552-.458281 .129514-.498132c.14944-.308842 .67746-1.215442 1.62391-1.215442c.448319 0 .537983 .368618 .537983 .697385c0 .617684-.488169 1.892902-.647572 2.321295c-.089664 .229141-.099626 .348692-.099626 .458281c0 .468244 .348692 .816936 .816936 .816936c.936488 0 1.305106-1.454545 1.305106-1.534247c0-.099626-.089664-.099626-.119552-.099626c-.099626 0-.099626 .029888-.14944 .179328c-.199253 .67746-.52802 1.235367-1.016189 1.235367c-.169365 0-.239103-.099626-.239103-.328767c0-.249066 .089664-.488169 .179328-.707347c.18929-.52802 .607721-1.62391 .607721-2.191781c0-.667497-.428394-1.066002-1.145704-1.066002c-.896638 0-1.384807 .637609-1.554172 .86675c-.049813-.557908-.458281-.86675-.916563-.86675s-.647572 .388543-.747198 .56787c-.159402 .33873-.298879 .926526-.298879 .966376c0 .099626 .099626 .099626 .119552 .099626c.099626 0 .109589-.009963 .169365-.229141c.169365-.707347 .368618-1.185554 .727273-1.185554c.199253 0 .308842 .129514 .308842 .458281c0 .209215-.029888 .318804-.159402 .836862l-.577833 2.30137z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page1%27%3E%0A%3Cg fill=%27currentColor%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g1-110%27/%3E%0A%3Cuse x=%278.193791%27 y=%270%27 xlink:href=%27%23g0-0%27/%3E%0A%3Cuse x=%2718.156405%27 y=%270%27 xlink:href=%27%23g2-49%27/%3E%0A%3C/g%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( n - 1 \)" style="height: 0.8116em; vertical-align: -0.1309em; display: inline-block" class="org-latex org-latex-inline" /> and <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%2724.13774pt%27 height=%278.250585pt%27 viewBox=%27-.500002 -6.920368 24.13774 8.250585%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g2-50%27 d=%27m1.265255-.767123l1.05604-1.026152c1.554172-1.374844 2.15193-1.912827 2.15193-2.909091c0-1.135741-.896638-1.932752-2.11208-1.932752c-1.125778 0-1.863014 .916563-1.863014 1.803238c0 .557908 .498132 .557908 .52802 .557908c.169365 0 .518057-.119552 .518057-.52802c0-.259029-.179328-.518057-.52802-.518057c-.079701 0-.099626 0-.129514 .009963c.229141-.647572 .767123-1.016189 1.344956-1.016189c.9066 0 1.334994 .806974 1.334994 1.62391c0 .797011-.498132 1.58406-1.046077 2.201743l-1.912827 2.132005c-.109589 .109589-.109589 .129514-.109589 .368618h3.696139l.278954-1.733499h-.249066c-.049813 .298879-.119552 .737235-.219178 .886675c-.069738 .079701-.727273 .079701-.946451 .079701h-1.793275z%27/%3E%0A%3Cpath id=%27g0-0%27 d=%27m6.56538-2.291407c.169365 0 .348692 0 .348692-.199253s-.179328-.199253-.348692-.199253h-5.389788c-.169365 0-.348692 0-.348692 .199253s.179328 .199253 .348692 .199253h5.389788z%27/%3E%0A%3Cpath id=%27g1-110%27 d=%27m.876712-.587796c-.029888 .14944-.089664 .37858-.089664 .428394c0 .179328 .139477 .268991 .288917 .268991c.119552 0 .298879-.079701 .368618-.278954c.009963-.019925 .129514-.488169 .18929-.737235l.219178-.896638c.059776-.219178 .119552-.438356 .169365-.667497c.039851-.169365 .119552-.458281 .129514-.498132c.14944-.308842 .67746-1.215442 1.62391-1.215442c.448319 0 .537983 .368618 .537983 .697385c0 .617684-.488169 1.892902-.647572 2.321295c-.089664 .229141-.099626 .348692-.099626 .458281c0 .468244 .348692 .816936 .816936 .816936c.936488 0 1.305106-1.454545 1.305106-1.534247c0-.099626-.089664-.099626-.119552-.099626c-.099626 0-.099626 .029888-.14944 .179328c-.199253 .67746-.52802 1.235367-1.016189 1.235367c-.169365 0-.239103-.099626-.239103-.328767c0-.249066 .089664-.488169 .179328-.707347c.18929-.52802 .607721-1.62391 .607721-2.191781c0-.667497-.428394-1.066002-1.145704-1.066002c-.896638 0-1.384807 .637609-1.554172 .86675c-.049813-.557908-.458281-.86675-.916563-.86675s-.647572 .388543-.747198 .56787c-.159402 .33873-.298879 .926526-.298879 .966376c0 .099626 .099626 .099626 .119552 .099626c.099626 0 .109589-.009963 .169365-.229141c.169365-.707347 .368618-1.185554 .727273-1.185554c.199253 0 .308842 .129514 .308842 .458281c0 .209215-.029888 .318804-.159402 .836862l-.577833 2.30137z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page2%27%3E%0A%3Cg fill=%27currentColor%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g1-110%27/%3E%0A%3Cuse x=%278.193791%27 y=%270%27 xlink:href=%27%23g0-0%27/%3E%0A%3Cuse x=%2718.156405%27 y=%270%27 xlink:href=%27%23g2-50%27/%3E%0A%3C/g%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( n -
-2 \)" style="height: 0.8116em; vertical-align: -0.1309em; display: inline-block" class="org-latex org-latex-inline" />, the results is passed to the continuation of the main call which is
-<code class="src src-js">ret</code>.
+For those of you familiar with Javascript asynchronous programming, its as if we
+had made every single function in the program async. However, instead of calling
+a method <code class="src src-js">.then</code> here, we pass the callback directly to the function.
+</p>
+</div>
+<div id="outline-container-orgfb9602d" class="outline-3">
+<h3 id="orgfb9602d"><span class="section-number-3">2.1.</span> Representation in memory</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+An interesting consequence of such a transformation will become apparent once we
+imagine what the <code class="src src-js">cont</code> object looks like deep in the call stack.
 </p>
 
 <p>
-While this presentation is quite annoying to write, it lets us add exceptions,
-generators and other useful fancy control operators into languages that only
-support passing functions around.
+Let&rsquo;s look at this very simple (normal) function and what the anonymous function
+it returns look like in memory.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">quadratic</span>(<span style="color: #3548cf;">a</span>, <span style="color: #3548cf;">b</span>, <span style="color: #3548cf;">c</span>) {
+    <span style="color: #005e8b; font-weight: bold;">return</span> (-b + sqrt(b*b - 4 * a * c)) / (2*a)
+}
+
+<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">quadratic_ab</span>(<span style="color: #3548cf;">a</span>, <span style="color: #3548cf;">b</span>) {
+    <span style="color: #005e8b; font-weight: bold;">return</span> <span style="color: #005e8b; font-weight: bold;">function</span>(<span style="color: #3548cf;">c</span>) {
+        <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">x</span> = quadratic(a, b, c);
+        <span style="color: #005e8b; font-weight: bold;">return</span> x;
+    };
+}
+
+
+<span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">quad12</span> = quadratic_ab(1, 2);
+</code></pre>
+</div>
+
+
+
+<div id="org03490c5" class="figure">
+<p><img src="./assets/plus-closure-repr.svg" alt="plus-closure-repr.svg" class="org-svg" />
+</p>
+</div>
+
+<p>
+If we have an anonymous functions points in its closure to another anonymous
+functions that points to &hellip;, we get something that looks a lot like a call
+stack!
+</p>
+
+
+<div id="org10131b4" class="figure">
+<p><img src="./assets/closure-stack.svg" alt="closure-stack.svg" class="org-svg" />
+</p>
+</div>
+
+
+<p>
+Each layer contains local variables and a code pointer and a pointer the the
+layer after&hellip; This structure is essentially a linked list heap allocated call
+stack!
+</p>
+
+<p>
+Another neat consequence of this is the fact that if write recursive code, we
+get tail call optimization for free! Tail call elimination can be applied by the
+compiler on a function call when that call is &ldquo;terminal&rdquo; in a function, i.e.
+followed immediately by a return. For example, here is a (normal style)
+recursive function that is not tail recursive:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">sum</span>(<span style="color: #3548cf;">xs</span>) {
+    <span style="color: #005e8b; font-weight: bold;">if</span> (xs.length == 0) {
+        <span style="color: #005e8b; font-weight: bold;">return</span> 0;
+    } <span style="color: #005e8b; font-weight: bold;">else</span> {
+        <span style="color: #005e8b; font-weight: bold;">return</span> xs[0] + sum(xs.slice(1));
+    }
+}
+</code></pre>
+</div>
+
+<p>
+Notice that once we have called sum in the recursive branch, we still need to do
+work to add the result to <code class="src src-js">xs[0]</code>. If we cps-convert this function, we
+notice that each call adds a layer to the heap allocated call stack.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">sum_cps</span>(<span style="color: #3548cf;">xs</span>, <span style="color: #3548cf;">ret</span>) {
+    <span style="color: #005e8b; font-weight: bold;">if</span> (xs.length == 0) {
+        ret(0);
+    } <span style="color: #005e8b; font-weight: bold;">else</span> {
+        sum(xs.slice(1), res =&gt; {
+            ret(1 + res);
+        });
+    }
+}
+</code></pre>
+</div>
+
+<p>
+However, a different way to write the same function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">sum_tc</span>(<span style="color: #3548cf;">xs</span>) {
+    <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">inner</span>(<span style="color: #3548cf;">xs</span>, <span style="color: #3548cf;">acc</span>) {
+        <span style="color: #005e8b; font-weight: bold;">if</span> (xs.length == 0) {
+            <span style="color: #005e8b; font-weight: bold;">return</span> acc;
+        } <span style="color: #005e8b; font-weight: bold;">else</span> {
+            <span style="color: #005e8b; font-weight: bold;">return</span> inner(xs.slice(1), acc + xs[0]);
+        }        
+    }
+    <span style="color: #005e8b; font-weight: bold;">return</span> inner(xs, 0);
+}
+</code></pre>
+</div>
+
+<p>
+Here, the inner function&rsquo;s recursion point is considered a tail call because
+once the recursion has returned, we immediately return. This lack of extra work
+means we don&rsquo;t have to allocate a new stack frame with our local variables and
+can just reuse the inherited continuation.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">sum_tc_cps</span>(<span style="color: #3548cf;">xs</span>, <span style="color: #3548cf;">ret</span>) {
+    <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">inner</span>(<span style="color: #3548cf;">xs</span>, <span style="color: #3548cf;">acc</span>, <span style="color: #3548cf;">ret</span>) {
+        <span style="color: #005e8b; font-weight: bold;">if</span> (xs.length == 0) {
+            ret(acc);
+        } <span style="color: #005e8b; font-weight: bold;">else</span> {
+            <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">No new continuation is created here
+</span>            inner(xs.slice(1), acc + xs[0], ret);
+        }        
+    }
+    inner(xs, 0, ret);
+}
+</code></pre>
+</div>
+
+<p>
+This means that the runtime behaviour of tail calls in cps code is essentially
+identical to a loop&rsquo;s. We can recurse as much as we want, it won&rsquo;t blow up the
+call stack and won&rsquo;t require more memory<span class="sidenote-ref"
+    onclick="this.nextElementSibling.classList.toggle('active')">1</span><span
+    class="sidenote"><sup>1</sup>
+In a language with no tail call optimization, we would also need to use a
+<a href="https://en.wikipedia.org/wiki/Trampoline_(computing)#High-level_programming">trampoline</a> to keep the &ldquo;regular&rdquo; call stack a a fixed depth.
+</span>.
+</p>
+
+<p>
+While this presentation is quite annoying to write, it lets us bypass stack
+limits, add exceptions, generators and other useful fancy control
+operators into any language that lets us create anonymous functions.
 </p>
 </div>
 </div>
-<div id="outline-container-org39fadf4" class="outline-2">
-<h2 id="org39fadf4"><span class="section-number-2">3.</span> Examples</h2>
+</div>
+<div id="outline-container-org546cda7" class="outline-2">
+<h2 id="org546cda7"><span class="section-number-2">3.</span> Examples</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgebcc599" class="outline-3">
-<h3 id="orgebcc599"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
+<div id="outline-container-orge94062e" class="outline-3">
+<h3 id="orge94062e"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
 <div class="outline-text-3" id="text-3-1">
-<div class="org-src-container">
-<pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">exception_handler</span> = <span style="color: #531ab6;">null</span>;
+<p>
+Let&rsquo;s imagine Javascript doesn&rsquo;t have exceptions and that we have (in
+preparation for this) written our entire program in cps. How do we implement, as
+a function, the <code class="src src-s">try</code>/ <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">catch</span></code> construct? Here is roughly how we do
+it:
+</p>
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">When implementing try/catch, we want to:
-</span><span style="color: #595959; font-style: italic;">//</span><span style="color: #595959; font-style: italic;">
-</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">1. save the current exception handler function
-</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">2. replace the exception handler function by the one given by the user.
-</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">3. Execute the thunk with the appropriate continuation
-</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">4. If throw_exception was called, resume the computation through the `ret` continuation.
-</span><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">with_exception_handler</span>(<span style="color: #3548cf;">thunk</span>, <span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
+<ol class="org-ol">
+<li>The construct relies on a global variable <code class="src src-js">current_exception_handler</code> to work.</li>
+<li>The function takes a function to execute (the body), it takes an error
+callback (the catch block) and it takes the continuation.</li>
+<li>Before calling the main function to execute, it swaps out the current
+exception handler for a new one. This new exception handler, when called,
+will execute the &ldquo;error callback&rdquo;, reinstall the old exception handler and
+finally jump to the <code class="src src-js">with_exception_handler</code> continuation.</li>
+<li>Then, it calls the body with as its continuation, code that reinstalls the
+old exception handler and jumps to the <code class="src src-js">with_exception_handler</code>
+continuation.</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-js" id="orgf31adcd"><code><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">current_exception_handler</span> = <span style="color: #531ab6;">null</span>;
+
+<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">with_exception_handler</span>(<span style="color: #3548cf;">thunk</span>, <span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
     <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">save the current exception handler
-</span>    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">old_exception_handler</span> = exception_handler;
-    exception_handler = (exn) =&gt; {
+</span>    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">old_exception_handler</span> = current_exception_handler;
+    current_exception_handler = (exn) =&gt; {
         <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Reinstall the old exception handler
-</span>        exception_handler = old_exception_handler;
+</span>        current_exception_handler = old_exception_handler;
         handler(exn, ret);
     };
     thunk((thunk_retval) =&gt; {
         <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Reinstall the old exception handler
-</span>        exception_handler = old_exception_handler;
+</span>        current_exception_handler = old_exception_handler;
+
         <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">and continue the execution through the main continuation
 </span>        ret(thunk_retval);
     })
 }
+</code></pre>
+</div>
 
-<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Notice that contrary to every function in CPS, this one doesn't
-</span><span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">have a "continuation" parameter.
-</span><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">throw_exception</span>(<span style="color: #3548cf;">value</span>) {
-    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Inside, we just call the exception handler.
-</span>    exception_handler(value);
+<p>
+The implementation of throw is quite simple. We just call the current exception
+handler with the exception. Notice that this function doesn&rsquo;t take a
+continuation parameter. This is because this function doesn&rsquo;t return.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-js" id="org20dc711"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">throw_exception</span>(<span style="color: #3548cf;">exn</span>) {
+    current_exception_handler(exn);
 }
+</code></pre>
+</div>
 
+<p>
+Finally, let&rsquo;s test our implementation on a simple division function that errors
+out when attempting to divide by zero.
+</p>
 
-<span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">safe_div</span>(<span style="color: #3548cf;">num</span>, <span style="color: #3548cf;">denum</span>, <span style="color: #3548cf;">ret</span>)  {
+<div class="org-src-container">
+<pre class="src src-js" id="org0ac7712"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">safe_div</span>(<span style="color: #3548cf;">num</span>, <span style="color: #3548cf;">denum</span>, <span style="color: #3548cf;">ret</span>)  {
     <span style="color: #005e8b; font-weight: bold;">if</span> (denum == 0) {
         throw_exception(<span style="color: #a0132f;">"division by zero"</span>)
     } <span style="color: #005e8b; font-weight: bold;">else</span> {
@@ -418,12 +659,11 @@ support passing functions around.
 }
 
 
-with_exception_handler(
+<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">this one will fail
+</span>with_exception_handler(
     (ret) =&gt; {
-        safe_div(0.0, 2.0, (r1) =&gt; {
-            safe_div(1.0, r1, (r2) =&gt; {
-                ret(r2);
-            })
+        safe_div(1.0, 0.0, (r1) =&gt; {
+            ret(r1);
         })
     },
     (exn, ret) =&gt; {
@@ -435,18 +675,48 @@ with_exception_handler(
         console.log(<span style="color: #a0132f;">"got result:"</span>, result);
     }
 )
+
+with_exception_handler(
+    (ret) =&gt; {
+        safe_div(1.0, 2.0, (r1) =&gt; {
+            ret(r1);
+        })
+    },
+    (exn, ret) =&gt; {
+        console.log(<span style="color: #a0132f;">"got an exception:"</span>, exn);
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We return null to signal it didn't work.
+</span>        ret(<span style="color: #531ab6;">null</span>)
+    },
+    (result) =&gt; {
+        console.log(<span style="color: #a0132f;">"got result:"</span>, result);
+    }
+)
+
 </code></pre>
 </div>
+
+<p>
+when executing this code, we get:
+</p>
 
 <pre class="example">
 got an exception: division by zero
 got result: null
+got result: 0.5
 </pre>
 </div>
 </div>
-<div id="outline-container-org9915dcb" class="outline-3">
-<h3 id="org9915dcb"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
+<div id="outline-container-org0cc2ca8" class="outline-3">
+<h3 id="org0cc2ca8"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
 <div class="outline-text-3" id="text-3-2">
+<p>
+<code class="src src-scheme">call/cc</code>, or <code class="src src-scheme">call-with-current-continuation</code> is a
+primitive that lets the programmer access the current continuation <b>without
+having to write everything in cps</b>. However, it is trivial to implement this
+operator in cps Javascript. Just call a function and give it as a parameter the
+current continuation.
+</p>
+
 <div class="org-src-container">
 <pre class="src src-js"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">callcc</span>(<span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
     handler(ret, ret)
@@ -454,32 +724,39 @@ got result: null
 </code></pre>
 </div>
 
-
 <p>
-Implementing <code class="src src-scheme">call/cc</code> in CPS is very easy, because CPS exposes every
-continuation in an explicit variable. Understanding this control operator,
-though, will be useful, because it is often the operator used by languages to
-reify continuations and expose them to the user <b>without forcing them to write
-everything in CPS!</b>
+Now that we understand the usefulness of having access to the continuation of
+every function call (through exploring patterns in CPS Javascript), we can move
+on to a language that exposes the current continuation to the programmer
+directly.
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org142aba9" class="outline-2">
-<h2 id="org142aba9"><span class="section-number-2">4.</span> <code class="src src-scheme">call/cc</code> in scheme</h2>
+<div id="outline-container-orga77cd2e" class="outline-2">
+<h2 id="orga77cd2e"><span class="section-number-2">4.</span> <code class="src src-scheme">call-with-current-continuation</code> in scheme</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-The way <code class="src src-scheme">call/cc</code> works is that it gives as an argument to the thunk
-the function capturing the continuation exiting the block. Let's see how it
-works in scheme.
+The way <code class="src src-scheme">call-with-current-continuation</code> (abbreviated as
+<code class="src src-scheme">call/cc</code>) works is by receiving a callback and calling it while
+giving it its continuation.
 </p>
 
+
 <div class="org-src-container">
-<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span>
+<label class="org-src-name"><span class="listing-number">Listing 5: </span>If the thunk inside call/cc returns, call/cc returns the same thing.</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span> (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (ret) 1)))
+(format #t <span style="color: #a0132f;">"value is ~a\n"</span> value)
+</code></pre>
+</div>
+
+<pre class="example">
+value is 1
+</pre>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 6: </span>If the thunk does an early exit to the continuation, call/cc returns that result.</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span>
   (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (ret)
-             (display <span style="color: #a0132f;">"one\n"</span>)
-             (display <span style="color: #a0132f;">"two\n"</span>)
-             (ret 12345)
+             (ret <span style="color: #a0132f;">"skipped"</span>)
              (display <span style="color: #a0132f;">"tree\n"</span>)
              (display <span style="color: #a0132f;">"four\n"</span>))))
 
@@ -488,76 +765,54 @@ works in scheme.
 </div>
 
 <pre class="example">
-one
-two
-value is 12345
+value is skipped
 </pre>
 
-<p>
-Using this primitive, it is possible to do pretty much everything that was
-doable in CPS, but without having to actually write CPS code (and endure a
-thousand levels of nesting).
-</p>
-</div>
-<div id="outline-container-org293e21b" class="outline-3">
-<h3 id="org293e21b"><span class="section-number-3">4.1.</span> Note</h3>
-<div class="outline-text-3" id="text-4-1">
-<p>
-It might be very confusing at first, (because up until now, our use of
-continuations have respected scope), but you can reinstall a continuation <b>after
-you have executed it</b>. This lets you (for instance) do backtracking and other
-things.
-</p>
-
 <div class="org-src-container">
-<pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">kont</span>
-  (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (k) k)))
-
-(display <span style="color: #a0132f;">"exited call/cc block\n"</span>)
-
-(<span style="color: #005e8b; font-weight: bold;">if</span> (procedure? kont)
-    (<span style="color: #005e8b; font-weight: bold;">begin</span>
-      (display <span style="color: #a0132f;">"hello\n"</span>)
-      (kont 123))
-    (format #t <span style="color: #a0132f;">"the value: ~a\n"</span> kont))
+<label class="org-src-name"><span class="listing-number">Listing 7: </span>The thunk can store or return the continuation. It stays valid outside call/cc.</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">value</span> (<span style="color: #005e8b; font-weight: bold;">call/cc</span> (<span style="color: #005e8b; font-weight: bold;">lambda</span> (ret) ret)))
+(format #t <span style="color: #a0132f;">"value is ~a\n"</span> value)
+(<span style="color: #005e8b; font-weight: bold;">if</span> (procedure? value)
+    (value <span style="color: #a0132f;">"go back!"</span>))
 </code></pre>
 </div>
 
-<pre class="example">
-exited call/cc block
-hello
-exited call/cc block
-the value: 123
-</pre>
-</div>
-</div>
-<div id="outline-container-orgb90fb3e" class="outline-3">
-<h3 id="orgb90fb3e"><span class="section-number-3">4.2.</span> Problems with <code class="src src-scheme">call/cc</code></h3>
-<div class="outline-text-3" id="text-4-2">
+
 <p>
-The <code class="src src-scheme">call/cc</code> operator, however has flaws. Systems written using this
-operator don't compose very well and over the years, proposals have been made
-for continuations that don't capture the entirety of program flow. Those
+Using this primitive, it is possible to do everything that was doable in CPS,
+but without having to actually write ugly CPS code<span class="sidenote-ref"
+    onclick="this.nextElementSibling.classList.toggle('active')">2</span><span
+    class="sidenote"><sup>2</sup>
+The <code class="src src-scheme">call/cc</code> operator, however has flaws. Systems written using
+this operator don&rsquo;t compose very well and over the years, proposals have been
+made for continuations that don&rsquo;t capture the entirety of program flow. Those
 continuations are called delimited.
+</span> and endure callback
+hell.
 </p>
 </div>
 </div>
-</div>
-<div id="outline-container-org6de5f59" class="outline-2">
-<h2 id="org6de5f59"><span class="section-number-2">5.</span> Delimited continuations</h2>
+<div id="outline-container-org92a0790" class="outline-2">
+<h2 id="org92a0790"><span class="section-number-2">5.</span> Delimited continuations</h2>
 <div class="outline-text-2" id="text-5">
 <p>
-Delimited continuations are continuations that end with a value, their
-reification in functions are more natural because <b>they are reified into
-functions that return something</b>. Because those continuations don't capture the
-entire execution of the program, they play well with each other and with other
-constructs. Let's see them in action through the <code class="src src-scheme">call-with-prompt</code>
+Since in CPS Javascript we use anonymous functions (in CPS Javascript) to
+represent continuations, we jump to them by using function calls
+<code class="src src-js">cont(result)</code>. However these function calls never return! Wouldn&rsquo;t it be
+nice to be able to capture continuations that end somewhere? They would behave
+just like normal functions!
+</p>
+
+<p>
+Delimited continuations are exactly that. On top of being callable with a value,
+they end at some point and return a value. Because those continuations don&rsquo;t capture the entire
+execution of the program, they play well with each other and with other
+constructs. Let&rsquo;s see them in action through the <code class="src src-scheme">call-with-prompt</code>
 and <code class="src src-scheme">abort-to-prompt</code> scheme operators.
 </p>
 </div>
 </div>
-<div id="outline-container-org67cb98a" class="outline-2">
-<h2 id="org67cb98a"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
+<div id="outline-container-org5d64355" class="outline-2">
+<h2 id="org5d64355"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
 <div class="outline-text-2" id="text-6">
 <p>
 In <a href="https://www.gnu.org/software/guile/">Guile Scheme</a>, delimited continuations are created through two procedures.
@@ -574,74 +829,43 @@ location at which continuation will <b>start</b>.</dd>
 <pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
 
 (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
-  (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
-    (<span style="color: #005e8b; font-weight: bold;">let</span> ((x 12345))
-      <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...
-</span>      (<span style="color: #005e8b; font-weight: bold;">let</span> ((y (+ x (abort-to-prompt tag))))
-        <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...
-</span>        y)))
-  (<span style="color: #005e8b; font-weight: bold;">lambda</span> (kont)
-    <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">...
-</span>    ))
+  <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">The body
+</span>  (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
+    <span style="color: #595959; font-style: italic;">;; </span><span style="color: #595959; font-style: italic;">abort-to-prompt returns a value!
+</span>    (<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">val</span> (abort-to-prompt tag <span style="color: #a0132f;">"skipped"</span>))
+    (format #t <span style="color: #a0132f;">"val: ~a\n"</span> val)
+    (+ val 1))
+  (<span style="color: #005e8b; font-weight: bold;">lambda</span> (kont v)
+    (format #t <span style="color: #a0132f;">"we received: ~a\n"</span> v)
+    (format #t <span style="color: #a0132f;">"kont(1) = ~a\n"</span> (kont 1))
+    (format #t <span style="color: #a0132f;">"kont(2) = ~a\n"</span> (kont 2))))
 </code></pre>
 </div>
 
 <p>
 The first argument of <code class="src src-scheme">call-with-prompt</code> (the tag) is necessary for
-the <code class="src src-scheme">abort-to-prompt</code> call to be able to specify which continuation to
-open in situations in which multiple <code class="src src-scheme">call-with-prompt</code> are nested.
-The second argument is a zero argument function (thunk) which will delimit the
-end of the captured continuation. When the captured delimited continuation is
-called, execution will flow from the <code class="src src-scheme">abort-to-prompt</code> call to the end
-of this thunk. The third argument is the handler (kind of like <code>try</code> / <code>catch</code>) that
-will be called with the created continuation when <code class="src src-scheme">abort-to-prompt</code> is
-called. To better understand how it works, here is an example:
+having multiple nested <code class="src src-scheme">call-with-prompt</code>, but I won&rsquo;t talk much about
+it here. The second argument is a zero argument function (thunk) which will
+delimit the end of the captured continuation. The third argument is a handler
+and will receive the continuation and whatever the <code class="src src-scheme">abort-to-prompt</code>
+gets called with.
 </p>
-
-<div class="org-src-container">
-<pre class="src src-scheme" id="org4a1ed5a"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">tag</span> (make-prompt-tag))
-(<span style="color: #005e8b; font-weight: bold;">define</span> <span style="color: #8f0075;">cont</span>
-  (<span style="color: #005e8b; font-weight: bold;">call-with-prompt</span> tag
-    (<span style="color: #005e8b; font-weight: bold;">lambda</span> ()
-      (display <span style="color: #a0132f;">"hello!\n"</span>)
-      (<span style="color: #005e8b; font-weight: bold;">let</span> ((x (abort-to-prompt tag <span style="color: #a0132f;">"some-value"</span>)))
-        (+ 5 x)))
-    (<span style="color: #005e8b; font-weight: bold;">lambda</span> (k val)
-      (format #t <span style="color: #a0132f;">"got value: ~s\n"</span> val)
-      k)))
-
-(display (cont 1)) (newline)
-(display (cont 3)) (newline)
-</code></pre>
-</div>
 
 <p>
-Here is the output of the code:
-</p>
-
-<pre class="example">
-hello!
-got value: "some-value"
-6
-8
-</pre>
-
-<p>
-At first glance, we can see that, contrary to continuations captured by
-<code class="src src-scheme">call/cc</code>(which act kind of like value-carrying <code>goto</code> s), these
-delimited continuations return something. Another difference is that in
-<code class="src src-scheme">call/cc</code>, the <code>k</code> parameter captures the continuation starting from the
-<code class="src src-scheme">call/cc</code> call itself, whereas in <code class="src src-scheme">call-with-prompt</code> it
-captures the continuation starting from the innermost
-<code class="src src-scheme">abort-to-prompt</code> call inside the thunk.
+The <code class="src src-scheme">call-with-prompt</code> operator is very similar to exception handling
+constructs in Javascript. If <code class="src src-scheme">(abort-to-prompt tag)</code> is called inside
+the body, the program jumps to the handler which is given the delimited
+continuation from the <code class="src src-scheme">abort-to-prompt</code> to the end of the body. Like
+the non delimited variant, the continuation object can even be called multiple
+times!.
 </p>
 </div>
 </div>
-<div id="outline-container-orgf9cf118" class="outline-2">
-<h2 id="orgf9cf118"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
+<div id="outline-container-orgb3b68dc" class="outline-2">
+<h2 id="orgb3b68dc"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
 <div class="outline-text-2" id="text-7">
 <p>
-Now that we understand better the concept of continuation, let's use it to
+Now that we understand better the concept of continuation, let&rsquo;s use it to
 analyze what the <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">await</span></code> keyword does.
 </p>
 
@@ -682,7 +906,7 @@ is equivalent to writing that:
 </div>
 
 <p>
-The part that is put in the <code class="src src-js">.then</code> (the callback) is actually the
+The part that is passed to the <code class="src src-js">.then</code> (the callback) is actually the
 continuation starting from the <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">await</span></code> and ending when the <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">async</span></code>
 function ends. If we have some kind of <code class="src src-js">.then</code> operator (called <code>&gt;&gt;=</code> or
 <code>bind</code> in Haskell), each time we <code class="src src-js"><span style="color: #005e8b; font-weight: bold;">await</span></code> an effectful value, we can capture
@@ -691,18 +915,18 @@ and use it as a handler for the value through our <code>.then</code> function.
 </p>
 
 <p>
-Let's use this technique to implement nondeterministic computation.
+Let&rsquo;s use this technique to implement nondeterministic computation.
 </p>
 </div>
 </div>
-<div id="outline-container-org285e105" class="outline-2">
-<h2 id="org285e105"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
+<div id="outline-container-orgd9a192c" class="outline-2">
+<h2 id="orgd9a192c"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
 <div class="outline-text-2" id="text-8">
 <p>
 One way of modeling nondeterministic computation is through lists. Each time we
-want to say "this value contains a superposition of many <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code>s", we
+want to say &ldquo;this value contains a superposition of many <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code>s&rdquo;, we
 will say <code class="src src-haskell">[<span style="color: #531ab6; font-weight: bold;">Int</span>]</code>. When we want to model a nondeterministic
-computation on <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code>s (let's say, into strings), we use
+computation on <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span></code>s (let&rsquo;s say, into strings), we use
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Int</span> <span style="color: #3548cf;">-&gt;</span> [<span style="color: #531ab6; font-weight: bold;">String</span>]</code>. we combine those two values through first applying
 the function to each possible value (getting a <code class="src src-haskell">[[<span style="color: #531ab6; font-weight: bold;">String</span>]]</code>), then by
 flattening the lists together into a <code class="src src-haskell">[<span style="color: #531ab6; font-weight: bold;">String</span>]</code>. When implemented in
@@ -710,7 +934,7 @@ Scheme, it looks like this:
 </p>
 
 <div class="org-src-container">
-<label class="org-src-name"><span class="listing-number">Listing 1: </span>For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">.then</span> l func)
+<label class="org-src-name"><span class="listing-number">Listing 8: </span>For wrapping a determinstic value and for threading a nondeterministic value through a nondeterministic computation.</label><pre class="src src-scheme"><code>(<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">.then</span> l func)
   (apply append (<span style="color: #005e8b; font-weight: bold;">map</span> func l)))
 
 (<span style="color: #005e8b; font-weight: bold;">define</span> (<span style="color: #8f0075;">pure</span> x)
@@ -807,11 +1031,28 @@ have seen, continuation passing style) and other effects.
 </p>
 </div>
 </div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+In a language with no tail call optimization, we would also need to use a
+<a href="https://en.wikipedia.org/wiki/Trampoline_(computing)#High-level_programming">trampoline</a> to keep the &ldquo;regular&rdquo; call stack a a fixed depth.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+The <code class="src src-scheme">call/cc</code> operator, however has flaws. Systems written using
+this operator don&rsquo;t compose very well and over the years, proposals have been
+made for continuations that don&rsquo;t capture the entirety of program flow. Those
+continuations are called delimited.
+</p></div></div>
+
+
 </div>
+</div></div>
 <div id="postamble" class="status">
 <p class="date">Date: 2024-05-26 Sun 00:00</p>
 <p class="author">Author: Justin Veilleux</p>
-<p class="date">Created: 2025-09-25 Thu 18:11</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
