@@ -193,6 +193,13 @@
   .org-svg { }
 </style>
 <style>
+
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
 /* Sidenote reference number */
 .sidenote-ref {
   font-size: 0.75em;
@@ -235,8 +242,63 @@
   .sidenote.active {
     display: block;
   }
+
 }
-</style><link rel="stylesheet" type="text/css" href="Agda.css" />
+
+</style>
+<style>
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+
+}
+</style>
+<link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -334,7 +396,7 @@ Here is a working example of this pattern:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C" id="org726fc6b"><code><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
+<pre class="src src-C" id="org100f595"><code><span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdio.h&gt;</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stdint.h&gt;</span>
 <span style="color: #005f5f;">#include</span> <span style="color: #a0132f;">&lt;stddef.h&gt;</span>
 
@@ -418,8 +480,8 @@ Here is a working example of this pattern:
 <p>
 This program outputs:
 </p>
-<div id="outline-container-org889bafa" class="outline-2">
-<h2 id="org889bafa"><span class="section-number-2">1.</span> Subtyping</h2>
+<div id="outline-container-orga4d821d" class="outline-2">
+<h2 id="orga4d821d"><span class="section-number-2">1.</span> Subtyping</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 using this pattern, it is also possible to represent subtyping by adding an

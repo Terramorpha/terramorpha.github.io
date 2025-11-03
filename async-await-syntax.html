@@ -193,6 +193,13 @@
   .org-svg { }
 </style>
 <style>
+
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
 /* Sidenote reference number */
 .sidenote-ref {
   font-size: 0.75em;
@@ -235,8 +242,63 @@
   .sidenote.active {
     display: block;
   }
+
 }
-</style><link rel="stylesheet" type="text/css" href="Agda.css" />
+
+</style>
+<style>
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+
+}
+</style>
+<link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -309,8 +371,8 @@ primitives: delimited continuation. Before, however, I go about explaining the
 (quite unintuitive) concept of a delimited continuation, we need to make a brief
 detour in the more pragmatic land of Javascript promises.
 </p>
-<div id="outline-container-org7978de9" class="outline-2">
-<h2 id="org7978de9"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
+<div id="outline-container-org09a6e93" class="outline-2">
+<h2 id="org09a6e93"><span class="section-number-2">1.</span> <code>async</code> and <code>await</code> in Javascript</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 One very popular monad (it is very much used outside the functional programming
@@ -362,8 +424,8 @@ continuation of the <code class="src src-js"><span style="color: #005e8b; font-w
 </p>
 </div>
 </div>
-<div id="outline-container-orgc2a9c94" class="outline-2">
-<h2 id="orgc2a9c94"><span class="section-number-2">2.</span> The concept of a continuation</h2>
+<div id="outline-container-org384706d" class="outline-2">
+<h2 id="org384706d"><span class="section-number-2">2.</span> The concept of a continuation</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Before we dive into the technical details of implementing <code>async</code> / <code>await</code> syntax,
@@ -437,6 +499,10 @@ console.log(fib(5))
 </code></pre>
 </div>
 
+<pre class="example">
+5
+</pre>
+
 <p>
 It becomes the following:
 </p>
@@ -459,14 +525,18 @@ fib_cps(5, res =&gt; {
 </code></pre>
 </div>
 
+<pre class="example">
+5
+</pre>
+
 <p>
 For those of you familiar with Javascript asynchronous programming, its as if we
 had made every single function in the program async. However, instead of calling
 a method <code class="src src-js">.then</code> here, we pass the callback directly to the function.
 </p>
 </div>
-<div id="outline-container-orgf21aadf" class="outline-3">
-<h3 id="orgf21aadf"><span class="section-number-3">2.1.</span> Representation in memory</h3>
+<div id="outline-container-org02508df" class="outline-3">
+<h3 id="org02508df"><span class="section-number-3">2.1.</span> Representation in memory</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 An interesting consequence of such a transformation will become apparent once we
@@ -497,7 +567,7 @@ it returns look like in memory.
 
 
 
-<div id="org9539c06" class="figure">
+<div id="org6871d89" class="figure">
 <p><img src="./assets/plus-closure-repr.svg" alt="plus-closure-repr.svg" class="org-svg" />
 </p>
 </div>
@@ -509,7 +579,7 @@ stack!
 </p>
 
 
-<div id="org2559698" class="figure">
+<div id="org99a4aab" class="figure">
 <p><img src="./assets/closure-stack.svg" alt="closure-stack.svg" class="org-svg" />
 </p>
 </div>
@@ -618,12 +688,12 @@ operators into any language that lets us create anonymous functions.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf1f97b5" class="outline-2">
-<h2 id="orgf1f97b5"><span class="section-number-2">3.</span> Examples</h2>
+<div id="outline-container-orga8ec654" class="outline-2">
+<h2 id="orga8ec654"><span class="section-number-2">3.</span> Examples</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgaa5625a" class="outline-3">
-<h3 id="orgaa5625a"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
+<div id="outline-container-orgf0307a2" class="outline-3">
+<h3 id="orgf0307a2"><span class="section-number-3">3.1.</span> Implementing exceptions</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Let&rsquo;s imagine Javascript doesn&rsquo;t have exceptions and that we have (in
@@ -646,7 +716,7 @@ continuation.</li>
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-js" id="orge88dcb3"><code><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">current_exception_handler</span> = <span style="color: #531ab6;">null</span>;
+<pre class="src src-js" id="orgc81ff71"><code><span style="color: #005e8b; font-weight: bold;">let</span> <span style="color: #3548cf;">current_exception_handler</span> = <span style="color: #531ab6;">null</span>;
 
 <span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">with_exception_handler</span>(<span style="color: #3548cf;">thunk</span>, <span style="color: #3548cf;">handler</span>, <span style="color: #3548cf;">ret</span>) {
     <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">save the current exception handler
@@ -674,7 +744,7 @@ continuation parameter. This is because this function doesn&rsquo;t return.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js" id="orga8c0613"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">throw_exception</span>(<span style="color: #3548cf;">exn</span>) {
+<pre class="src src-js" id="orgde99204"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">throw_exception</span>(<span style="color: #3548cf;">exn</span>) {
     current_exception_handler(exn);
 }
 </code></pre>
@@ -686,7 +756,7 @@ out when attempting to divide by zero.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-js" id="org26f21e7"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">safe_div</span>(<span style="color: #3548cf;">num</span>, <span style="color: #3548cf;">denum</span>, <span style="color: #3548cf;">ret</span>)  {
+<pre class="src src-js" id="orgb86b644"><code><span style="color: #005e8b; font-weight: bold;">function</span> <span style="color: #8f0075;">safe_div</span>(<span style="color: #3548cf;">num</span>, <span style="color: #3548cf;">denum</span>, <span style="color: #3548cf;">ret</span>)  {
     <span style="color: #005e8b; font-weight: bold;">if</span> (denum == 0) {
         throw_exception(<span style="color: #a0132f;">"division by zero"</span>)
     } <span style="color: #005e8b; font-weight: bold;">else</span> {
@@ -734,10 +804,16 @@ with_exception_handler(
 <p>
 when executing this code, we get:
 </p>
+
+<pre class="example">
+got an exception: division by zero
+got result: null
+got result: 0.5
+</pre>
 </div>
 </div>
-<div id="outline-container-orga6ab15b" class="outline-3">
-<h3 id="orga6ab15b"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
+<div id="outline-container-orgf894ce6" class="outline-3">
+<h3 id="orgf894ce6"><span class="section-number-3">3.2.</span> Implementing call/cc</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 <code class="src src-scheme">call/cc</code>, or <code class="src src-scheme">call-with-current-continuation</code> is a
@@ -763,8 +839,8 @@ directly.
 </div>
 </div>
 </div>
-<div id="outline-container-org0f6307b" class="outline-2">
-<h2 id="org0f6307b"><span class="section-number-2">4.</span> <code class="src src-scheme">call-with-current-continuation</code> in scheme</h2>
+<div id="outline-container-org4c87b8c" class="outline-2">
+<h2 id="org4c87b8c"><span class="section-number-2">4.</span> <code class="src src-scheme">call-with-current-continuation</code> in scheme</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 The way <code class="src src-scheme">call-with-current-continuation</code> (abbreviated as
@@ -821,8 +897,8 @@ hell.
 </p>
 </div>
 </div>
-<div id="outline-container-org3fc1bdc" class="outline-2">
-<h2 id="org3fc1bdc"><span class="section-number-2">5.</span> Delimited continuations</h2>
+<div id="outline-container-org1f5ac58" class="outline-2">
+<h2 id="org1f5ac58"><span class="section-number-2">5.</span> Delimited continuations</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Since in CPS Javascript we use anonymous functions (in CPS Javascript) to
@@ -841,8 +917,8 @@ and <code class="src src-scheme">abort-to-prompt</code> scheme operators.
 </p>
 </div>
 </div>
-<div id="outline-container-org34f2f3c" class="outline-2">
-<h2 id="org34f2f3c"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
+<div id="outline-container-org41c7347" class="outline-2">
+<h2 id="org41c7347"><span class="section-number-2">6.</span> <code class="src src-scheme">call-with-prompt</code> and <code class="src src-scheme">abort-to-prompt</code></h2>
 <div class="outline-text-2" id="text-6">
 <p>
 In <a href="https://www.gnu.org/software/guile/">Guile Scheme</a>, delimited continuations are created through two procedures.
@@ -891,8 +967,8 @@ times!.
 </p>
 </div>
 </div>
-<div id="outline-container-org6d89678" class="outline-2">
-<h2 id="org6d89678"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
+<div id="outline-container-orga5ebfd7" class="outline-2">
+<h2 id="orga5ebfd7"><span class="section-number-2">7.</span> <code>async</code> / <code>await</code> syntax for any monad</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 Now that we understand better the concept of continuation, let&rsquo;s use it to
@@ -949,8 +1025,8 @@ Let&rsquo;s use this technique to implement nondeterministic computation.
 </p>
 </div>
 </div>
-<div id="outline-container-org94b33b1" class="outline-2">
-<h2 id="org94b33b1"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
+<div id="outline-container-orga0cf65b" class="outline-2">
+<h2 id="orga0cf65b"><span class="section-number-2">8.</span> The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> monad</h2>
 <div class="outline-text-2" id="text-8">
 <p>
 One way of modeling nondeterministic computation is through lists. Each time we

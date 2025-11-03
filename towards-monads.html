@@ -193,6 +193,13 @@
   .org-svg { }
 </style>
 <style>
+
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
 /* Sidenote reference number */
 .sidenote-ref {
   font-size: 0.75em;
@@ -235,8 +242,63 @@
   .sidenote.active {
     display: block;
   }
+
 }
-</style><link rel="stylesheet" type="text/css" href="Agda.css" />
+
+</style>
+<style>
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+
+}
+</style>
+<link rel="stylesheet" type="text/css" href="Agda.css" />
 <style>.org-latex-block { margin: auto; } </style>
 </head>
 <body>
@@ -271,8 +333,8 @@ bad. Monads are much easier the understand when viewed as the common abstraction
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span></code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">State</span> s</code>, <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">IO</span></code>,
 <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span> o</code> and <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span> o</code>.
 </p>
-<div id="outline-container-orgceb6c9f" class="outline-2">
-<h2 id="orgceb6c9f"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
+<div id="outline-container-orgf823a7e" class="outline-2">
+<h2 id="orgf823a7e"><span class="section-number-2">1.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code></h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span></code> type is a good place to start. This is the type we use
@@ -396,8 +458,8 @@ becomes
 </div>
 </div>
 </div>
-<div id="outline-container-org6a0612e" class="outline-2">
-<h2 id="org6a0612e"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
+<div id="outline-container-orgf6c0e46" class="outline-2">
+<h2 id="orgf6c0e46"><span class="section-number-2">2.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Either</span> e</code></h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Whereas <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Maybe</span> a</code> means "potentially an <code class="src src-haskell">a</code>",
@@ -423,8 +485,8 @@ The semantics is similar to <code class="src src-haskell"><span style="color: #5
 </p>
 </div>
 </div>
-<div id="outline-container-org91c5f79" class="outline-2">
-<h2 id="org91c5f79"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
+<div id="outline-container-org29a61d6" class="outline-2">
+<h2 id="org29a61d6"><span class="section-number-2">3.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code></h2>
 <div class="outline-text-2" id="text-3">
 <p>
 One might wonder why it would be useful to have <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">List</span></code> as a monad.
@@ -479,8 +541,8 @@ prog
 </pre>
 </div>
 </div>
-<div id="outline-container-org163fb8e" class="outline-2">
-<h2 id="org163fb8e"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
+<div id="outline-container-orgdb1f4e1" class="outline-2">
+<h2 id="orgdb1f4e1"><span class="section-number-2">4.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Writer</span></code></h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Let's say you want to do logging. In an imperative language, you would use
@@ -502,8 +564,8 @@ you do.
 </div>
 </div>
 </div>
-<div id="outline-container-org3546c3a" class="outline-2">
-<h2 id="org3546c3a"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
+<div id="outline-container-orgc1a8562" class="outline-2">
+<h2 id="orgc1a8562"><span class="section-number-2">5.</span> <code class="src src-haskell"><span style="color: #531ab6; font-weight: bold;">Reader</span></code></h2>
 <div class="outline-text-2" id="text-5">
 <p>
 This time, you want to propagate "global variables" though your whole program,
