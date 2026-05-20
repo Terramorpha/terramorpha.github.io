@@ -1,0 +1,847 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>As above, so below: An exploration of the anatomy of a preemptive, asynchronous multitasking system</title>
+<meta name="author" content="Justin Veilleux" />
+<meta name="generator" content="Org Mode" />
+<style type="text/css">
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-c:before { content: 'C'; }
+  pre.src-C:before { content: 'C'; }
+  pre.src-C\+\+:before { content: 'C++'; }
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'JavaScript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+
+<style type="text/css">
+/* Hide footnotes at the bottom */
+#footnotes {
+  display: none;
+}
+
+
+/* Sidenote reference number */
+.sidenote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  cursor: pointer;
+}
+
+/* Sidenote content */
+.sidenote {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Desktop: side margins */
+@media (min-width: 110em) {
+  .sidenote-ref {
+    cursor: default;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 300px;
+    margin-right: -350px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+}
+
+/* Mobile: toggleable boxes */
+@media (max-width: 110em) {
+  .sidenote {
+    display: none;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .sidenote.active {
+    display: block;
+  }
+
+}
+</style>
+<link rel="stylesheet" type="text/css" href="Agda.css" />
+<style type="text/css">.org-latex-block { margin: auto; } </style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">As above, so below: An exploration of the anatomy of a preemptive, asynchronous multitasking system</h1>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(org-babel-tangle-file (buffer-file-name)
+                       <span style="color: #a0132f;">"as-above-so-below.zig"</span>
+                       <span style="color: #a0132f;">"zig"</span>)
+</code></pre>
+</div>
+
+
+<p>
+Most high level programming languages use some kind of run time library. This
+library is responsible for serving as a bridge between the programming
+language&rsquo;s ontological universe and the operating system&rsquo;s and will. Such a run time
+library often provides a set of mutually interdependent functionality.
+</p>
+
+<p>
+A program is a sequence of instructions that either do some computations (normal
+instructions) or invoke system calls, letting them write to disk, to the
+network, to the screen et cetera. Some input/output operations, however, take a
+long time to finish and, if when performed the normal way, will just completely
+block the execution of the process until they complete. Some run time systems
+try to use this &ldquo;wasted time&rdquo; by doing other work while the progam waits for I/O
+to complete. However, without expanding the &ldquo;sequence of instructions&rdquo; computing
+model, it is unclear what that &ldquo;other work&rdquo; might be. Many programming language
+let the user express many independent pieces of computation through some
+task-like abstraction. When many tasks have work that need to be done, one can
+make progress on a second task while the first is blocked by I/O.
+</p>
+
+<p>
+A run time system, because it is reproducing functionality that is similar to
+the operating system&rsquo;s, has very similar organs and by studying (through
+implementation) a run time system, one can better understand the design of
+operating systems.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">std</span> = <span style="color: #721045; font-weight: bold;">@import</span>(<span style="color: #a0132f;">"std"</span>);
+<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">testing</span> = std.testing;
+<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">linux</span> = std.os.linux;
+</code></pre>
+</div>
+<div id="outline-container-orgb9164e1" class="outline-2">
+<h2 id="orgb9164e1"><span class="section-number-2">1.</span> I/O</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The entrance of the rabbit hole we are going to explore is input and output. The
+first thing we want to do is pretty simple, we want to separate the action of
+starting an I/O operation from the part where we wait for it to complete. In
+code, that means somehow turning this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">buffer</span>: [16]<span style="color: #531ab6; font-weight: bold;">u8</span> = <span style="color: #531ab6;">undefined</span>;
+
+<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">n</span> = <span style="color: #005e8b; font-weight: bold;">try</span> std.fs.File.stdin().read(buffer[0..]);
+</code></pre>
+</div>
+
+<p>
+into that:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">buffer</span>: [16]<span style="color: #531ab6; font-weight: bold;">u8</span> = <span style="color: #531ab6;">undefined</span>;
+
+<span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">readOperation</span> = std.fs.File.stdin().readOperation(buffer[0..]);
+
+<span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Do some stuff
+</span>
+<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">n</span> = readOperation.wait();
+</code></pre>
+</div>
+
+<p>
+The API in the second block of code is imaginary, but you get the idea. Why
+would we want to separate the registration of an operation from waiting for its
+completion, though? Because instead of waiting (suspending the process/thread)
+for the operation to complete, you might be interested in doing something more
+useful. The Linux kernel provides multiple syscalls/systems to do this kind of
+separation.
+</p>
+</div>
+<div id="outline-container-org74c0878" class="outline-3">
+<h3 id="org74c0878"><span class="section-number-3">1.1.</span> <code>fcntl</code> and <code>O_NONBLOCK</code></h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+We have a syscall <code>fcntl</code> which lets us modify the configuration associated to a
+file descriptor. In particular, it lets us turn on the <code>O_NONBLOCK</code> option which
+makes every read that would block instead return <code>EAGAIN</code>. You would then have a
+loop that goes through a bunch of those file descriptors and busy waits until
+they are all empty. However, this pattern is inefficient and moreover, it only
+works for networks sockets (and other kinds of file descriptors which have a
+obvious &ldquo;wait for stuff to arrive&rdquo; phases) and will always block on file reads
+even when the hard disk is slow.
+</p>
+</div>
+</div>
+<div id="outline-container-org66982a2" class="outline-3">
+<h3 id="org66982a2"><span class="section-number-3">1.2.</span> <code>poll</code> / <code>epoll</code></h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+If you have a bunch of file descriptors in an array with corresponding
+operations, you might want to iterate through them and try (in a nonblocking
+way) to perform the operations with the previous technique. However, a better
+way would be to use <code>epoll</code> and tell the kernel something like &ldquo;here are a bunch
+of file descriptors I&rsquo;m interested in, wait until something happens to any of
+them&rdquo;. <code>poll</code> operates on an array of file descriptors + metadata (<img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%2722.604686pt%27 height=%2710.962644pt%27 viewBox=%27-.500002 -7.971982 22.604686 10.962644%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g1-40%27 d=%27m3.297634 2.391034c0-.029888 0-.049813-.169365-.219178c-1.24533-1.255293-1.564134-3.138232-1.564134-4.662516c0-1.733499 .37858-3.466999 1.603985-4.712329c.129514-.119552 .129514-.139477 .129514-.169365c0-.069738-.039851-.099626-.099626-.099626c-.099626 0-.996264 .67746-1.58406 1.942715c-.508095 1.09589-.627646 2.201743-.627646 3.038605c0 .777086 .109589 1.982565 .657534 3.108344c.597758 1.225405 1.454545 1.872976 1.554172 1.872976c.059776 0 .099626-.029888 .099626-.099626z%27/%3E%0A%3Cpath id=%27g1-41%27 d=%27m2.879203-2.49066c0-.777086-.109589-1.982565-.657534-3.108344c-.597758-1.225405-1.454545-1.872976-1.554172-1.872976c-.059776 0-.099626 .039851-.099626 .099626c0 .029888 0 .049813 .18929 .229141c.976339 .986301 1.544209 2.570361 1.544209 4.652553c0 1.703611-.368618 3.457036-1.603985 4.712329c-.129514 .119552-.129514 .139477-.129514 .169365c0 .059776 .039851 .099626 .099626 .099626c.099626 0 .996264-.67746 1.58406-1.942715c.508095-1.09589 .627646-2.201743 .627646-3.038605z%27/%3E%0A%3Cpath id=%27g0-79%27 d=%27m7.372354-4.343711c0-1.603985-1.05604-2.67995-2.540473-2.67995c-2.15193 0-4.343711 2.261519-4.343711 4.582814c0 1.653798 1.115816 2.660025 2.550436 2.660025c2.11208 0 4.333748-2.181818 4.333748-4.562889zm-4.273973 4.303861c-.986301 0-1.683686-.806974-1.683686-2.122042c0-.438356 .139477-1.892902 .9066-3.058531c.687422-1.036115 1.663761-1.554172 2.450809-1.554172c.816936 0 1.713574 .557908 1.713574 2.042341c0 .71731-.268991 2.271482-1.255293 3.496887c-.478207 .607721-1.295143 1.195517-2.132005 1.195517z%27/%3E%0A%3Cpath id=%27g0-110%27 d=%27m.876712-.587796c-.029888 .14944-.089664 .37858-.089664 .428394c0 .179328 .139477 .268991 .288917 .268991c.119552 0 .298879-.079701 .368618-.278954c.009963-.019925 .129514-.488169 .18929-.737235l.219178-.896638c.059776-.219178 .119552-.438356 .169365-.667497c.039851-.169365 .119552-.458281 .129514-.498132c.14944-.308842 .67746-1.215442 1.62391-1.215442c.448319 0 .537983 .368618 .537983 .697385c0 .617684-.488169 1.892902-.647572 2.321295c-.089664 .229141-.099626 .348692-.099626 .458281c0 .468244 .348692 .816936 .816936 .816936c.936488 0 1.305106-1.454545 1.305106-1.534247c0-.099626-.089664-.099626-.119552-.099626c-.099626 0-.099626 .029888-.14944 .179328c-.199253 .67746-.52802 1.235367-1.016189 1.235367c-.169365 0-.239103-.099626-.239103-.328767c0-.249066 .089664-.488169 .179328-.707347c.18929-.52802 .607721-1.62391 .607721-2.191781c0-.667497-.428394-1.066002-1.145704-1.066002c-.896638 0-1.384807 .637609-1.554172 .86675c-.049813-.557908-.458281-.86675-.916563-.86675s-.647572 .388543-.747198 .56787c-.159402 .33873-.298879 .926526-.298879 .966376c0 .099626 .099626 .099626 .119552 .099626c.099626 0 .109589-.009963 .169365-.229141c.169365-.707347 .368618-1.185554 .727273-1.185554c.199253 0 .308842 .129514 .308842 .458281c0 .209215-.029888 .318804-.159402 .836862l-.577833 2.30137z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page1%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g0-79%27/%3E%0A%3Cuse x=%277.876015%27 y=%270%27 xlink:href=%27%23g1-40%27/%3E%0A%3Cuse x=%2711.750389%27 y=%270%27 xlink:href=%27%23g0-110%27/%3E%0A%3Cuse x=%2717.730314%27 y=%270%27 xlink:href=%27%23g1-41%27/%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( O(n) \)" style="height: 1.0784em; vertical-align: -0.2942em; display: inline-block" class="org-latex org-latex-inline" />)
+while <code>epoll</code> uses a more efficient data structure, but they are essentially the
+same. you can think of those syscalls as a more efficient implementation of
+looping on file descriptors with <code>O_NONBLOCK</code>, so they inherit the problems of
+this method, amongst other things, they won&rsquo;t let you read asynchronously from
+files.
+</p>
+</div>
+</div>
+<div id="outline-container-org51da6fb" class="outline-3">
+<h3 id="org51da6fb"><span class="section-number-3">1.3.</span> <code>aio_*</code></h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+The <code>aio_*</code> family of syscalls, like the name suggests, actually let you do
+asynchronous I/O instead of just telling you if some kernel buffer associated to
+a socket contains stuff. The api contains those syscalls:
+</p>
+
+<ul class="org-ul">
+<li><code>aio_read()</code>, <code>aio_write()</code> - Start async I/O</li>
+<li><code>aio_suspend()</code> - Wait for completion</li>
+<li><code>aio_error()</code> - Check if operation succeeded</li>
+<li><code>aio_return()</code> - Get result (bytes transferred)</li>
+<li><code>aio_cancel()</code> - Cancel pending operation</li>
+</ul>
+
+<p>
+and they work similar to the imaginary api I motivated this section with.
+<code>aio_suspend</code> even lets you pass multiple events to wait for, at the same time.
+</p>
+</div>
+</div>
+<div id="outline-container-org2cb7f89" class="outline-3">
+<h3 id="org2cb7f89"><span class="section-number-3">1.4.</span> <code>io_uring</code></h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+Modern systems, however, prefer to use the modern linux api <code>io_uring</code> and it is
+this one which we will focus on in this work. the <code>io_uring</code> system, however is
+very complicated. Here is a brief overview of how to work with it:
+</p>
+
+<ol class="org-ol">
+<li>We use <code>io_uring_setup</code> to create a <code>io_uring</code> instance in the kernel and get a
+handle to it.</li>
+<li>We <code>mmap</code> three different regions of memory within the handle. These regions
+are shared with the kernel and contain three things:
+<ol class="org-ol">
+<li>A shared buffer of submission queue entries (<code>io_uring_sqe</code>) which we will
+use to store all the metadata related to operations.</li>
+<li>A shared ring buffer &ndash; the submission queue &ndash; containing indices into
+the buffer of submission queue entries.</li>
+<li>A shared ring buffer &ndash; the completion queue &ndash; containing completion
+queue entries (<code>io_uring_cqe</code>) which hold the information of completed
+operations.</li>
+</ol></li>
+<li>When we want to submit an operation, we choose some slot in the submission
+queue entries buffer, write the operation type, file descriptor and
+associated buffer, then we write the index of this entry into the submission
+queue and finally we call <code>io_uring_submit</code>.</li>
+<li>Operations that complete will be written asynchronously by the kernel into
+the completion queue. If we want to wait for a number of operations to
+complete, we can use <code>io_uring_enter</code>.</li>
+</ol>
+
+<p>
+While this whole setup is a lot more complicated than the previous ones, this
+complexity gets us big efficiency gains. Because we share a slice of memory with
+the kernel and because that specific type of queue can be used without
+synchronization, it is possible for the process-side to poll for completions
+without performing syscalls by just reading the completion queue and checking if
+the length is nonzero.
+</p>
+
+<p>
+Because the <code>io_uring</code> family is the most modern and efficient, it is this one we
+are going to use for our asynchronous I/O.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org449bf43" class="outline-2">
+<h2 id="org449bf43"><span class="section-number-2">2.</span> Task switching</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Writing programs that work directly with the raw async IO primitives is not fun
+and we want to make it more ergonomic to express asynchronous IO. One way of
+doing that is to introduce the concept of tasks, which are independent
+subprograms that perform IO independently. Our system will execute a task until
+it tries to perform an operation and instead of blocking, it will register the
+operation and give control to an other task. At some point, the other task will
+try to perform IO, the first operation will have succeeded and the system will
+cede control again to the first task. We currently know how to use <code>io_uring</code> to
+do IO asynchronously, but we still need to properly define what we mean by a
+&ldquo;task&rdquo; and how we &ldquo;cede control&rdquo; to an other task.
+</p>
+
+<p>
+Let&rsquo;s say we have a way to save and load a program state such that this state
+contains everything important about that program, then we would be able to
+perform a task switch by saving the current state and loading an other state.
+More concretely, if we save the current task&rsquo;s (task <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%278.471999pt%27 height=%277.807787pt%27 viewBox=%27-.500002 -7.307786 8.471999 7.807787%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g0-65%27 d=%27m1.783313-1.145704c-.398506 .667497-.787049 .806974-1.225405 .836862c-.119552 .009963-.209215 .009963-.209215 .199253c0 .059776 .049813 .109589 .129514 .109589c.268991 0 .577833-.029888 .856787-.029888c.328767 0 .67746 .029888 .996264 .029888c.059776 0 .18929 0 .18929-.18929c0-.109589-.089664-.119552-.159402-.119552c-.229141-.019925-.468244-.099626-.468244-.348692c0-.119552 .059776-.229141 .139477-.368618l.757161-1.275218h2.500623c.019925 .209215 .159402 1.564134 .159402 1.663761c0 .298879-.518057 .328767-.71731 .328767c-.139477 0-.239103 0-.239103 .199253c0 .109589 .119552 .109589 .139477 .109589c.408468 0 .836862-.029888 1.24533-.029888c.249066 0 .876712 .029888 1.125778 .029888c.059776 0 .179328 0 .179328-.199253c0-.109589-.099626-.109589-.229141-.109589c-.617684 0-.617684-.069738-.647572-.358655l-.607721-6.22665c-.019925-.199253-.019925-.239103-.18929-.239103c-.159402 0-.199253 .069738-.259029 .169365l-3.466999 5.818182zm1.195517-1.464508l1.96264-3.287671l.318804 3.287671h-2.281445z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page5%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g0-65%27/%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( A \)" style="height: 0.7680em; vertical-align: -0.0492em; display: inline-block" class="org-latex org-latex-inline" />) context somewhere
+(let&rsquo;s say, at global variable <code>ctx_a</code>, then load in task <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%279.056599pt%27 height=%277.807787pt%27 viewBox=%27-.500002 -7.307786 9.056599 7.807787%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g0-66%27 d=%27m1.594022-.777086c-.099626 .388543-.119552 .468244-.9066 .468244c-.169365 0-.268991 0-.268991 .199253c0 .109589 .089664 .109589 .268991 .109589h3.556663c1.574097 0 2.749689-1.175592 2.749689-2.15193c0-.71731-.577833-1.295143-1.544209-1.404732c1.036115-.18929 2.082192-.926526 2.082192-1.872976c0-.737235-.657534-1.374844-1.853051-1.374844h-3.347447c-.18929 0-.288917 0-.288917 .199253c0 .109589 .089664 .109589 .278954 .109589c.019925 0 .209215 0 .37858 .019925c.179328 .019925 .268991 .029888 .268991 .159402c0 .039851-.009963 .069738-.039851 .18929l-1.334994 5.349938zm1.504359-2.86924l.617684-2.470735c.089664-.348692 .109589-.37858 .537983-.37858h1.285181c.876712 0 1.085928 .587796 1.085928 1.026152c0 .876712-.856787 1.823163-2.072229 1.823163h-1.454545zm-.448319 3.337484c-.139477 0-.159402 0-.219178-.009963c-.099626-.009963-.129514-.019925-.129514-.099626c0-.029888 0-.049813 .049813-.229141l.687422-2.779577h1.882939c.956413 0 1.145704 .737235 1.145704 1.165629c0 .986301-.886675 1.952677-2.062267 1.952677h-1.354919z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page4%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g0-66%27/%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( B \)" style="height: 0.7680em; vertical-align: -0.0492em; display: inline-block" class="org-latex org-latex-inline" />&rsquo;s context
+(global variable <code>ctx_b</code>), we can execute task <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%279.056599pt%27 height=%277.807787pt%27 viewBox=%27-.500002 -7.307786 9.056599 7.807787%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g0-66%27 d=%27m1.594022-.777086c-.099626 .388543-.119552 .468244-.9066 .468244c-.169365 0-.268991 0-.268991 .199253c0 .109589 .089664 .109589 .268991 .109589h3.556663c1.574097 0 2.749689-1.175592 2.749689-2.15193c0-.71731-.577833-1.295143-1.544209-1.404732c1.036115-.18929 2.082192-.926526 2.082192-1.872976c0-.737235-.657534-1.374844-1.853051-1.374844h-3.347447c-.18929 0-.288917 0-.288917 .199253c0 .109589 .089664 .109589 .278954 .109589c.019925 0 .209215 0 .37858 .019925c.179328 .019925 .268991 .029888 .268991 .159402c0 .039851-.009963 .069738-.039851 .18929l-1.334994 5.349938zm1.504359-2.86924l.617684-2.470735c.089664-.348692 .109589-.37858 .537983-.37858h1.285181c.876712 0 1.085928 .587796 1.085928 1.026152c0 .876712-.856787 1.823163-2.072229 1.823163h-1.454545zm-.448319 3.337484c-.139477 0-.159402 0-.219178-.009963c-.099626-.009963-.129514-.019925-.129514-.099626c0-.029888 0-.049813 .049813-.229141l.687422-2.779577h1.882939c.956413 0 1.145704 .737235 1.145704 1.165629c0 .986301-.886675 1.952677-2.062267 1.952677h-1.354919z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page4%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g0-66%27/%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( B \)" style="height: 0.7680em; vertical-align: -0.0492em; display: inline-block" class="org-latex org-latex-inline" /> for some time, then go back
+to executing task <img src="data:image/svg+xml,%3C%3Fxml version=%271.0%27 encoding=%27UTF-8%27%3F%3E%0A%3C%21-- This file was generated by dvisvgm 3.4.3 --%3E%0A%3Csvg version=%271.1%27 xmlns=%27http://www.w3.org/2000/svg%27 xmlns:xlink=%27http://www.w3.org/1999/xlink%27 width=%278.471999pt%27 height=%277.807787pt%27 viewBox=%27-.500002 -7.307786 8.471999 7.807787%27%3E%0A%3Cdefs%3E%0A%3Cpath id=%27g0-65%27 d=%27m1.783313-1.145704c-.398506 .667497-.787049 .806974-1.225405 .836862c-.119552 .009963-.209215 .009963-.209215 .199253c0 .059776 .049813 .109589 .129514 .109589c.268991 0 .577833-.029888 .856787-.029888c.328767 0 .67746 .029888 .996264 .029888c.059776 0 .18929 0 .18929-.18929c0-.109589-.089664-.119552-.159402-.119552c-.229141-.019925-.468244-.099626-.468244-.348692c0-.119552 .059776-.229141 .139477-.368618l.757161-1.275218h2.500623c.019925 .209215 .159402 1.564134 .159402 1.663761c0 .298879-.518057 .328767-.71731 .328767c-.139477 0-.239103 0-.239103 .199253c0 .109589 .119552 .109589 .139477 .109589c.408468 0 .836862-.029888 1.24533-.029888c.249066 0 .876712 .029888 1.125778 .029888c.059776 0 .179328 0 .179328-.199253c0-.109589-.099626-.109589-.229141-.109589c-.617684 0-.617684-.069738-.647572-.358655l-.607721-6.22665c-.019925-.199253-.019925-.239103-.18929-.239103c-.159402 0-.199253 .069738-.259029 .169365l-3.466999 5.818182zm1.195517-1.464508l1.96264-3.287671l.318804 3.287671h-2.281445z%27/%3E%0A%3C/defs%3E%0A%3Cg id=%27page5%27%3E%0A%3Cuse x=%270%27 y=%270%27 xlink:href=%27%23g0-65%27/%3E%0A%3C/g%3E%0A%3C/svg%3E" alt="\( A \)" style="height: 0.7680em; vertical-align: -0.0492em; display: inline-block" class="org-latex org-latex-inline" /> by loading the context from <code>ctx_a</code>. In other words,
+here is what we want our task switching API will look like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">Task</span> = <span style="color: #005e8b; font-weight: bold;">struct</span> {
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...
+</span>
+    <span style="color: #005e8b; font-weight: bold;">fn</span> <span style="color: #8f0075;">switchTo</span>(me: *<span style="color: #721045; font-weight: bold;">@This</span>(), <span style="color: #3548cf;">new</span>: *<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #721045; font-weight: bold;">@This</span>()) <span style="color: #531ab6; font-weight: bold;">void</span> {
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">...
+</span>    }
+};
+</code></pre>
+</div>
+
+<p>
+To a first approximation, the state of a program is just the values of all the
+registers of the CPU. In theory, if we saved the state of all the registers it
+would be sufficient to resume execution later in the correct state. However,
+when we only wish to switch tasks at certain points in the program &ndash; let&rsquo;s say,
+at a function call boundary &ndash; we don&rsquo;t actually need to save all of them. The
+system V calling convention divides all the cpu registers into two categories,
+those that should be saved by the caller and those that should be conserved by
+the callee. This categorization makes it so that the assembly associated to a
+function that has just been called knows exactly which registers it can use for
+computation (registers it can clobber the values of as much as it wants) and
+which registers it must keep the values of.
+</p>
+
+<p>
+Those callee-saved registers are:
+</p>
+
+<ul class="org-ul">
+<li><code>rsp</code> is the stack pointer. When the function returns, the stack pointer must
+have the same value as just before the function was called.</li>
+<li><code>rbp</code> is the base pointer. If the callee modifies this register (to use its own
+stack frame), it will need to remember the old value.</li>
+</ul>
+
+<p>
+The rest are general purpose
+</p>
+
+<ul class="org-ul">
+<li><code>rbx</code></li>
+<li><code>r12</code></li>
+<li><code>r13</code></li>
+<li><code>r14</code></li>
+<li><code>r15</code></li>
+</ul>
+
+<p>
+Okay, so we know that what we need to save is exactly the callee-saved registers
+under the system V abi, but how do we save those registers, exactly?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">Context</span> = <span style="color: #005e8b; font-weight: bold;">extern</span> <span style="color: #005e8b; font-weight: bold;">struct</span> {
+    <span style="color: #3548cf;">rsp</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+    <span style="color: #3548cf;">rbp</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+    <span style="color: #3548cf;">rbx</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+    <span style="color: #3548cf;">r12</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+    <span style="color: #3548cf;">r13</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+    <span style="color: #3548cf;">r14</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+    <span style="color: #3548cf;">r15</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+};
+</code></pre>
+</div>
+
+<p>
+It is rare in programming that we actually need to operate at the level of
+registers (even when doing low-level systems programming), but it is the case
+here. Most low level languages let you write assembly inside your program and
+Zig does too.
+</p>
+
+<p>
+Assuming that:
+</p>
+
+<ul class="org-ul">
+<li>The <code>%rdi</code> register is the address where we want to save the current context.</li>
+<li>The <code>%rsi</code> register is the address from which we want to load the context.</li>
+</ul>
+
+<p>
+the following piece of assembly will save the current context, then immediately
+load the next one.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">fn</span> <span style="color: #8f0075;">swapContextAsm</span>() <span style="color: #005e8b; font-weight: bold;">callconv</span>(.naked) <span style="color: #531ab6; font-weight: bold;">void</span> {
+    <span style="color: #005e8b; font-weight: bold;">asm</span> <span style="color: #005e8b; font-weight: bold;">volatile</span> (
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Save current context (old is in %rdi, new is in %rsi per C ABI)
+</span>        <span style="color: #a0132f;">\\movq %%rsp, %[rsp_offset:c](%%rdi)</span>
+        <span style="color: #a0132f;">\\movq %%rbp, %[rbp_offset:c](%%rdi)</span>
+        <span style="color: #a0132f;">\\movq %%rbx, %[rbx_offset:c](%%rdi)</span>
+        <span style="color: #a0132f;">\\movq %%r12, %[r12_offset:c](%%rdi)</span>
+        <span style="color: #a0132f;">\\movq %%r13, %[r13_offset:c](%%rdi)</span>
+        <span style="color: #a0132f;">\\movq %%r14, %[r14_offset:c](%%rdi)</span>
+        <span style="color: #a0132f;">\\movq %%r15, %[r15_offset:c](%%rdi)</span>
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Load new context
+</span>        <span style="color: #a0132f;">\\movq %[rsp_offset:c](%%rsi), %%rsp</span>
+        <span style="color: #a0132f;">\\movq %[rbp_offset:c](%%rsi), %%rbp</span>
+        <span style="color: #a0132f;">\\movq %[rbx_offset:c](%%rsi), %%rbx</span>
+        <span style="color: #a0132f;">\\movq %[r12_offset:c](%%rsi), %%r12</span>
+        <span style="color: #a0132f;">\\movq %[r13_offset:c](%%rsi), %%r13</span>
+        <span style="color: #a0132f;">\\movq %[r14_offset:c](%%rsi), %%r14</span>
+        <span style="color: #a0132f;">\\movq %[r15_offset:c](%%rsi), %%r15</span>
+        <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">return
+</span>        <span style="color: #a0132f;">\\  retq</span>
+        :
+        : [rsp_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"rsp"</span>)),
+          [rbp_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"rbp"</span>)),
+          [rbx_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"rbx"</span>)),
+          [r12_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"r12"</span>)),
+          [r13_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"r13"</span>)),
+          [r14_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"r14"</span>)),
+          [r15_offset] <span style="color: #a0132f;">"i"</span> (<span style="color: #721045; font-weight: bold;">@offsetOf</span>(Context, <span style="color: #a0132f;">"r15"</span>)),
+        : .{ .memory = <span style="color: #531ab6;">true</span> });
+}
+</code></pre>
+</div>
+
+
+<p>
+Now, the astute reader might say: &ldquo;but when we load the context, how will the
+code know what instruction pointer to use&rdquo;? If we arrange for every context to
+be captured exclusively after a <code>callq</code> instruction, then the stack pointer of a
+context will point (the first item on the stack) to the return address of the
+<code>call</code> instruction. We specify the calling convention to be <code>.naked</code> specifically so
+that the compiler doesn&rsquo;t generate a preamble that would mess up a bunch of
+registers and break our &ldquo;return address is on top of the stack&rdquo; invariant.
+Having a <code>.naked</code> convention also forces us to call this piece of code from
+assembly which motivates the following wrapper function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">fn</span> <span style="color: #8f0075;">swapContext</span>(<span style="color: #3548cf;">old</span>: *<span style="color: #531ab6; font-weight: bold;">Context</span>, <span style="color: #3548cf;">new</span>: *<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #531ab6; font-weight: bold;">Context</span>) <span style="color: #531ab6; font-weight: bold;">void</span> {
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">After loading the address
+</span>    <span style="color: #005e8b; font-weight: bold;">asm</span> <span style="color: #005e8b; font-weight: bold;">volatile</span> (
+        <span style="color: #a0132f;">\\ callq %[asmCode]</span>
+        :
+        : [_] <span style="color: #a0132f;">"{rdi}"</span> (old),
+          [_] <span style="color: #a0132f;">"{rsi}"</span> (new),
+          [asmCode] <span style="color: #a0132f;">"r"</span> (&amp;swapContextAsm),
+        : .{ .memory = <span style="color: #531ab6;">true</span> });
+}
+</code></pre>
+</div>
+
+<p>
+The problem we have, however, is that even if our <code>zsh:1: command not found: zig</code> primitive
+works, we still need a second context to use it with. This time, we will be
+creating a context from scratch, using a given slice of memory as the stack and
+taking some given function as an entrypoint. The challenge here, will be setting
+up everything correctly.
+</p>
+
+<p>
+The main constraint is that the newly created context should have an instruction
+pointer which resumes execution as its first item. One idea would be to stick
+the address of the function we want to call in the top slot of the stack, but it
+won&rsquo;t work, because we want to pass an argument to the function and our context
+doesn&rsquo;t capture the argument holding registers. The way we are going to solve
+this is through a &ldquo;trampoline&rdquo; which will receive all the data on the stack,
+will set the correct registers from this data and finally will jump to the
+function.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">fn</span> <span style="color: #8f0075;">initContext</span>(
+    <span style="color: #3548cf;">stack</span>: []<span style="color: #531ab6; font-weight: bold;">u8</span>,
+    <span style="color: #3548cf;">func</span>: *<span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #005e8b; font-weight: bold;">fn</span> (<span style="color: #531ab6; font-weight: bold;">usize</span>) <span style="color: #005e8b; font-weight: bold;">callconv</span>(.c) <span style="color: #531ab6; font-weight: bold;">noreturn</span>,
+    <span style="color: #3548cf;">data</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>,
+) Context {
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The stack grows downwards, so the pointer must point to the end
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">address (exclusive) of the valid range. It must also be
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">word-aligned, so we mask out the last four bits of the end
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">address.
+</span>
+    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">start_addr</span>: <span style="color: #531ab6; font-weight: bold;">usize</span> = <span style="color: #721045; font-weight: bold;">@intFromPtr</span>(stack.ptr);
+    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">end_addr</span>: <span style="color: #531ab6; font-weight: bold;">usize</span> = start_addr + stack.len;
+    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">aligned_end_addr</span> = end_addr &amp; ~<span style="color: #721045; font-weight: bold;">@as</span>(<span style="color: #531ab6; font-weight: bold;">usize</span>, 0b1111);
+    <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">stack_pointer</span>: [*]<span style="color: #531ab6; font-weight: bold;">usize</span> = <span style="color: #721045; font-weight: bold;">@ptrFromInt</span>(aligned_end_addr);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">Because the stack grows downwards, %rsp always points to the
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">beginning address of the top element. To push something on the
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">stack, we must therefore decrement the pointer by the size of
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">the thing we want to push, then write the thing at that new
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">address.
+</span>
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">On the bottom of the stack, we write the address of the code we
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">want to be executed.
+</span>    stack_pointer -= 1;
+    stack_pointer[0] = <span style="color: #721045; font-weight: bold;">@intFromPtr</span>(func);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">In the middle, we write the userdata (a single machine word).
+</span>    stack_pointer -= 1;
+    stack_pointer[0] = data;
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">On top of the stack, we write the address of the trampoline.
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">This element will be popped by the `ret` instruction as soon as
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">the context is loaded for the first time.
+</span>    stack_pointer -= 1;
+    stack_pointer[0] = <span style="color: #721045; font-weight: bold;">@intFromPtr</span>(&amp;initContextTrampoline);
+
+    <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">ctx</span> = std.mem.zeroes(Context);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The only nonzero register here is the stack pointer, the rest
+</span>    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">will be set up by the trampoline.
+</span>    ctx.rsp = <span style="color: #721045; font-weight: bold;">@intFromPtr</span>(stack_pointer);
+
+    <span style="color: #005e8b; font-weight: bold;">return</span> ctx;
+}
+</code></pre>
+</div>
+
+<p>
+This code sets up a stack such that we have the following layout (remember: the
+&ldquo;top&rdquo; of the stack is the bottom most address):
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">func</td>
+</tr>
+
+<tr>
+<td class="org-left">data</td>
+</tr>
+
+<tr>
+<td class="org-left">trampoline</td>
+</tr>
+</tbody>
+</table>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">fn</span> <span style="color: #8f0075;">initContextTrampoline</span>() <span style="color: #005e8b; font-weight: bold;">callconv</span>(.naked) <span style="color: #531ab6; font-weight: bold;">void</span> {
+    <span style="color: #005e8b; font-weight: bold;">asm</span> <span style="color: #005e8b; font-weight: bold;">volatile</span> (
+        <span style="color: #a0132f;">\\ pop %%rdi</span>
+        <span style="color: #a0132f;">\\ pop %%rsi</span>
+        <span style="color: #a0132f;">\\ callq %%rsi</span>
+        ::: .{});
+}
+</code></pre>
+</div>
+
+<p>
+Here, we load <code>data</code> into <code>%rdi</code>, <code>func</code> into <code>%rsi</code> and we jump to the address at <code>%rsi</code>.
+An important detail to notice here is the fact that we required <code>func</code> to use the
+<code>.c</code> calling convention. This calling convention demands that the first argument
+of a function be passed through the <code>%rdi</code> register, and it is this guarantee that
+makes it possible to properly pass an argument to <code>func</code> from the inline assembly.
+</p>
+
+<p>
+Now, let&rsquo;s play with our Context primitive. The workflow is going to look like this:
+</p>
+
+<ol class="org-ol">
+<li>Allocate the memory for the stack. It can be in the heap, or on the stack
+itself, but it should be big enough so that you don&rsquo;t overflow it.</li>
+<li>Initialize a &ldquo;child context&rdquo; with that stack memory. Pass a function pointer
+together with a pointer to everything that function needs to work.</li>
+<li><code>swapContext</code> to that child context and save the parent context somewhere.</li>
+<li>When the child has executed, it should give the control back to an other
+context. The <code>noreturn</code> enforces that the function never returns, because if it
+did (say, if the return type was <code>void)</code>, it would try to read a return address
+just after the end of its allocated stack, would read garbage, would try to
+jump to garbage and would segault. This would be bad, so instead, we use the
+type system to enforce that the function should take care of itself.</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">test</span> <span style="color: #a0132f;">"Context"</span> {
+    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">C</span> = <span style="color: #005e8b; font-weight: bold;">struct</span> {
+        <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">parent_context</span>: <span style="color: #531ab6; font-weight: bold;">Context</span> = <span style="color: #531ab6;">undefined</span>;
+        <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">child_context</span>: <span style="color: #531ab6; font-weight: bold;">Context</span> = <span style="color: #531ab6;">undefined</span>;
+        <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">flag</span>: <span style="color: #531ab6; font-weight: bold;">bool</span> = <span style="color: #531ab6;">false</span>;
+
+        <span style="color: #005e8b; font-weight: bold;">fn</span> <span style="color: #8f0075;">func</span>(<span style="color: #3548cf;">_</span>: <span style="color: #531ab6; font-weight: bold;">usize</span>) <span style="color: #005e8b; font-weight: bold;">callconv</span>(.c) <span style="color: #531ab6; font-weight: bold;">noreturn</span> {
+            flag = <span style="color: #531ab6;">true</span>;
+            swapContext(&amp;child_context, &amp;parent_context);
+            <span style="color: #005e8b; font-weight: bold;">unreachable</span>;
+        }
+    };
+
+    <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">stack</span>: [1 &lt;&lt; 20]<span style="color: #531ab6; font-weight: bold;">u8</span> = <span style="color: #531ab6;">undefined</span>;
+
+    C.child_context = initContext(stack[0..], C.func, 0);
+
+    swapContext(&amp;C.parent_context, &amp;C.child_context);
+
+    <span style="color: #005e8b; font-weight: bold;">try</span> testing.expect(C.flag);
+}
+</code></pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org9ad8e40" class="outline-2">
+<h2 id="org9ad8e40"><span class="section-number-2">3.</span> Asynchronous IO ❤️ task switching</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Now that we have primitives that let you create multiple program contexts and
+switch between them, let&rsquo;s use it in tandem with the <code>io_uring</code> system to truly
+make asynchronous IO seamless.
+</p>
+</div>
+<div id="outline-container-org450d92d" class="outline-3">
+<h3 id="org450d92d"><span class="section-number-3">3.1.</span> Zig&rsquo;s IoUring implementation</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+The Zig standard library contains code that manages the <code>io_uring</code> memory maps for
+us, so we can quickly get to use it. Here is what the workflow of using <code>IoUring</code>
+looks like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zig"><code><span style="color: #005e8b; font-weight: bold;">test</span> <span style="color: #a0132f;">"IoUring"</span> {
+    <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">uring</span>: <span style="color: #531ab6; font-weight: bold;">linux.IoUring</span> = <span style="color: #005e8b; font-weight: bold;">try</span> .init(1 &lt;&lt; 5, 0);
+    <span style="color: #005e8b; font-weight: bold;">defer</span> uring.deinit();
+
+    <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">fds</span>: [2]<span style="color: #531ab6; font-weight: bold;">linux.fd_t</span> = <span style="color: #531ab6;">undefined</span>;
+
+    _ = linux.pipe(&amp;fds);
+
+    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">can_read</span> = fds[0];
+    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">can_write</span> = fds[1];
+
+    <span style="color: #005e8b; font-weight: bold;">var</span> <span style="color: #3548cf;">buffer</span>: [16]<span style="color: #531ab6; font-weight: bold;">u8</span> = <span style="color: #531ab6;">undefined</span>;
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We queue a bunch of operations
+</span>    _ = <span style="color: #005e8b; font-weight: bold;">try</span> uring.read(12345, can_read, .{ .buffer = buffer[0..] }, 0);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We submit the operations in a single call.
+</span>    _ = <span style="color: #005e8b; font-weight: bold;">try</span> uring.submit();
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The other side of the socket writes
+</span>    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">test_string</span> = <span style="color: #a0132f;">"this is a test"</span>;
+
+    _ = linux.write(can_write, test_string, test_string.len);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">We wait for something to happen
+</span>    _ = <span style="color: #005e8b; font-weight: bold;">try</span> uring.enter(0, 1, 0);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">For all the completed operations, we look at the results...
+</span>    <span style="color: #005e8b; font-weight: bold;">const</span> <span style="color: #3548cf;">cqe</span> = <span style="color: #005e8b; font-weight: bold;">try</span> uring.copy_cqe();
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The user data attached to the operation should be the right one
+</span>    <span style="color: #005e8b; font-weight: bold;">try</span> testing.expectEqual(12345, cqe.user_data);
+
+    <span style="color: #595959; font-style: italic;">// </span><span style="color: #595959; font-style: italic;">The read operation should have completed (with the right )
+</span>    <span style="color: #005e8b; font-weight: bold;">try</span> testing.expectEqualStrings(test_string, buffer[0..<span style="color: #721045; font-weight: bold;">@intCast</span>(cqe.res)]);
+}
+</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org5150555" class="outline-2">
+<h2 id="org5150555"><span class="section-number-2">4.</span> Preemption</h2>
+</div>
+
+<div id="outline-container-orgee98959" class="outline-2">
+<h2 id="orgee98959"><span class="section-number-2">5.</span> Parallelism</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Justin Veilleux</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
